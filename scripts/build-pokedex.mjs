@@ -268,7 +268,7 @@ async function main() {
       const p = byId[r.speciesId], card = cards[r.speciesId.replace(/_shadow$/, "")];
       const ms = r.moveset || [];
       return { id: card.id, n: card.ko, tg: isShadow(p) ? ["s"] : [], mv: ms.map(m => mvName(p, m)).join(" · "),
-        score: +(+r.score).toFixed(1), sp: r.stats?.product ? Math.round(r.stats.product / 1000) : null, rating: r.rating ?? null };
+        score: +(+r.score).toFixed(1), sp: r.stats?.product ? Math.round(r.stats.product) : null, rating: r.rating ?? null };
     }).slice(0, LIMIT_PVP);
   });
 

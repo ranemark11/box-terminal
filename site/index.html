@@ -182,7 +182,7 @@ td.num.sorted{color:var(--amber)}
 </head>
 <body>
 <div class="device">
-  <div class="top"><div class="led"></div><button class="brand" data-go="home">BOX TERMINAL<small>v0.3</small></button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="home">BOX TERMINAL<small>v0.4</small></button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="home">홈</button>
     <button data-go="card">카드 검색</button>
@@ -263,278 +263,17 @@ const ICON = {
 };
 const svg = (t,c)=>`<svg viewBox="0 0 24 24" style="color:${c||TC[t]}" aria-hidden="true">${ICON[t]}</svg>`;
 
-// ===== 기술 [이름, 타입, 위력, 에너지, 시간(초)] — 노말기는 에너지 획득, 스킬은 에너지 소모 =====
-const F = {
- DT:["드래곤테일","dragon",15,9,1.1], DB:["용의숨결","dragon",6,4,0.5],
- FF:["불꽃엄니","fire",12,8,0.9], FS:["회오리불꽃","fire",14,10,1.1],
- WF:["폭포오르기","water",16,8,1.2], WG:["물대포","water",5,5,0.5],
- VW:["덩굴채찍","grass",7,6,0.6], RL:["잎날가르기","grass",13,7,1.0], BS:["씨기관총","grass",8,14,1.1],
- TS:["전기쇼크","electric",5,8,0.6], CB:["차지빔","electric",8,15,1.1], VS:["볼트체인지","electric",14,21,2.3],
- SP:["스파크","electric",6,9,0.7], TF:["번개엄니","electric",12,16,1.2],
- CO:["카운터","fighting",12,8,0.9], DK:["두번치기","fighting",8,12,1.0],
- SC:["섀도크루","ghost",9,6,0.7], HX:["병상첨병","ghost",10,15,1.2], AS:["놀래키기","ghost",8,14,1.1],
- MS:["머드숏","ground",5,7,0.6], MSL:["진흙뿌리기","ground",15,12,1.4],
- SD:["떨어뜨리기","rock",16,8,1.2], RT:["돌떨구기","rock",12,7,0.9],
- PS:["눈싸라기","ice",6,15,1.0], IS:["얼음뭉치","ice",12,12,1.2], FB:["얼음숨결","ice",10,8,0.9], IF:["얼음엄니","ice",12,20,1.5],
- CF:["염동력","psychic",20,15,1.6], ZH:["사념의박치기","psychic",12,10,1.1],
- PJ:["독찌르기","poison",10,7,0.8],
- AIR:["에어슬래시","flying",14,10,1.2], PK:["쪼기","flying",10,10,1.0], WA:["날개치기","flying",8,9,0.8], GU:["바람일으키기","flying",25,20,2.0],
- BB:["벌레먹기","bug",5,6,0.5], FC:["연속자르기","bug",3,6,0.4], SB:["벌레의저항","bug",15,15,1.5],
- BP:["불릿펀치","steel",9,10,0.9], MC:["메탈크로우","steel",8,7,0.7],
- CH:["애교부리기","fairy",20,11,1.5],
- SN:["바크아웃","dark",12,13,1.1], BI:["물기","dark",6,4,0.5],
- LI:["핥기","ghost",5,6,0.5], PO:["막치기","normal",7,6,0.6], LO:["록온","normal",1,6,0.3]
-};
-const C = {
- OUT:["역린","dragon",110,50,3.9], DC:["드래곤크루","dragon",50,33,1.7], DM:["용성군","dragon",150,100,3.6], BSW:["브레이킹스위프","dragon",50,33,2.2],
- OH:["오버히트","fire",160,100,4.0], BLB:["블래스트번","fire",110,50,3.3], FT:["화염방사","fire",70,50,2.2],
- HC:["하이드로캐논","water",90,50,1.9], HP:["하이드로펌프","water",130,100,3.3], OP:["근원의파동","water",130,100,1.7], SU:["파도타기","water",65,50,1.7],
- FP:["하드플랜트","grass",100,50,2.6], LB:["리프블레이드","grass",70,33,2.4], PW:["파워휩","grass",90,50,2.6], GK:["풀묶기","grass",90,50,2.6],
- WC:["와일드볼트","electric",100,50,2.6], TB:["10만볼트","electric",80,50,2.5], DI:["방전","electric",65,33,2.5],
- AU:["파동탄","fighting",90,50,1.8], DP:["폭발펀치","fighting",90,50,2.7], SS:["성스러운칼","fighting",60,33,1.2], FBL:["기합구슬","fighting",140,100,3.5], CC:["인파이트","fighting",100,100,2.3],
- SHB:["섀도볼","ghost",100,50,3.0],
- PB:["단애의칼","ground",130,100,1.7], EP:["대지의힘","ground",100,50,3.6], DR:["드릴라이너","ground",80,50,2.8], EQ:["지진","ground",140,100,3.6],
- RS:["스톤샤워","rock",80,50,2.7], SE:["스톤에지","rock",100,50,2.3], RW:["락블라스트","rock",110,50,3.6],
- AV:["눈사태","ice",90,50,2.7],
- PSY:["사이코브레이크","psychic",90,50,4.4], FUT:["미래예지","psychic",120,100,2.7], PSC:["사이코키네시스","psychic",90,50,2.8],
- SLB:["오물폭탄","poison",80,50,2.3],
- DA:["화룡점정","flying",150,100,3.5], BRB:["브레이브버드","flying",130,100,2.0], SKY:["불새","flying",75,50,2.0], HUR:["폭풍","flying",110,100,2.7],
- MH:["메가혼","bug",110,100,2.2], XS:["시저크로스","bug",45,50,1.6], BZ:["벌레의야단법석","bug",100,50,3.7],
- MM:["코멧펀치","steel",100,50,2.6], IH:["아이언헤드","steel",70,50,1.9], FCN:["러스터캐논","steel",110,100,2.7],
- DG:["매지컬샤인","fairy",110,100,3.5],
- DKP:["악의파동","dark",80,50,3.0], BRS:["친구막치기","dark",65,33,1.9], FPL:["속임수","dark",70,50,2.0],
- HB:["파괴광선","normal",150,100,3.8]
-};
 
-// ===== 포켓몬 [이름, 타입, 공, 방, 체, 플래그] 플래그: m=메가/원시, s=그림자 있음 =====
-const M = {
- rayquaza:["레쿠쟈",["dragon","flying"],284,170,213,""], mrayquaza:["메가레쿠쟈",["dragon","flying"],377,210,233,"m"],
- garchomp:["한카리아스",["dragon","ground"],261,193,239,"s"], mgarchomp:["메가한카리아스",["dragon","ground"],339,222,239,"m"],
- salamence:["보만다",["dragon","flying"],277,168,216,"s"], msalamence:["메가보만다",["dragon","flying"],310,251,216,"m"],
- dragonite:["망나뇽",["dragon","flying"],263,198,209,"s"], palkia:["펄기아",["water","dragon"],280,215,189,""],
- dialga:["디아루가",["steel","dragon"],275,211,205,""], zekrom:["제크로무",["dragon","electric"],275,211,205,""],
- reshiram:["레시라무",["dragon","fire"],275,211,205,""], haxorus:["액스라이즈",["dragon"],284,172,183,""],
- dragapult:["드래펄트",["dragon","ghost"],266,170,200,""], kyuremB:["블랙큐레무",["dragon","ice"],310,183,245,""],
- charizard:["리자몽",["fire","flying"],223,173,186,"s"], mcharizardy:["메가리자몽Y",["fire","flying"],319,212,186,"m"],
- blaziken:["번치코",["fire","fighting"],240,141,190,"s"], mblaziken:["메가번치코",["fire","fighting"],329,168,190,"m"],
- chandelure:["샹델라",["ghost","fire"],271,182,155,"s"], heatran:["히드런",["fire","steel"],251,213,209,"s"],
- moltres:["파이어",["fire","flying"],251,181,207,"s"], volcarona:["불카모스",["bug","fire"],264,189,198,""],
- mhoundoom:["메가헬가",["dark","fire"],289,194,181,"m"],
- kyogre:["가이오가",["water"],270,228,205,""], pkyogre:["원시가이오가",["water"],353,268,205,"m"],
- swampert:["대짱이",["water","ground"],208,175,225,"s"], mswampert:["메가대짱이",["water","ground"],283,218,225,"m"],
- feraligatr:["장크로다일",["water"],205,188,198,"s"], gyarados:["갸라도스",["water","flying"],237,186,216,"s"],
- mgyarados:["메가갸라도스",["water","dark"],292,247,216,"m"], inteleon:["인텔리레온",["water"],262,142,172,""],
- kartana:["종이신도",["grass","steel"],323,182,139,""], zarude:["자루도",["dark","grass"],242,215,233,""],
- sceptile:["나무킹",["grass"],223,169,172,"s"], msceptile:["메가나무킹",["grass","dragon"],320,186,172,"m"],
- roserade:["로즈레이드",["grass","poison"],243,185,155,"s"], venusaur:["이상해꽃",["grass","poison"],198,189,190,"s"],
- mvenusaur:["메가이상해꽃",["grass","poison"],241,246,190,"m"], rillaboom:["고릴타",["grass"],239,168,225,""],
- xurkitree:["전수목",["electric"],330,144,195,""], thundurusT:["볼트로스(영물)",["electric","flying"],295,161,188,""],
- electivire:["에레키블",["electric"],249,163,181,"s"], mmanectric:["메가썬더볼트",["electric"],286,179,172,"m"],
- raikou:["라이코",["electric"],241,195,207,"s"], magnezone:["자포코일",["electric","steel"],238,205,172,"s"],
- terrakion:["테라키온",["rock","fighting"],260,192,209,""], lucario:["루카리오",["fighting","steel"],236,144,172,""],
- mlucario:["메가루카리오",["fighting","steel"],310,175,172,"m"], machamp:["괴력몬",["fighting"],234,159,207,"s"],
- conkeldurr:["노보청",["fighting"],243,158,233,""], mheracross:["메가헤라크로스",["bug","fighting"],334,223,190,"m"],
- toxicroak:["독개굴",["poison","fighting"],211,133,195,"s"],
- gengar:["팬텀",["ghost","poison"],261,149,155,"s"], mgengar:["메가팬텀",["ghost","poison"],349,199,155,"m"],
- giratinaO:["기라티나(오리진)",["ghost","dragon"],225,187,284,""],
- groudon:["그란돈",["ground"],270,228,205,""], pgroudon:["원시그란돈",["ground","fire"],353,268,205,"m"],
- excadrill:["몰드류",["ground","steel"],255,129,242,"s"], landorusT:["랜드로스(영물)",["ground","flying"],289,179,205,"s"],
- rhyperior:["거대코뿌리",["ground","rock"],241,190,251,"s"],
- rampardos:["램펄드",["rock"],295,109,219,"s"], tyranitar:["마기라스",["rock","dark"],251,207,225,"s"],
- mtyranitar:["메가마기라스",["rock","dark"],309,276,225,"m"], mdiancie:["메가디안시",["rock","fairy"],342,235,137,"m"],
- mamoswine:["맘모꾸리",["ice","ground"],247,146,242,"s"], weavile:["포푸니라",["dark","ice"],243,171,172,"s"],
- glaceon:["글레이시아",["ice"],238,205,163,""], mglalie:["메가얼음귀신",["ice"],252,168,190,"m"],
- gdarmanitan:["가라르 불비달마",["ice"],323,123,233,""],
- mewtwo:["뮤츠",["psychic"],300,182,214,"s"], alakazam:["후딘",["psychic"],271,167,146,"s"],
- malakazam:["메가후딘",["psychic"],367,207,146,"m"], espeon:["에브이",["psychic"],261,175,163,""],
- hoopaU:["후파(굴레를 벗어난 모습)",["psychic","dark"],311,191,173,""], metagross:["메타그로스",["steel","psychic"],257,228,190,"s"],
- mgardevoir:["메가가디안",["psychic","fairy"],326,229,169,"m"], gardevoir:["가디안",["psychic","fairy"],237,195,169,"s"],
- nihilego:["텅비드",["rock","poison"],249,210,240,""], mbeedrill:["메가독침붕",["bug","poison"],303,148,163,"m"],
- honchkrow:["돈크로우",["dark","flying"],243,103,225,"s"], staraptor:["찌르호크",["normal","flying"],234,140,198,"s"],
- yveltal:["이벨타르",["dark","flying"],250,185,246,""], tornadusT:["토네로스(영물)",["flying"],238,189,188,""],
- mpinsir:["메가쁘사이저",["bug","flying"],305,231,163,"m"], pheromosa:["페로코체",["bug","fighting"],316,85,174,""],
- escavalier:["슈바르고",["bug","steel"],223,187,172,""], scizor:["핫삼",["bug","steel"],236,181,172,"s"],
- zacianC:["자시안(검왕)",["fairy","steel"],332,240,192,""],
- togekiss:["토게키스",["fairy","flying"],225,217,198,""],
- darkrai:["다크라이",["dark"],285,198,172,""], hydreigon:["삼삼드래",["dark","dragon"],256,188,211,"s"],
- snorlax:["잠만보",["normal"],190,169,330,"s"], mlopunny:["메가이어롭",["normal","fighting"],282,214,163,"m"],
- porygonz:["폴리곤Z",["normal"],264,150,198,"s"]
-};
-
-// ===== 타입별 후보 [포켓몬, 노말기, 스킬] =====
-const LIST = {
- dragon:[["rayquaza","DT","OUT"],["mrayquaza","DT","OUT"],["garchomp","DT","OUT"],["mgarchomp","DT","OUT"],["salamence","DT","OUT"],["msalamence","DT","OUT"],["dragonite","DT","OUT"],["palkia","DB","DM"],["dialga","DB","DM"],["zekrom","DB","OUT"],["reshiram","DB","OUT"],["haxorus","DT","DC"],["dragapult","DT","BSW"],["kyuremB","DT","OUT"]],
- fire:[["reshiram","FF","OH"],["charizard","FS","BLB"],["mcharizardy","FS","BLB"],["blaziken","FS","BLB"],["mblaziken","FS","BLB"],["chandelure","FS","OH"],["heatran","FS","FT"],["moltres","FS","OH"],["volcarona","FS","OH"],["mhoundoom","FF","FT"]],
- water:[["kyogre","WF","OP"],["pkyogre","WF","OP"],["swampert","WF","HC"],["mswampert","WF","HC"],["feraligatr","WF","HC"],["gyarados","WF","HP"],["mgyarados","WF","HP"],["inteleon","WG","SU"]],
- grass:[["kartana","RL","LB"],["zarude","VW","PW"],["sceptile","BS","FP"],["msceptile","BS","FP"],["roserade","RL","GK"],["venusaur","VW","FP"],["mvenusaur","VW","FP"],["rillaboom","RL","GK"]],
- electric:[["zekrom","CB","WC"],["xurkitree","TS","DI"],["thundurusT","VS","TB"],["electivire","TS","WC"],["mmanectric","TF","WC"],["raikou","TS","WC"],["magnezone","SP","WC"]],
- fighting:[["terrakion","DK","SS"],["lucario","CO","AU"],["mlucario","CO","AU"],["machamp","CO","DP"],["conkeldurr","CO","DP"],["mblaziken","CO","FBL"],["mheracross","CO","CC"],["toxicroak","CO","DP"]],
- ghost:[["gengar","SC","SHB"],["mgengar","SC","SHB"],["chandelure","HX","SHB"],["giratinaO","SC","SHB"],["dragapult","AS","SHB"]],
- ground:[["groudon","MS","PB"],["pgroudon","MS","PB"],["garchomp","MS","EP"],["mgarchomp","MS","EP"],["excadrill","MSL","DR"],["landorusT","MS","EQ"],["rhyperior","MSL","EQ"]],
- rock:[["rampardos","SD","RS"],["rhyperior","SD","RW"],["tyranitar","SD","SE"],["mtyranitar","SD","SE"],["terrakion","SD","RS"],["mdiancie","RT","RS"]],
- ice:[["mamoswine","PS","AV"],["weavile","IS","AV"],["glaceon","FB","AV"],["mglalie","FB","AV"],["gdarmanitan","IF","AV"]],
- psychic:[["mewtwo","CF","PSY"],["alakazam","CF","FUT"],["malakazam","CF","FUT"],["espeon","CF","FUT"],["hoopaU","CF","PSC"],["mgardevoir","CF","PSC"],["metagross","ZH","PSC"]],
- poison:[["roserade","PJ","SLB"],["nihilego","PJ","SLB"],["toxicroak","PJ","SLB"],["mbeedrill","PJ","SLB"]],
- flying:[["rayquaza","AIR","DA"],["mrayquaza","AIR","DA"],["honchkrow","PK","SKY"],["staraptor","WA","BRB"],["yveltal","GU","HUR"],["tornadusT","GU","HUR"]],
- bug:[["mheracross","SB","MH"],["mpinsir","BB","XS"],["pheromosa","BB","BZ"],["volcarona","BB","BZ"],["escavalier","BB","MH"],["scizor","FC","XS"],["mbeedrill","BB","XS"]],
- steel:[["metagross","BP","MM"],["dialga","MC","IH"],["excadrill","MC","IH"],["mlucario","BP","FCN"],["zacianC","MC","IH"],["scizor","BP","IH"]],
- fairy:[["mgardevoir","CH","DG"],["gardevoir","CH","DG"],["togekiss","CH","DG"]],
- dark:[["darkrai","SN","DKP"],["hydreigon","BI","BRS"],["tyranitar","BI","BRS"],["mtyranitar","BI","BRS"],["mhoundoom","SN","FPL"],["weavile","SN","FPL"],["yveltal","SN","DKP"]],
- normal:[["snorlax","LI","HB"],["mlopunny","PO","HB"],["porygonz","LO","HB"]]
-};
-
-
-
-// ===== 추가 포켓몬 (다이맥스 · 배틀리그용) =====
-Object.assign(M,{
- blastoise:["거북왕",["water"],171,207,188,""], cinderace:["에이스번",["fire"],238,163,190,""],
- kingler:["킹크랩",["water"],240,181,146,""], lapras:["라프라스",["water","ice"],165,174,277,""],
- toxtricity:["스트린더",["electric","poison"],224,140,181,""], butterfree:["버터플",["bug","flying"],167,137,155,""],
- duraludon:["브리두라스",["steel","dragon"],239,185,172,""], corviknight:["아머까오",["flying","steel"],163,192,221,""],
- cryogonal:["프리지오",["ice"],190,218,190,""], zapdos:["썬더",["electric","flying"],253,185,207,""],
- articuno:["프리저",["ice","flying"],192,236,207,""], entei:["앤테이",["fire"],235,171,251,""],
- eternatus:["무한다이노",["poison","dragon"],278,192,268,""], falinks:["대여르",["fighting"],193,170,163,""],
- passimian:["투오공",["fighting"],222,160,225,""],
- azumarill:["마릴리",["water","fairy"],112,152,225,""], registeel:["레지스틸",["steel"],143,285,190,""],
- lanturn:["랜턴",["water","electric"],146,137,268,""], gstunfisk:["가라르 메더",["ground","steel"],144,171,240,""],
- altaria:["파비코리",["dragon","flying"],141,201,181,""], medicham:["요가램",["fighting","psychic"],121,152,155,""],
- bastiodon:["바리톱스",["rock","steel"],94,286,155,""], carbink:["멜리시",["rock","fairy"],95,285,137,""],
- lickitung:["내루미",["normal"],108,137,207,""], cresselia:["크레세리아",["psychic"],152,258,260,""],
- trevenant:["대로트",["ghost","grass"],201,154,198,""], cobalion:["코바르온",["steel","fighting"],192,229,209,""],
- giratinaA:["기라티나(어나더)",["ghost","dragon"],187,225,284,""], lugia:["루기아",["psychic","flying"],193,310,235,""],
- xerneas:["제르네아스",["fairy"],250,185,246,""], talonflame:["파이어로",["fire","flying"],176,155,186,""]
-});
-Object.assign(F,{ BUB:["거품광선","water",12,14,1.2], SW:["강철날개","steel",11,6,0.8] });
-
-// ===== 다이맥스 =====  [포켓몬, [노말기...], 거다이맥스 여부]
-const DMAX_RAW=[
- ["charizard",["FS","DB","AIR"],1],["venusaur",["VW"],1],["blastoise",["WG"],1],["cinderace",["FS"],1],["rillaboom",["RL"],1],
- ["inteleon",["WG"],1],["machamp",["CO"],1],["gengar",["SC"],1],["kingler",["BUB","MC"],1],["lapras",["FB","WG"],1],
- ["snorlax",["LI"],1],["toxtricity",["SP","PJ"],1],["butterfree",["BB","CF"],1],["duraludon",["DT","MC"],1],
- ["charizard",["FS","DB","AIR"],0],["venusaur",["VW"],0],["blastoise",["WG"],0],["cinderace",["FS"],0],["rillaboom",["RL"],0],
- ["inteleon",["WG"],0],["machamp",["CO"],0],["gengar",["SC"],0],["kingler",["BUB","MC"],0],["lapras",["FB","WG"],0],
- ["snorlax",["LI"],0],["toxtricity",["SP","PJ"],0],["butterfree",["BB","CF"],0],["duraludon",["DT","MC"],0],
- ["metagross",["BP","ZH"],0],["excadrill",["MSL","MC"],0],["corviknight",["AIR","SW"],0],["cryogonal",["IS","FB"],0],
- ["zapdos",["TS"],0],["articuno",["FB"],0],["moltres",["FS","WA"],0],["raikou",["TS"],0],["entei",["FF"],0],
- ["eternatus",["DT","PJ"],0],["falinks",["CO"],0],["passimian",["CO"],0]
-];
-const DLIST={}; DMAX_RAW.forEach(([k,fs,g])=>fs.forEach(f=>{const t=F[f][1];(DLIST[t]=DLIST[t]||[]).push([k,f,!!g]);}));
-
-// ===== 배틀리그 =====
-const PF={ BUB:["거품광선","water",7,11,3], LOCK:["록온","normal",1,5,1], SPK:["스파크","electric",6,7,3], MUD:["머드숏","ground",3,9,2],
- DBR:["용의숨결","dragon",4,3,1], CNT:["카운터","fighting",8,7,2], SMK:["떨어뜨리기","rock",12,8,3], RTH:["돌떨구기","rock",8,5,2],
- LIK:["핥기","ghost",3,3,1], VIN:["덩굴채찍","grass",5,8,2], SCL:["섀도크루","ghost",6,8,2], PCT:["사이코커터","psychic",3,9,2],
- DKK:["두번치기","fighting",8,12,3], INC:["불태우기","fire",20,20,5], MCL:["메탈크로우","steel",5,6,2], WFL:["폭포오르기","water",12,8,3],
- DTL:["드래곤테일","dragon",13,9,3], BPN:["불릿펀치","steel",6,7,2], GEO:["지오컨트롤","fairy",4,13,3] };
-const PC={ IB:["냉동빔","ice",90,55], PR:["치근거리기","fairy",90,60], FBL:["기합구슬","fighting",150,75], FCN:["러스터캐논","steel",110,70],
- SURF:["파도타기","water",75,40], TBT:["10만볼트","electric",90,55], RSL:["스톤샤워","rock",75,45], EQ:["지진","ground",120,65],
- SKY:["불새","flying",85,50], MB:["문포스","fairy",110,60], IPN:["냉동펀치","ice",55,40], PSY:["사이코키네시스","psychic",90,55],
- SE:["스톤에지","rock",100,55], FT:["화염방사","fire",90,55], BSL:["누르기","normal",60,35], PW:["파워휩","grass",90,50],
- HC:["하이드로캐논","water",80,40], FP:["하드플랜트","grass",100,45], SB:["오물폭탄","poison",80,50], DCL:["드래곤크루","dragon",50,35],
- SHB:["섀도볼","ghost",100,55], GK:["풀묶기","grass",90,50], SSW:["성스러운칼","fighting",60,35], BB:["브레이브버드","flying",130,55],
- IH:["아이언헤드","steel",70,50], DM:["용성군","dragon",150,65], CC:["인파이트","fighting",100,45], PB:["단애의칼","ground",130,65],
- BLZ:["눈보라","ice",140,75], SP:["엄청난힘","fighting",85,40], EP:["대지의힘","ground",90,55], OUT:["역린","dragon",110,60],
- PST:["사이코브레이크","psychic",90,45], AB:["에어로블라스트","flying",170,75], MM:["코멧펀치","steel",100,50] };
-const LEAGUES=[["great","슈퍼리그",1500,"#4f92ff"],["ultra","하이퍼리그",2500,"#ffd36b"],["master","마스터리그",Infinity,"#b45bd1"]];
-const LN=Object.fromEntries(LEAGUES.map(l=>[l[0],l[1]]));
-const PLIST={
- great:[["azumarill","BUB",["IB","PR"]],["registeel","LOCK",["FBL","FCN"]],["lanturn","SPK",["SURF","TBT"]],["gstunfisk","MUD",["RSL","EQ"]],
-  ["altaria","DBR",["SKY","MB"]],["medicham","CNT",["IPN","PSY"]],["bastiodon","SMK",["SE","FT"]],["carbink","RTH",["MB","RSL"]],
-  ["lickitung","LIK",["BSL","PW"]],["swampert","MUD",["HC","EQ"]],["venusaur","VIN",["FP","SB"]],["feraligatr","SCL",["HC","IB"]]],
- ultra:[["giratinaA","SCL",["DCL","SHB"]],["registeel","LOCK",["FBL","FCN"]],["cresselia","PCT",["MB","GK"]],["swampert","MUD",["HC","EQ"]],
-  ["cobalion","DKK",["SSW","SE"]],["trevenant","SCL",["SHB","SE"]],["feraligatr","SCL",["HC","IB"]],["talonflame","INC",["BB","FT"]],["lapras","WFL",["SURF","IB"]]],
- master:[["dialga","DBR",["IH","DM"]],["zacianC","MCL",["PR","CC"]],["groudon","MUD",["PB","FT"]],["kyogre","WFL",["SURF","BLZ"]],
-  ["dragonite","DBR",["SP","DCL"]],["garchomp","MUD",["EP","OUT"]],["mewtwo","PCT",["PST","IB"]],["lugia","DTL",["AB","SKY"]],
-  ["xerneas","GEO",["MB","CC"]],["landorusT","MUD",["RSL","EQ"]],["metagross","BPN",["MM","EQ"]],["palkia","DBR",["DM","SURF"]]]
-};
-
-// ===== 도감 · 진화 =====
-const SPEC_RAW = `1/이상해씨/grass,poison|2/이상해풀/grass,poison|3/이상해꽃/grass,poison|4/파이리/fire|5/리자드/fire|6/리자몽/fire,flying|7/꼬부기/water|8/어니부기/water|9/거북왕/water|10/캐터피/bug|11/단데기/bug|12/버터플/bug,flying|13/뿔충이/bug,poison|14/딱충이/bug,poison|15/독침붕/bug,poison|63/캐이시/psychic|64/윤겔라/psychic|65/후딘/psychic|66/알통몬/fighting|67/근육몬/fighting|68/괴력몬/fighting|81/코일/electric,steel|82/레어코일/electric,steel|92/고오스/ghost,poison|93/고우스트/ghost,poison|94/팬텀/ghost,poison|98/크랩/water|99/킹크랩/water|108/내루미/normal|463/내룸벨트/normal|111/뿔카노/ground,rock|112/코뿌리/ground,rock|464/거대코뿌리/ground,rock|123/스라크/bug,flying|212/핫삼/bug,steel|239/에레키드/electric|125/에레브/electric|466/에레키블/electric|127/쁘사이저/bug|129/잉어킹/water|130/갸라도스/water,flying|131/라프라스/water,ice|133/이브이/normal|134/샤미드/water|135/쥬피썬더/electric|136/부스터/fire|196/에브이/psychic|197/블래키/dark|470/리피아/grass|471/글레이시아/ice|700/님피아/fairy|137/폴리곤/normal|233/폴리곤2/normal|474/폴리곤Z/normal|446/먹고자/normal|143/잠만보/normal|144/프리저/ice,flying|145/썬더/electric,flying|146/파이어/fire,flying|147/미뇽/dragon|148/신뇽/dragon|149/망나뇽/dragon,flying|150/뮤츠/psychic|158/리아코/water|159/엘리게이/water|160/장크로다일/water|170/초라기/water,electric|171/랜턴/water,electric|298/루리리/normal,fairy|183/마릴/water,fairy|184/마릴리/water,fairy|175/토게피/fairy|176/토게틱/fairy,flying|468/토게키스/fairy,flying|198/니로우/dark,flying|430/돈크로우/dark,flying|214/헤라크로스/bug,fighting|215/포푸니/dark,ice|461/포푸니라/dark,ice|220/꾸꾸리/ice,ground|221/메꾸리/ice,ground|473/맘모꾸리/ice,ground|228/델빌/dark,fire|229/헬가/dark,fire|243/라이코/electric|244/앤테이/fire|246/애버라스/rock,ground|247/데기라스/rock,ground|248/마기라스/rock,dark|249/루기아/psychic,flying|252/나무지기/grass|253/나무돌이/grass|254/나무킹/grass|255/아차모/fire|256/영치코/fire,fighting|257/번치코/fire,fighting|258/물짱이/water|259/늪짱이/water,ground|260/대짱이/water,ground|280/랄토스/psychic,fairy|281/킬리아/psychic,fairy|282/가디안/psychic,fairy|475/엘레이드/psychic,fighting|307/요가랑/fighting,psychic|308/요가램/fighting,psychic|309/썬더라이/electric|310/썬더볼트/electric|333/파비코/normal,flying|334/파비코리/dragon,flying|406/꼬몽울/grass,poison|315/로젤리아/grass,poison|407/로즈레이드/grass,poison|361/눈꼬마/ice|362/얼음귀신/ice|478/눈여아/ice,ghost|371/아공이/dragon|372/쉘곤/dragon|373/보만다/dragon,flying|374/메탕/steel,psychic|375/메탕구/steel,psychic|376/메타그로스/steel,psychic|379/레지스틸/steel|382/가이오가/water|383/그란돈/ground|384/레쿠쟈/dragon,flying|396/찌르꼬/normal,flying|397/찌르버드/normal,flying|398/찌르호크/normal,flying|408/두개도스/rock|409/램펄드/rock|410/방패톱스/rock,steel|411/바리톱스/rock,steel|427/이어롤/normal|428/이어롭/normal|443/딥상어동/dragon,ground|444/한바이트/dragon,ground|445/한카리아스/dragon,ground|447/리오르/fighting|448/루카리오/fighting,steel|453/삐딱구리/poison,fighting|454/독개굴/poison,fighting|462/자포코일/electric,steel|483/디아루가/steel,dragon|484/펄기아/water,dragon|485/히드런/fire,steel|487/기라티나(오리진)/ghost,dragon|487/기라티나(어나더)/ghost,dragon|488/크레세리아/psychic|491/다크라이/dark|529/두더류/ground|530/몰드류/ground,steel|532/으랏차/fighting|533/토쇠골/fighting|534/노보청/fighting|554/가라르 달막화/ice|555/가라르 불비달마/ice|588/딱정곤/bug|589/슈바르고/bug,steel|607/불켜미/ghost,fire|608/램프라/ghost,fire|609/샹델라/ghost,fire|610/터검니/dragon|611/액슨도/dragon|612/액스라이즈/dragon|615/프리지오/ice|618/가라르 메더/ground,steel|633/모노두/dark,dragon|634/디헤드/dark,dragon|635/삼삼드래/dark,dragon|636/활화르바/bug,fire|637/불카모스/bug,fire|638/코바르온/steel,fighting|639/테라키온/rock,fighting|641/토네로스(영물)/flying|642/볼트로스(영물)/electric,flying|643/레시라무/dragon,fire|644/제크로무/dragon,electric|645/랜드로스(영물)/ground,flying|646/블랙큐레무/dragon,ice|661/화살꼬빈/normal,flying|662/불화살빈/fire,flying|663/파이어로/fire,flying|703/멜리시/rock,fairy|708/나목령/ghost,grass|709/대로트/ghost,grass|716/제르네아스/fairy|717/이벨타르/dark,flying|719/디안시/rock,fairy|720/후파(굴레를 벗어난 모습)/psychic,dark|766/투오공/fighting|793/텅비드/rock,poison|795/페로코체/bug,fighting|796/전수목/electric|798/종이신도/grass,steel|810/흥나숭/grass|811/채키몽/grass|812/고릴타/grass|813/염버니/fire|814/래비풋/fire|815/에이스번/fire|816/울머기/water|817/누겔레온/water|818/인텔리레온/water|821/파라꼬/flying|822/파크로우/flying|823/아머까오/flying,steel|848/일레즌/electric,poison|849/스트린더/electric,poison|870/대여르/fighting|884/브리두라스/steel,dragon|1018/브리무음/steel,dragon|885/드라꼰/dragon,ghost|886/드래런치/dragon,ghost|887/드래펄트/dragon,ghost|888/자시안(검왕)/fairy,steel|890/무한다이노/poison,dragon|893/자루도/dark,grass`;
-const FAM_RAW = `이상해씨>이상해풀>이상해꽃|파이리>리자드>리자몽|꼬부기>어니부기>거북왕|캐터피>단데기>버터플|뿔충이>딱충이>독침붕|캐이시>윤겔라>후딘|알통몬>근육몬>괴력몬|코일>레어코일>자포코일|고오스>고우스트>팬텀|크랩>킹크랩|내루미>내룸벨트|뿔카노>코뿌리>거대코뿌리|스라크>핫삼|에레키드>에레브>에레키블|잉어킹>갸라도스|이브이>샤미드,쥬피썬더,부스터,에브이,블래키,리피아,글레이시아,님피아|폴리곤>폴리곤2>폴리곤Z|먹고자>잠만보|미뇽>신뇽>망나뇽|리아코>엘리게이>장크로다일|초라기>랜턴|루리리>마릴>마릴리|토게피>토게틱>토게키스|니로우>돈크로우|포푸니>포푸니라|꾸꾸리>메꾸리>맘모꾸리|델빌>헬가|애버라스>데기라스>마기라스|나무지기>나무돌이>나무킹|아차모>영치코>번치코|물짱이>늪짱이>대짱이|랄토스>킬리아>가디안,엘레이드|요가랑>요가램|썬더라이>썬더볼트|파비코>파비코리|꼬몽울>로젤리아>로즈레이드|눈꼬마>얼음귀신,눈여아|아공이>쉘곤>보만다|메탕>메탕구>메타그로스|찌르꼬>찌르버드>찌르호크|두개도스>램펄드|방패톱스>바리톱스|이어롤>이어롭|딥상어동>한바이트>한카리아스|리오르>루카리오|삐딱구리>독개굴|두더류>몰드류|으랏차>토쇠골>노보청|가라르 달막화>가라르 불비달마|딱정곤>슈바르고|불켜미>램프라>샹델라|터검니>액슨도>액스라이즈|모노두>디헤드>삼삼드래|활화르바>불카모스|화살꼬빈>불화살빈>파이어로|나목령>대로트|흥나숭>채키몽>고릴타|염버니>래비풋>에이스번|울머기>누겔레온>인텔리레온|파라꼬>파크로우>아머까오|일레즌>스트린더|브리두라스>브리무음|드라꼰>드래런치>드래펄트`;
-
-const SP = {};
-SPEC_RAW.split("|").forEach(r=>{const [d,n,t]=r.split("/"); SP[n]={dex:+d,name:n,types:t.split(",")};});
-const FAMS = FAM_RAW.split("|").map(f=>f.split(">").map(s=>s.split(",")));
-for(const n in SP){ if(!FAMS.some(f=>f.some(s=>s.includes(n)))) FAMS.push([[n]]); }
-const famOf = n => FAMS.find(f=>f.some(s=>s.includes(n)));
-const NORMAL_KEY={}, MEGA_KEYS={};
-for(const k in M){
-  const nm=M[k][0], fl=M[k][5];
-  if(fl.includes("m")){ const base=nm.replace(/^(메가|원시)/,"").replace(/[XY]$/,""); (MEGA_KEYS[base]=MEGA_KEYS[base]||[]).push(k); }
-  else NORMAL_KEY[nm]=k;
-}
-
-// ===== 계산 공통 =====
-const CPM=0.7903, BOSS_DEF=180, SE_MULT=1.6, SURV_K=900;
-const TIERS=[["SS",95],["S",90],["A",80],["B",70],["C",50],["D",0]];   // 티어 기준 (추후 변경 가능)
-const tierOf = p => TIERS.find(([,min])=>p>=min)[0];
+// ===== 도감 데이터 (data/pokedex.json, 매주 자동 갱신) =====
+let DEX=null, CARDS={}, NAME2ID={}, SEARCH=[];
 const TIER_DESC=["95%↑","90%↑","80%↑","70%↑","50%↑","그 아래"];
-function hit(mv, atk, types){ const stab=types.includes(mv[1])?1.2:1; return Math.floor(0.5*mv[2]*atk/BOSS_DEF*stab*SE_MULT)+1; }
-function baseStats(m, shadow){ return { atk:(m[2]+15)*CPM*(shadow?1.2:1), def:(m[3]+15)*CPM*(shadow?5/6:1), hp:Math.floor((m[4]+15)*CPM) }; }
-
-// 레이드
-function calcRaid(key, fk, ck, shadow){
-  const m=M[key], f=F[fk], c=C[ck], s=baseStats(m,shadow);
-  const FD=hit(f,s.atk,m[1]), CD=hit(c,s.atk,m[1]), FE=f[3], CE=c[3];
-  const dps=(FD*CE + CD*FE)/(CE*f[4] + FE*c[4]);
-  const tdo=dps*s.hp*s.def/SURV_K;
-  const er=Math.pow(dps**3*tdo,0.25);
-  return {key, name:m[0], mega:m[5].includes("m"), shadow, moves:`${f[0]} · ${c[0]}`, dps, tdo, er};
-}
-const CACHE={};
-function buildRaid(type){
-  return CACHE["r"+type] ||= LIST[type].flatMap(([k,f,c])=>[calcRaid(k,f,c,false), ...(M[k][5].includes("s")?[calcRaid(k,f,c,true)]:[])]);
-}
-// 다이맥스: 맥스기(Lv3) 위력 350, 거다이맥스 450
-function calcDmax(key, fk, g){
-  const m=M[key], f=F[fk], s=baseStats(m,false);
-  const FD=hit(f,s.atk,m[1]);
-  const fdps=FD/f[4];
-  const max=hit([null,f[1],g?450:350],s.atk,m[1]);
-  const bulk=s.hp*s.def/100;
-  const score=Math.pow(max**3*fdps,0.25);
-  return {key, name:(g?"거다이맥스 ":"")+m[0], gmax:g, moves:`${f[0]} → 맥스${TN[f[1]]}`, max, fdps, bulk, score};
-}
-function buildDmax(type){ return CACHE["d"+type] ||= (DLIST[type]||[]).map(([k,f,g])=>calcDmax(k,f,g)); }
-// 배틀리그
-const CPM_PTS=[[1,0.094],[5,0.29024988],[10,0.4225],[15,0.51739395],[20,0.5974],[25,0.667934],[30,0.7317],[35,0.76156384],[40,0.7903],[45,0.81529999],[50,0.84029999]];
-function cpmAt(L){ for(let i=1;i<CPM_PTS.length;i++){ const [l0,c0]=CPM_PTS[i-1],[l1,c1]=CPM_PTS[i]; if(L<=l1){ const t=(L-l0)/(l1-l0); return Math.sqrt(c0*c0+(c1*c1-c0*c0)*t);} } return 0.8403; }
-function fitLevel(m, iv, cap){
-  for(let L=50; L>=1; L-=0.5){ const c=cpmAt(L); const cp=Math.max(10,Math.floor((m[2]+iv[0])*Math.sqrt(m[3]+iv[1])*Math.sqrt(m[4]+iv[2])*c*c/10)); if(cp<=cap) return {L,c,cp}; }
-  return {L:1,c:cpmAt(1),cp:10};
-}
-function calcPvp(key, fk, cks, league){
-  const m=M[key], f=PF[fk], cap=LEAGUES.find(l=>l[0]===league)[2];
-  const iv = cap===Infinity ? [15,15,15] : [0,15,15];
-  const {L,c,cp}=fitLevel(m,iv,cap);
-  const sp=(m[2]+iv[0])*c*(m[3]+iv[1])*c*Math.floor((m[4]+iv[2])*c)/1000;
-  const st=t=>m[1].includes(t)?1.2:1;
-  const fdpt=f[2]*st(f[1])/f[4], fept=f[3]/f[4];
-  const cdpe=Math.max(...cks.map(k=>PC[k][2]*st(PC[k][1])/PC[k][3]));
-  const press=fdpt+fept*cdpe;
-  const score=Math.sqrt(sp*press);
-  return {key, name:m[0], moves:`${f[0]} · ${cks.map(k=>PC[k][0]).join("/")} · Lv${L} CP${cp}`, sp, press, score};
-}
-function buildPvp(lg){ return CACHE["p"+lg] ||= PLIST[lg].map(([k,f,c])=>calcPvp(k,f,c,lg)); }
-
-// 카드용 최고 티어
-function bestIn(pools, match){
-  let best=null;
-  for(const [label,pool,metric] of pools){
-    const me=pool.filter(match); if(!me.length) continue;
-    const top=Math.max(...pool.map(r=>r[metric]));
-    for(const r of me){ const pct=r[metric]/top*100; if(!best||pct>best.pct) best={pct,tier:tierOf(pct),where:label,row:r}; }
-  }
-  return best;
-}
-const raidPools=()=>Object.keys(LIST).map(t=>[TN[t],buildRaid(t),"er"]);
-const dmaxPools=()=>Object.keys(DLIST).map(t=>[TN[t],buildDmax(t),"score"]);
-const pvpPools=()=>LEAGUES.map(l=>[l[1],buildPvp(l[0]),"score"]);
-
-// ===== 공통 UI =====
+let TIERS=[["SS",95],["S",90],["A",80],["B",70],["C",50],["D",0]];
+const tierOf = p => TIERS.find(([,min])=>p>=min)[0];
 const $=s=>document.querySelector(s);
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const legendHTML=()=>TIERS.map(([t],i)=>`<span><i class="tb ${t}">${t}</i>${TIER_DESC[i]}</span>`).join("");
+const LEAGUES=[["great","슈퍼리그","#4f92ff"],["ultra","하이퍼리그","#ffd36b"],["master","마스터리그","#b45bd1"]];
+const LN=Object.fromEntries(LEAGUES.map(l=>[l[0],l[1]]));
 const LEAGUE_ICON={
  great:'<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M4 12h16" stroke="currentColor" stroke-width="2.4"/>',
  ultra:'<path d="M12 3l8 5v8l-8 5-8-5V8z" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8 10h8M8 14h8" stroke="currentColor" stroke-width="2"/>',
@@ -597,7 +336,6 @@ function fmtRange(a,b){
 }
 function leftText(ms){ const h=ms/3600000; if(h<24) return `${Math.max(1,Math.round(h))}시간 남음`; return `${Math.ceil(h/24)}일 남음`; }
 function untilText(ms){ const h=ms/3600000; if(h<24) return `${Math.max(1,Math.round(h))}시간 후`; return `D-${Math.ceil(h/24)}`; }
-const pokeLinks=arr=>arr.filter(n=>SP[n]).map(n=>`<a data-poke="${esc(n)}">${esc(n)}</a>`).join(" · ");
 function evHTML(e,now,isNow){
   const [cat,t,s,en,desc,pk]=e, a=P(s), b=P(en), [cl,cc]=CAT[cat];
   const meta=isNow?`<span class="left">${leftText(b-now)}</span>`:`<span class="left">${untilText(a-now)}</span>`;
@@ -623,129 +361,121 @@ function renderHome(){
   $("#bosses").innerHTML=slot("raid","5성 레이드",CAT.raid[1])+slot("mega","메가 레이드",CAT.mega[1])+slot("max","맥스배틀",CAT.max[1])+slot("shadow","그림자 레이드",CAT.shadow[1]);
   $("#feedNote").innerHTML=`일정 데이터 갱신: <b>${FEED_UPDATED}</b> · 출처: ${esc(FEED_SOURCE)}. 날짜가 지나면 자동으로 "진행 중 → 종료"로 넘어가요. 시간은 한국 시간이에요.`;
 }
+
+// 일정 속 포켓몬 이름 → 카드 링크
+const pokeLinks=arr=>arr.filter(n=>NAME2ID[n]).map(n=>`<a data-poke="${esc(NAME2ID[n])}">${esc(n)}</a>`).join(" · ");
+
 $("#quick").innerHTML=[["card","카드 검색",'<rect x="4" y="3" width="16" height="18" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="7" y="6" width="5" height="6" rx="1" fill="currentColor"/><path d="M14 7h3M14 10h3M7 15h10M7 18h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'],
  ["raid","레이드",'<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/>'],
  ["dmax","다이맥스",'<path d="M12 3l7 8h-4v10H9V11H5z" fill="currentColor"/>'],
  ["pvp","배틀리그",LEAGUE_ICON.master]].map(([k,t,ic])=>`<button data-go="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${ic}</svg>${t}</button>`).join("");
 
 // ===== 카드 검색 =====
-const ALL_NAMES=Object.keys(SP);
-const ALIAS={}; for(const b in MEGA_KEYS) MEGA_KEYS[b].forEach(k=>ALIAS[M[k][0]]=b);
-function resolve(q){
-  q=q.trim(); if(!q) return null;
-  if(SP[q]) return q; if(ALIAS[q]) return ALIAS[q];
-  const h=ALL_NAMES.find(n=>n.includes(q)) || Object.keys(ALIAS).find(n=>n.includes(q));
-  return h ? (SP[h]?h:ALIAS[h]) : null;
+const norm=s=>s.toLowerCase().replace(/\s+/g,"");
+function findIds(q){
+  q=norm(q); if(!q) return [];
+  const exact=SEARCH.filter(x=>norm(x.ko)===q||norm(x.en)===q);
+  const part=SEARCH.filter(x=>!exact.includes(x)&&(norm(x.ko).includes(q)||norm(x.en).includes(q)));
+  return [...exact,...part].map(x=>x.id);
 }
 function suggest(q){
   q=q.trim();
-  const list = q ? ALL_NAMES.filter(n=>n.includes(q)).slice(0,10) : ["데기라스","리자몽","이브이","랄토스","마릴리","잉어킹"];
-  $("#sugg").innerHTML=(q?"":'<span style="font-size:11.5px;color:var(--dim);align-self:center">예시 ›</span>')+list.map(n=>`<button class="chip" data-n="${esc(n)}">${esc(n)}</button>`).join("");
+  const ids = q ? findIds(q).slice(0,12) : ["pupitar","charizard","eevee","kirlia","azumarill","magikarp"].filter(i=>CARDS[i]);
+  $("#sugg").innerHTML=(q?"":'<span style="font-size:11.5px;color:var(--dim);align-self:center">예시 ›</span>')+ids.map(i=>`<button class="chip" data-id="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join("");
 }
-$("#sugg").addEventListener("click",e=>{const b=e.target.closest("[data-n]"); if(b) openCard(b.dataset.n);});
-$("#q").addEventListener("input",e=>suggest(e.target.value));
-$("#sform").addEventListener("submit",e=>{e.preventDefault(); const n=resolve($("#q").value); if(n) openCard(n); else $("#cardOut").innerHTML=`<div class="empty">"${esc($("#q").value)}"을(를) 찾지 못했어요.<br>지금은 샘플에 들어 있는 포켓몬만 검색돼요.</div>`;});
+$("#sugg").addEventListener("click",e=>{const b=e.target.closest("[data-id]"); if(b) openCard(b.dataset.id);});
+$("#q").addEventListener("input",e=>DEX&&suggest(e.target.value));
+$("#sform").addEventListener("submit",e=>{e.preventDefault(); if(!DEX) return; const id=findIds($("#q").value)[0]; if(id) openCard(id); else $("#cardOut").innerHTML=`<div class="empty">"${esc($("#q").value)}"을(를) 찾지 못했어요.<br>한글 또는 영어 이름으로 검색해 보세요.</div>`;});
 
 const ART=dex=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${dex}.png`;
-function sumCell(label, b){
-  return `<div class="sumc"><div class="m">${label}</div>${b?`<span class="tb ${b.tier}">${b.tier}</span><div class="w">${esc(b.note)}</div>`:`<span class="tb N">—</span><div class="w">해당 없음</div>`}</div>`;
+const BASE_FORMS=["일반","다이맥스"];
+function noteOf(x){ if(BASE_FORMS.includes(x.f)) return x.w; if(x.f.includes(x.w)) return x.f; return `${x.f} · ${x.w}`; }
+function sumCell(label, arr){
+  const b=arr&&arr[0];
+  return `<div class="sumc"><div class="m">${label}</div>${b?`<span class="tb ${b.t}">${b.t}</span><div class="w">${esc(noteOf(b))}</div>`:`<span class="tb N">—</span><div class="w">해당 없음</div>`}</div>`;
 }
-function formLine(tag, b, where){ return `<div class="form"><span class="tb ${b.tier}">${b.tier}</span><span><b>${esc(tag)}</b> · ${esc(where||b.where)} 기준 ${b.pct.toFixed(0)}%</span></div>`; }
-function openCard(name){
-  const sp=SP[name]; if(!sp) return;
-  $("#q").value=name; suggest("");
-  const c=TC[sp.types[0]];
-  const fam=famOf(name);
-  const nk=NORMAL_KEY[name], megas=MEGA_KEYS[name]||[];
-  const keys=[nk,...megas].filter(Boolean);
-  // 레이드
-  const rp=raidPools(), raidForms=[];
-  if(nk){ const b=bestIn(rp,r=>r.key===nk&&!r.shadow); if(b) raidForms.push(["일반",b]);
-          const s=bestIn(rp,r=>r.key===nk&&r.shadow); if(s) raidForms.push(["그림자",s]); }
-  megas.forEach(k=>{ const b=bestIn(rp,r=>r.key===k); if(b) raidForms.push([M[k][0],b]); });
-  // 다이맥스
-  const dp=dmaxPools(), dmaxForms=[];
-  if(nk){ const b=bestIn(dp,r=>r.key===nk&&!r.gmax); if(b) dmaxForms.push(["다이맥스",b]);
-          const g=bestIn(dp,r=>r.key===nk&&r.gmax); if(g) dmaxForms.push(["거다이맥스",g]); }
-  // 배틀
-  const pvpForms=[];
-  if(nk) LEAGUES.forEach(([lk,ln])=>{ const pool=buildPvp(lk), me=pool.find(r=>r.key===nk); if(me){ const pct=me.score/Math.max(...pool.map(r=>r.score))*100; pvpForms.push([ln,{pct,tier:tierOf(pct),where:ln}]); } });
-  const top=forms=>{ if(!forms.length) return null; const [tag,b]=forms.reduce((a,x)=>x[1].pct>a[1].pct?x:a); return {tier:b.tier, note:(tag==="일반"||tag==="다이맥스"?"":tag.replace(name,"")+" · ")+b.where}; };
-  // 진화 전 단계라면 최종 진화형 요약
-  const last=fam[fam.length-1], isFinal=last.includes(name);
-  const finalHint = !isFinal ? last.filter(n=>NORMAL_KEY[n]).map(n=>{const b=bestIn(rp,r=>r.key===NORMAL_KEY[n]&&!r.shadow); return b?`<div class="form"><span class="tb ${b.tier}">${b.tier}</span><span>최종 진화 <b><a data-n2="${esc(n)}" style="color:inherit;cursor:pointer;text-decoration:underline dotted">${esc(n)}</a></b> · 레이드 ${esc(b.where)} 기준</span></div>`:"";}).join("") : "";
-  const evo=fam.map((stage,i)=>(i?'<span class="arw">›</span>':"")+`<div class="stage">${stage.map(n=>`<button class="${n===name?"cur":""}" data-n2="${esc(n)}">${esc(n)}</button>`).join("")}${stage.length>1?'<span class="branch">분기 진화</span>':""}</div>`).join("");
-  const detail=(label,forms,extra="")=>`<div class="drow"><div class="k">${label}</div><div class="forms">${forms.length?forms.map(([t,b])=>formLine(t,b)).join(""):'<div class="form"><span class="tb N">—</span><span>순위권 밖 / 해당 없음</span></div>'}${extra}</div></div>`;
+function formLine(x){ const where=x.f.includes(x.w)?"":` · ${esc(x.w)} 기준`; return `<div class="form"><span class="tb ${x.t}">${x.t}</span><span><b>${esc(x.f)}</b>${where} ${x.p}%</span></div>`; }
+function openCard(id){
+  const c=CARDS[id]; if(!c) return;
+  $("#q").value=c.ko; suggest("");
+  const color=TC[c.types[0]]||"#6fb39a", T=c.tiers||{};
+  const last=c.evo[c.evo.length-1], isFinal=last.includes(id);
+  const finalHint=!isFinal?last.map(fid=>{const f=CARDS[fid], r=f?.tiers?.raid?.[0]; return r?`<div class="form"><span class="tb ${r.t}">${r.t}</span><span>최종 진화 <b><a data-n2="${esc(fid)}" style="color:inherit;cursor:pointer;text-decoration:underline dotted">${esc(f.ko)}</a></b> · ${esc(noteOf(r))}</span></div>`:"";}).join(""):"";
+  const evo=c.evo.map((stage,i)=>(i?'<span class="arw">›</span>':"")+`<div class="stage">${stage.map(s=>`<button class="${s===id?"cur":""}" data-n2="${esc(s)}">${esc(CARDS[s]?.ko||s)}</button>`).join("")}${stage.length>1?'<span class="branch">분기 진화</span>':""}</div>`).join("");
+  const detail=(label,arr,extra="")=>`<div class="drow"><div class="k">${label}</div><div class="forms">${arr&&arr.length?arr.map(formLine).join(""):'<div class="form"><span class="tb N">—</span><span>순위권 밖 / 해당 없음</span></div>'}${extra}</div></div>`;
+  const s=c.stats;
   $("#cardOut").innerHTML=`
-  <article class="tcard" style="--c:${c}"><div class="tcard-in">
+  <article class="tcard" style="--c:${color}"><div class="tcard-in">
     <div class="ctop">
-      <div class="pic">${svg(sp.types[0]).replace("<svg",'<svg class="ph"')}<div class="no">No.${String(sp.dex).padStart(4,"0")}</div>
-        <img src="${ART(sp.dex)}" alt="" loading="lazy" onerror="this.remove()"></div>
+      <div class="pic">${svg(c.types[0]).replace("<svg",'<svg class="ph"')}<div class="no">No.${String(c.dex).padStart(4,"0")}</div>
+        <img src="${ART(c.dex)}" alt="" loading="lazy" onerror="this.remove()"></div>
       <div>
-        <div class="cname">${esc(name)}<small>#${sp.dex}</small></div>
-        <div class="ctype">${sp.types.map(t=>`<span class="tchip" style="--tc:${TC[t]}">${svg(t,"#fff")}${TN[t]}</span>`).join("")}</div>
-        <div class="sum">${sumCell("레이드",top(raidForms))}${sumCell("다이맥스",top(dmaxForms))}${sumCell("배틀",top(pvpForms))}</div>
+        <div class="cname">${esc(c.ko)}<small>#${c.dex}</small></div>
+        <div class="ctype">${c.types.map(t=>`<span class="tchip" style="--tc:${TC[t]}">${svg(t,"#fff")}${TN[t]}</span>`).join("")}</div>
+        <div class="sum">${sumCell("레이드",T.raid)}${sumCell("다이맥스",T.dmax)}${sumCell("배틀",T.pvp)}</div>
       </div>
     </div>
     <div class="cbody">
       <div class="sec">EVOLUTION</div>
       <div class="evo">${evo}</div>
       <div class="sec">TIER DETAIL</div>
-      ${detail("레이드",raidForms,finalHint)}
-      ${detail("다이맥스",dmaxForms)}
-      ${detail("배틀",pvpForms)}
+      ${detail("레이드",T.raid,finalHint)}
+      ${detail("다이맥스",T.dmax)}
+      ${detail("배틀",T.pvp)}
     </div>
-    <div class="cfoot"><span>No.${String(sp.dex).padStart(4,"0")}</span><span>BOX TERMINAL</span></div>
+    <div class="cfoot"><span>공 ${s[0]} · 방 ${s[1]} · 체 ${s[2]}</span><span>${esc(c.en)}</span></div>
   </div></article>
-  <div class="note">레이드·다이맥스 티어는 <b>타입별 1위</b>, 배틀 티어는 <b>리그별 1위</b> 대비 비율이에요. 위 요약에는 모든 폼(그림자·메가·거다이맥스) 중 가장 높은 티어와 그 기준을 표시해요.</div>`;
+  <div class="note">레이드·다이맥스 티어는 <b>공격 타입별 1위</b>, 배틀 티어는 <b>리그별 1위</b> 대비 비율이에요. 위 요약은 모든 폼(그림자·메가·거다이맥스) 중 가장 높은 티어와 그 기준이에요.</div>`;
   $("#cardOut").querySelectorAll("[data-n2]").forEach(b=>b.onclick=()=>openCard(b.dataset.n2));
 }
 
-// ===== 티어 보드 (레이드 · 다이맥스 · 배틀) =====
+// ===== 티어 보드 =====
 const typeSels=avail=>TYPES.map(([k,n,c])=>({k,n,c,icon:svg(k),off:avail&&!avail(k)}));
+const NOTE_RAID=`티어는 현재 탭 안에서 <b>ER 1위를 100%</b>로 둔 비율이에요. TDO는 탱커 순위용 정렬 기준이고 티어는 따로 매기지 않아요. 기술명 뒤 <b>*</b>는 레거시·특수 기술이에요.<br>
+ <b>DPS</b> = (노말딜×스킬코스트 + 스킬딜×노말에너지) ÷ (스킬코스트×노말시간 + 노말에너지×스킬시간)<br>
+ <b>한 방 데미지</b> = ⌊0.5 × 위력 × 공격/방어 × 자속 1.2 × 효과굉장 1.6⌋ + 1<br>
+ <b>TDO</b> = DPS × 버티는 시간(체력 × 방어 ÷ 900) · <b>ER</b> = (DPS³ × TDO)<sup>¼</sup><br>
+ 가정: Lv40 · 개체값 15/15/15 · 기준 보스 방어 180 · 날씨 없음 · 그림자는 주는 피해·받는 피해 ×1.2 · 각 포켓몬은 해당 타입 최고 기술 조합 기준`;
+const NOTE_DMAX=`맥스기 타입은 <b>노말기 타입</b>을 따라가요. 티어는 현재 탭 안에서 <b>점수 1위를 100%</b>로 둔 비율이에요.<br>
+ <b>맥스딜</b> = 맥스기 한 방 데미지 (위력: 다이맥스 Lv3 350 · 거다이맥스 Lv3 450)<br>
+ <b>게이지</b> = 노말기 DPS (맥스 게이지를 채우는 속도의 대용 지표)<br>
+ <b>내구</b> = 체력 × 방어 ÷ 100 (탱커 순위용, 티어 없음)<br>
+ <b>점수</b> = (맥스딜³ × 게이지)<sup>¼</sup> — 레이드 ER과 같은 3:1 비율<br>
+ 가정: Lv40 · 개체값 15/15/15 · 효과굉장 · 서포트(맥스스피릿) 역할은 반영하지 않아요. 출시된 다이맥스·거다이맥스 목록 기준이에요.`;
+const NOTE_PVP=`티어는 <b>리그별 점수 1위를 100%</b>로 둔 비율이에요.<br>
+ <b>점수</b> = PvPoke 종합 점수 (모든 상대·실드 상황 대전 시뮬레이션 결과) · <b>스탯곱</b> = 공격×방어×체력 ÷ 1000 (내구 지표) · <b>레이팅</b> = PvPoke 대전 레이팅<br>
+ 기술은 PvPoke 추천 조합이에요. 상위 200위까지 표시해요.`;
 const BOARDS={
- raid:{ title:"레이드 티어리스트 · 공격 타입", sels:typeSels(), tabs:[["all","메가·그림자 포함"],["base","기본만"]],
+ raid:{ title:"레이드 티어리스트 · 공격 타입", sels:()=>typeSels(k=>DEX.raid[k]?.length), tabs:[["all","메가·그림자 포함"],["base","기본만"]],
    cols:[["er","ER",1],["dps","DPS",1],["tdo","TDO",0]], tierCol:"er",
-   rows:(s,t)=>buildRaid(s).filter(r=>t!=="base"||(!r.mega&&!r.shadow)), head:s=>`${TN[s]} 타입 공격자`,
-   st:{sel:"dragon",tab:"all",sort:"er"},
-   note:`티어는 현재 탭 안에서 <b>ER 1위를 100%</b>로 둔 비율이에요. TDO는 탱커 순위용 정렬 기준이고 티어는 따로 매기지 않아요.<br>
-     <b>DPS</b> = (노말딜×스킬코스트 + 스킬딜×노말에너지) ÷ (스킬코스트×노말시간 + 노말에너지×스킬시간)<br>
-     <b>한 방 데미지</b> = ⌊0.5 × 위력 × 공격/방어 × 자속 1.2 × 효과굉장 1.6⌋ + 1<br>
-     <b>TDO</b> = DPS × 버티는 시간(체력 × 방어 ÷ 900) · <b>ER</b> = (DPS³ × TDO)<sup>¼</sup><br>
-     가정: Lv40 · 개체값 15/15/15 · 기준 보스 방어 180 · 날씨 없음 · 그림자는 주는 피해·받는 피해 ×1.2` },
- dmax:{ title:"다이맥스 티어리스트 · 맥스기 타입", sels:typeSels(k=>DLIST[k]), tabs:[["all","거다이맥스 포함"],["base","다이맥스만"]],
+   rows:(s,t)=>(DEX.raid[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>`${TN[s]} 타입 공격자`,
+   st:{sel:"dragon",tab:"all",sort:"er"}, note:NOTE_RAID },
+ dmax:{ title:"다이맥스 티어리스트 · 맥스기 타입", sels:()=>typeSels(k=>DEX.dmax[k]?.length), tabs:[["all","거다이맥스 포함"],["base","다이맥스만"]],
    cols:[["score","점수",1],["max","맥스딜",0],["fdps","게이지",1],["bulk","내구",0]], tierCol:"score",
-   rows:(s,t)=>buildDmax(s).filter(r=>t!=="base"||!r.gmax), head:s=>`맥스${TN[s]} 공격자`,
-   st:{sel:"fire",tab:"all",sort:"score"},
-   note:`맥스기 타입은 <b>노말기 타입</b>을 따라가요. 티어는 현재 탭 안에서 <b>점수 1위를 100%</b>로 둔 비율이에요.<br>
-     <b>맥스딜</b> = 맥스기 한 방 데미지 (위력: 다이맥스 Lv3 350 · 거다이맥스 Lv3 450)<br>
-     <b>게이지</b> = 노말기 DPS (맥스 게이지를 채우는 속도의 대용 지표)<br>
-     <b>내구</b> = 체력 × 방어 ÷ 100 (탱커 순위용, 티어 없음)<br>
-     <b>점수</b> = (맥스딜³ × 게이지)<sup>¼</sup> — 레이드 ER과 같은 3:1 비율<br>
-     가정: Lv40 · 개체값 15/15/15 · 효과굉장 · 서포트(맥스스피릿) 역할은 반영하지 않아요.` },
- pvp:{ title:"배틀리그 티어리스트 · 리그", sels:LEAGUES.map(([k,n,,c])=>({k,n,c,icon:lgSvg(k,c)})), tabs:null,
-   cols:[["score","점수",1],["sp","내구",0],["press","압박",2]], tierCol:"score",
-   rows:s=>buildPvp(s), head:s=>`${LN[s]} 순위`, st:{sel:"great",sort:"score"},
-   note:`티어는 <b>리그별 점수 1위를 100%</b>로 둔 비율이에요.<br>
-     <b>내구</b> = 스탯곱(공격 × 방어 × 체력 ÷ 1000) · 리그 CP 상한에 맞춘 레벨 기준 (슈퍼·하이퍼 0/15/15, 마스터 Lv50 15/15/15)<br>
-     <b>압박</b> = 턴당 노말 데미지 + 턴당 에너지 × 스킬 효율(위력÷에너지) · 자속 1.2 반영<br>
-     <b>점수</b> = √(내구 × 압박) — 상대 타입·실드 운영은 반영하지 않은 간이 지표예요. 정밀한 순위는 대전 시뮬레이션이 필요해요.` }
+   rows:(s,t)=>(DEX.dmax[s]||[]).filter(r=>t!=="base"||!r.tg.includes("g")), head:s=>`맥스${TN[s]} 공격자`,
+   st:{sel:"fire",tab:"all",sort:"score"}, note:NOTE_DMAX },
+ pvp:{ title:"배틀리그 티어리스트 · 리그", sels:()=>LEAGUES.map(([k,n,c])=>({k,n,c,icon:lgSvg(k,c)})), tabs:[["all","그림자 포함"],["base","기본만"]],
+   cols:[["score","점수",1],["sp","스탯곱",0],["rating","레이팅",0]], tierCol:"score",
+   rows:(s,t)=>(DEX.pvp[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>`${LN[s]} 순위`,
+   st:{sel:"great",tab:"all",sort:"score"}, note:NOTE_PVP }
 };
 function renderBoard(id){
   const B=BOARDS[id], st=B.st, root=$("#v-"+id);
+  if(!DEX){ root.innerHTML=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`; return; }
   if(!root.dataset.ready){
-    root.innerHTML=`<div class="label">&gt; ${B.title}</div><div class="sels${B.sels.length===3?" three":""}"></div><div class="head"></div>
+    const sels=B.sels();
+    root.innerHTML=`<div class="label">&gt; ${B.title}</div><div class="sels${sels.length===3?" three":""}"></div><div class="head"></div>
       ${B.tabs?`<div class="tabs">${B.tabs.map(([k,l])=>`<button class="tab" data-tab="${k}">${l}</button>`).join("")}</div>`:""}
       <table><thead><tr><th>#</th><th>포켓몬 / 기술</th>${B.cols.map(([k,l])=>`<th class="num"><button data-k="${k}">${l}</button></th>`).join("")}<th style="text-align:center">티어</th></tr></thead><tbody></tbody></table>
       <div class="emptyBox"></div>
-      <div class="note"><div class="legend">${legendHTML()}</div>${B.note}<br>⚠ 시제품용 샘플 데이터예요. 수치가 실제 게임과 다를 수 있어요.</div>`;
+      <div class="note"><div class="legend">${legendHTML()}</div>${B.note}<br>데이터 갱신: <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
     root.querySelector(".sels").addEventListener("click",e=>{const b=e.target.closest("[data-s]"); if(b){st.sel=b.dataset.s; save(); renderBoard(id);}});
     root.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{st.tab=b.dataset.tab; save(); renderBoard(id);});
     root.querySelectorAll("th button").forEach(b=>b.onclick=()=>{st.sort=b.dataset.k; save(); renderBoard(id);});
     root.dataset.ready=1;
   }
-  const sel=B.sels.find(s=>s.k===st.sel)||B.sels[0], c=sel.c;
-  root.querySelector(".sels").innerHTML=B.sels.map(s=>`<button class="sbtn${s.k===st.sel?" on":""}${s.off?" off":""}" style="--c:${s.c}" data-s="${s.k}">${s.icon}<span>${s.n}</span></button>`).join("");
+  const sels=B.sels(), sel=sels.find(s=>s.k===st.sel)||sels[0], c=sel.c;
+  root.querySelector(".sels").innerHTML=sels.map(s=>`<button class="sbtn${s.k===st.sel?" on":""}${s.off?" off":""}" style="--c:${s.c}" data-s="${s.k}">${s.icon}<span>${s.n}</span></button>`).join("");
   const rows=B.rows(st.sel,st.tab).slice();
   const head=root.querySelector(".head"); head.style.setProperty("--c",c);
   head.innerHTML=`<div class="ico">${sel.icon}</div><h2>${B.head(st.sel)}</h2><div class="cnt">${rows.length} 마리</div>`;
@@ -754,28 +484,37 @@ function renderBoard(id){
   const tb=root.querySelector("tbody"), eb=root.querySelector(".emptyBox");
   if(!rows.length){ tb.innerHTML=""; eb.innerHTML=`<div class="empty">이 타입은 아직 해당 포켓몬이 없어요.</div>`; return; }
   eb.innerHTML="";
-  const top={}; B.cols.forEach(([k])=>top[k]=Math.max(...rows.map(r=>r[k])));
-  rows.sort((a,b)=>b[st.sort]-a[st.sort]);
+  const top={}; B.cols.forEach(([k])=>top[k]=Math.max(...rows.map(r=>r[k]??0)));
+  rows.sort((a,b)=>(b[st.sort]??-1)-(a[st.sort]??-1));
   tb.innerHTML=rows.map((r,i)=>{
     const t=tierOf(r[B.tierCol]/top[B.tierCol]*100);
-    const tags=(r.mega?'<span class="tag m">MEGA</span>':"")+(r.shadow?'<span class="tag s">그림자</span>':"")+(r.gmax?'<span class="tag g">G-MAX</span>':"");
-    const base=Object.keys(SP).find(n=>NORMAL_KEY[n]===r.key) || ALIAS[M[r.key][0]];
+    const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"");
     return `<tr style="--tc:${c}"><td class="rank">${i+1}</td>
-      <td><div class="nm">${base?`<a data-poke="${esc(base)}">${esc(r.name)}</a>`:esc(r.name)}${tags}</div><div class="mv">${esc(r.moves)}</div></td>
-      ${B.cols.map(([k,,d])=>`<td class="num${st.sort===k?" sorted":""}">${r[k].toFixed(d)}<span class="p">${(r[k]/top[k]*100).toFixed(0)}%</span></td>`).join("")}
+      <td><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></td>
+      ${B.cols.map(([k,,d])=>r[k]==null?`<td class="num">—</td>`:`<td class="num${st.sort===k?" sorted":""}">${(+r[k]).toFixed(d)}<span class="p">${(r[k]/top[k]*100).toFixed(0)}%</span></td>`).join("")}
       <td class="tier"><span class="tb ${t}">${t}</span></td></tr>`;
   }).join("");
 }
-function save(){ try{ localStorage.setItem("boxterm3",JSON.stringify({raid:BOARDS.raid.st,dmax:BOARDS.dmax.st,pvp:BOARDS.pvp.st})); }catch(e){} }
-try{ const s=JSON.parse(localStorage.getItem("boxterm3")||"null"); if(s) for(const k in s) Object.assign(BOARDS[k].st,s[k]); }catch(e){}
+function save(){ try{ localStorage.setItem("boxterm4",JSON.stringify({raid:BOARDS.raid.st,dmax:BOARDS.dmax.st,pvp:BOARDS.pvp.st})); }catch(e){} }
+try{ const s=JSON.parse(localStorage.getItem("boxterm4")||"null"); if(s) for(const k in s) Object.assign(BOARDS[k].st,s[k]); }catch(e){}
 
-renderHome(); suggest("");
-// 자동 갱신 데이터가 있으면 교체 (직접 호스팅 시 data/events.json, 없으면 내장 데이터 유지)
+// ===== 시작 =====
+renderHome(); show();
+["raid","dmax","pvp"].forEach(renderBoard);
+$("#cardOut").innerHTML='<div class="empty">도감 데이터를 불러오는 중이에요…</div>';
+fetch("data/pokedex.json").then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }).then(d=>{
+  DEX=d; if(d.tiers) TIERS=d.tiers;
+  for(const c of d.cards){ CARDS[c.id]=c; SEARCH.push({id:c.id,ko:c.ko,en:c.en}); if(!NAME2ID[c.ko]) NAME2ID[c.ko]=c.id; }
+  suggest(""); openCard(CARDS.tyranitar?"tyranitar":d.cards[0].id);
+  ["raid","dmax","pvp"].forEach(renderBoard);
+  renderHome();
+}).catch(err=>{
+  const msg=`<div class="empty">도감 데이터를 불러오지 못했어요. (${esc(err.message)})<br>잠시 후 새로고침해 주세요.</div>`;
+  $("#cardOut").innerHTML=msg; ["raid","dmax","pvp"].forEach(id=>$("#v-"+id).innerHTML=msg);
+});
 fetch("data/events.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{
   if(d&&Array.isArray(d.events)&&d.events.length){ EVENTS=d.events; FEED_UPDATED=d.updated||FEED_UPDATED; FEED_SOURCE=d.source||FEED_SOURCE; renderHome(); }
-}).catch(()=>{}); openCard("마기라스");
-["raid","dmax","pvp"].forEach(renderBoard);
-show();
+}).catch(()=>{});
 </script>
 </body>
 </html>
