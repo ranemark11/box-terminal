@@ -1,15 +1,10 @@
 {
  "warnings": [],
- "gemini": [
-  "gemini-3.8-flash: TypeError: fetch failed",
-  "gemini-flash-latest: 503 {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
-  "gemini-flash-latest: TypeError: fetch failed",
-  "gemini-3.5-flash-lite: 성공 4개"
- ],
+ "gemini": [],
  "dexNames": 954,
  "counts": {
   "events": 23,
   "byRule": 19,
-  "gemini": 4
+  "gemini": 0
  }
 }
