@@ -387,7 +387,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.7</small></button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.8</small></button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="match">상성표</button>
@@ -613,7 +613,7 @@ function judge(id,mode){
     const sh=mode==="shadow";
     for(const f of finals){ const F=CARDS[f], x=bestOf(F.tiers?.raid?.[sh?"s":"n"]||[]); if(!x) continue;
       const who=noPlus(x.f), pre=!["일반","그림자"].includes(who)?who:f!==id?(sh?"그림자 ":"")+F.ko:"";
-      add(x.t,`${pre?esc(pre)+" ":""}레이드 <b>${x.t}</b> ${esc(x.w)}${plusOf(x.f)?" +기술":""}`); }
+      add(x.t,`${pre?esc(pre)+" ":""}레이드 <b>${x.t}</b> ${esc(x.w)}${plusOf(x.f)?" +기술MAX":""}`); }
   }
   const pv=bestOf(tiersFor(c,"pvp",mode==="shadow").list);
   if(pv&&VERDICT(pv.t)==="must") parts.push(`배틀 <b>${pv.t}</b> ${esc(noteOf(pv))}`);
@@ -727,7 +727,7 @@ function tiersFor(c, mode, sh){
 }
 const hasShadow=c=>c.shadow||(!c.final&&c.evo[c.evo.length-1].some(id=>CARDS[id]?.shadow));
 const PLUS_TXT=" (플러스 기술)", plusOf=t=>t.includes(PLUS_TXT), noPlus=t=>t.replace(PLUS_TXT,"");
-const PTAG='<span class="tag p">+기술</span>';
+const PTAG='<span class="tag p">+기술MAX</span>';
 function noteOf(x){ if(["일반","다이맥스","그림자"].includes(x.f)) return x.w; if(x.f.includes(x.w)) return x.f; return `${x.f} · ${x.w}`; }
 function sumCell(label, res){
   const b=res.list[0];
@@ -944,7 +944,7 @@ function renderBoard(id){
   const top={}; C.cols.forEach(([k])=>top[k]=Math.max(...rows.map(r=>r[k]??0)));
   rows.sort((a,b)=>(b[st.sort]??-1)-(a[st.sort]??-1));
   tb.innerHTML=rows.map((r,i)=>{
-    const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?'<span class="tag p">+기술</span>':"");
+    const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?'<span class="tag p">+기술MAX</span>':"");
     return `<tr style="--tc:${c}"><td class="rank">${i+1}</td>
       <td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></div></div></td>
       ${C.cols.map(([k,,d])=>r[k]==null?`<td class="num">—</td>`:`<td class="num${st.sort===k?" sorted":""}">${(+r[k]).toFixed(d)}<span class="p">${(r[k]/top[k]*100).toFixed(0)}%</span></td>`).join("")}
@@ -1030,7 +1030,7 @@ function renderType(){
       ${TMODE==="dmax"?roleSwitch(st.role):""}
       ${TMODE==="dmax"&&role==="tank"?`<div class="seg gopt"><button data-g="0" class="${st.gauge?"":"on"}">내구만</button><button data-g="1" class="${st.gauge?"on":""}">게이지 반영</button></div>`:""}
       <table><thead><tr><th>#</th><th>포켓몬 / 기술</th><th class="num">${col}</th><th style="text-align:center">티어</th></tr></thead><tbody>${list.map((r,i)=>{
-        const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?'<span class="tag p">+기술</span>':"");
+        const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?'<span class="tag p">+기술MAX</span>':"");
         return `<tr style="--tc:${r.mt?TC[r.mt]:"#5aa8ff"}"><td class="rank">${i+1}</td><td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></div></div></td>
           <td class="num sorted">${(+r.v).toFixed(TMODE==="dmax"&&role==="tank"&&!st.gauge?0:1)}<span class="p">${(r.v/top*100).toFixed(0)}%</span></td><td class="tier">${TB(r._t)}</td></tr>`;}).join("")}</tbody></table>
       <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;

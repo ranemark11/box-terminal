@@ -109,7 +109,9 @@ async function main() {
   const pve = {};      // moveId(PvPoke 형식) -> {type, power, energy, dur}
   const pmPokemon = {}; // 폼 키 -> pokemonSettings
   const breadKeys = new Set();
-  const plusPve = {}; // 메가 speciesId -> 플러스 기술 레이드 수치
+  // 플러스 기술은 메가레벨마다 위력 +10% (Lv1 ×1.0 … Lv4 ×1.3). 티어리스트는 풀강(메가레벨 4) 기준
+  const PLUS_MAX = 1.3;
+  const plusPve = {}; // 메가 speciesId -> 플러스 기술 레이드 수치 (위력은 풀강 기준)
   for (const t of pm) {
     const d = t.data || {};
     const vm = t.templateId.match(/^VM_MOVE_TEMP_EVOLUTION_MEGA(?:_([XY]))?_V\d+_POKEMON_(\w+)$/);
@@ -117,7 +119,7 @@ async function main() {
       const ms = d.moveSettings;
       plusPve[vm[2].toLowerCase() + "_mega" + (vm[1] ? "_" + vm[1].toLowerCase() : "")] = {
         type: (ms.pokemonType || "").replace("POKEMON_TYPE_", "").toLowerCase(),
-        power: ms.power || 0, energy: Math.abs(ms.energyDelta || 0), dur: (ms.durationMs || 1000) / 1000 };
+        power: (ms.power || 0) * PLUS_MAX, basePower: ms.power || 0, energy: Math.abs(ms.energyDelta || 0), dur: (ms.durationMs || 1000) / 1000 };
       continue;
     }
     if (d.moveSettings) {
