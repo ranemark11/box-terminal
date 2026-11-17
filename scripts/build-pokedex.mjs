@@ -469,7 +469,19 @@ async function main() {
     const fmt = b => b && { f: moveKo(b.f), c: moveKo(b.c), er: +b.er.toFixed(1), ef: el.has(b.f), ec: el.has(b.c) };
     const plus = c.megas.map(id => byId[id]).filter(Boolean).flatMap(m => (m.extraChargedMoves || []).filter(x => /_PLUS$/.test(x))
       .map(x => ({ mega: koName(m), move: moveKo(x), type: moveType(x) || plusPve[m.speciesId]?.type || null, raid: !!plusPve[m.speciesId] })));
-    c.rec = { t: T, n: fmt(n), e: e && (!n || e.f !== n.f || e.c !== n.c) ? fmt(e) : null, plus: plus.length ? plus : undefined };
+    // 2번째 스페셜어택(추가 해방): 주력 노말기는 그대로 두고, 주력과 다른 타입의 스페셜어택 중 가장 강한 것
+    let s2;
+    const mainFast = (n || e)?.f;
+    if (mainFast) {
+      const bestC = allowElite => { let b = null;
+        for (const cm of (p.chargedMoves || [])) { const mt = moveType(cm); if (!mt || mt === T || (!allowElite && el.has(cm))) continue;
+          const r = raidCalc(p, mainFast, cm, false); if (r && (!b || r.er > b.er)) b = { c: cm, t: mt, er: r.er }; }
+        return b; };
+      const sn = bestC(false), se = bestC(true);
+      const f2 = b => b && { c: moveKo(b.c), t: b.t, ec: el.has(b.c) };
+      if (sn || se) s2 = { n: f2(sn), e: se && (!sn || se.c !== sn.c) ? f2(se) : null };
+    }
+    c.rec = { t: T, n: fmt(n), e: e && (!n || e.f !== n.f || e.c !== n.c) ? fmt(e) : null, plus: plus.length ? plus : undefined, s2 };
   }
 
   const out = {

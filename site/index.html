@@ -152,6 +152,13 @@ button{font:inherit;color:inherit}
 .skill .plusmv{font-size:12px;white-space:nowrap}
 .skill .plusmv small{color:var(--dim);font-size:10.5px}
 .skill .plusmv .tag{margin:0 3px 0 0}
+.skill.s2{margin-top:2px}
+.skill .s2l{flex:none;font-size:10.5px;line-height:1.25;color:var(--dim);width:58px;text-align:center;border:1px dashed var(--faint);border-radius:6px;padding:2px 0}
+.tchip.sm{transform:scale(.85);transform-origin:left center;margin-right:-6px}
+.sknote{font-size:12.5px;color:var(--dim);line-height:1.6}
+.sknote b{color:var(--ink)}
+.skgo{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.skgo button{appearance:none;border:1px solid var(--ink);background:none;color:var(--ink);border-radius:999px;padding:3px 10px;font-size:11.5px;cursor:pointer}
 
 .devnote{margin:0 2px 12px;padding:9px 11px;border:1px dashed var(--amber);border-radius:10px;background:rgba(255,211,107,.08);font-size:12.5px;line-height:1.6;color:var(--ink)}
 .devnote a{color:var(--amber);text-decoration:underline;text-underline-offset:3px;word-break:break-all}
@@ -365,7 +372,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.4</small></button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.5</small></button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="match">상성표</button>
@@ -714,7 +721,11 @@ function sumCell(label, res){
 function formLine(x){ const where=x.f.includes(x.w)?"":` · ${esc(x.w)}`; return `<div class="form">${TB(x.t)}<span><b>${esc(noPlus(x.f))}</b>${plusOf(x.f)?PTAG:""}${where} ${x.r}위 (${x.p}%)</span></div>`; }
 // 기술 추천 (최종 진화형): 레이드 최고 티어 타입 기준. 가장 강한 조합을 먼저, 그게 레거시·이벤트 기술이면 아래에 "또는 일반 조합"
 function skillHTML(c){
-  const r=c.final&&c.rec; if(!r) return "";
+  if(!c.final){ // 진화 전: 최종 진화로 안내
+    const fins=c.evo[c.evo.length-1].filter(id=>CARDS[id]);
+    return `<div class="sec">추천 스킬</div><div class="sknote">스킬 추천은 <b>최종 진화 형태</b>에서만 제공해요.${fins.length?`<div class="skgo">${fins.map(id=>`<button data-n2="${esc(id)}">${esc(CARDS[id].ko)} 추천 스킬 보기 ›</button>`).join("")}</div>`:""}</div>`;
+  }
+  const r=c.rec; if(!r) return "";
   const mv=(x,el)=>`<span class="${el?"elite":""}">${esc(x)}</span>`;
   const combo=b=>`${mv(b.f,b.ef)} · ${mv(b.c,b.ec)}`;
   const main=r.e||r.n; if(!main) return "";
@@ -722,7 +733,13 @@ function skillHTML(c){
   const plus=(r.plus||[]).map(x=>`<span class="plusmv"><span class="tag p">+</span>${esc(x.move)} <small>${esc(x.mega)}</small></span>`).join("");
   return `<div class="sec">추천 스킬</div>
     <div class="skill"><span class="tchip" style="--tc:${TC[r.t]}">${svg(r.t,"#fff")}${TN[r.t]}</span>
-      <div class="sk-main"><div>${combo(main)}${plus?`<span class="plusbox">${plus}</span>`:""}</div>${alt}</div></div>`;
+      <div class="sk-main"><div>${combo(main)}${plus?`<span class="plusbox">${plus}</span>`:""}</div>${alt}</div></div>${s2HTML(r.s2)}`;
+}
+// 2번째 스페셜어택 (추가 해방): 주력과 다른 타입
+function s2HTML(x){
+  const m=x&&(x.e||x.n); if(!m) return "";
+  const one=b=>`<span class="tchip sm" style="--tc:${TC[b.t]}">${svg(b.t,"#fff")}${TN[b.t]}</span> <span class="${b.ec?"elite":""}">${esc(b.c)}</span>`;
+  return `<div class="skill s2"><span class="s2l">2번째<br>스페셜어택</span><div class="sk-main"><div>${one(m)}</div>${x.e&&x.n?`<div class="alt">또는 ${one(x.n)}</div>`:""}</div></div>`;
 }
 // 100% (15/15/15) CP
 const CPM={15:0.51739395,20:0.59740001,25:0.667934,30:0.7317,35:0.76156384,40:0.79030001,50:0.84029999,51:0.84529999};
