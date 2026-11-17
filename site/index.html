@@ -544,12 +544,14 @@ function tiersFor(c, mode, sh){
   return {list, via:finals.map(id=>CARDS[id].ko)};
 }
 const hasShadow=c=>c.shadow||(!c.final&&c.evo[c.evo.length-1].some(id=>CARDS[id]?.shadow));
+const PLUS_TXT=" (플러스 기술)", plusOf=t=>t.includes(PLUS_TXT), noPlus=t=>t.replace(PLUS_TXT,"");
+const PTAG='<span class="tag p">+기술</span>';
 function noteOf(x){ if(["일반","다이맥스","그림자"].includes(x.f)) return x.w; if(x.f.includes(x.w)) return x.f; return `${x.f} · ${x.w}`; }
 function sumCell(label, res){
   const b=res.list[0];
-  return `<div class="sumc"><div class="m">${label}</div>${b?`${TB(b.t)}<div class="w">${esc(noteOf(b))}</div>`:`${TB(null)}<div class="w">순위권 밖</div>`}</div>`;
+  return `<div class="sumc"><div class="m">${label}</div>${b?`${TB(b.t)}<div class="w">${esc(noPlus(noteOf(b)))}${plusOf(b.f)?PTAG:""}</div>`:`${TB(null)}<div class="w">순위권 밖</div>`}</div>`;
 }
-function formLine(x){ const where=x.f.includes(x.w)?"":` · ${esc(x.w)}`; return `<div class="form">${TB(x.t)}<span><b>${esc(x.f)}</b>${where} ${x.r}위 (${x.p}%)</span></div>`; }
+function formLine(x){ const where=x.f.includes(x.w)?"":` · ${esc(x.w)}`; return `<div class="form">${TB(x.t)}<span><b>${esc(noPlus(x.f))}</b>${plusOf(x.f)?PTAG:""}${where} ${x.r}위 (${x.p}%)</span></div>`; }
 // 기술 추천 (최종 진화형): 레이드 최고 티어 타입 기준. 가장 강한 조합을 먼저, 그게 레거시·이벤트 기술이면 아래에 "또는 일반 조합"
 function skillHTML(c){
   const r=c.final&&c.rec; if(!r) return "";
@@ -615,7 +617,7 @@ const NOTE_PVP=`티어는 리그별 <b>순위 개수 상한</b>으로만 정해�
  기술은 PvPoke 추천 조합이에요. 리그별 상위 40위까지 표시해요.`;
 // 다이맥스 역할 스위치 (큰 설정값: 탱커=파랑 방패, 딜러=주황 칼)
 const ROLE_ICON={tank:'<path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" fill="currentColor"/>',deal:'<path d="M14.5 3H21v6.5L10 20.5 3.5 14zM4 17l3 3-2 2-3-3z" fill="currentColor"/>'};
-const roleSwitch=role=>`<div class="roleSw">${[["tank","다이맥스 탱커"],["deal","다이맥스 딜러"]].map(([k,l])=>`<button class="rb ${k}${role===k?" on":""}" data-role="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${ROLE_ICON[k]}</svg>${l}</button>`).join("")}</div>`;
+const roleSwitch=role=>`<div class="roleSw">${[["deal","다이맥스 딜러"],["tank","다이맥스 탱커"]].map(([k,l])=>`<button class="rb ${k}${role===k?" on":""}" data-role="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${ROLE_ICON[k]}</svg>${l}</button>`).join("")}</div>`;
 // 다이맥스 탱커: 다이맥스 가능 포켓몬(최종진화) 한 줄씩, 내구 = 체력×방어/100, 게이지 = 가장 빠른 노말기 DPS
 let TANK_POOL=null;
 function dmaxTankPool(){
@@ -644,8 +646,8 @@ const BOARDS={
    cols:[["er","ER",1],["dps","DPS",1],["tdo","TDO",0]], tierCol:"er",
    pick:"위에서 포켓몬 타입을 골라 주세요.", rows:(s,t)=>(DEX.raid[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>`${TN[s]} 타입 공격자`,
    st:{sel:null,tab:"all",sort:"er"}, note:NOTE_RAID },
- dmax:{ roles:[["tank","다이맥스 탱커"],["deal","다이맥스 딜러"]],
-   st:{role:"tank",gauge:false,sel:null,tab:"all",sort:"eb"}, note:NOTE_DMAX,
+ dmax:{ roles:[["deal","다이맥스 딜러"],["tank","다이맥스 탱커"]],
+   st:{role:"deal",gauge:false,sel:null,tab:"all",sort:"score"}, note:NOTE_DMAX,
    cfg:st=>st.role==="deal"?{
      title:"맥스기 타입 선택", sels:()=>typeSels(k=>DEX.dmax[k]?.length), tabs:[["all","거다이맥스 포함"],["base","다이맥스만"]],
      cols:[["score","점수",1],["max","맥스딜",0],["fdps","게이지",1],["bulk","내구",0]], tierCol:"score",
