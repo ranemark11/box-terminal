@@ -298,7 +298,7 @@ const svg = (t,c)=>`<svg viewBox="0 0 24 24" style="color:${c||TC[t]}" aria-hidd
 // ===== 도감 데이터 (data/pokedex.json, 매주 자동 갱신) =====
 let DEX=null, CARDS={}, NAME2ID={}, SEARCH=[];
 // 티어 규칙 (빌드 스크립트와 동일, pokedex.json의 tierRule로 덮어씀)
-let TIER_RULE={names:["SS","S","A","B","C"],caps:[3,7,12,22,40],minPct:[95,88,80,70,55],tie:0.01};
+let TIER_RULE={names:["SS","S","A","B","C"],caps:[3,4,5,10,18],minPct:[95,88,80,70,55],tie:0.01};
 const ORDER=t=>t?TIER_RULE.names.indexOf(t):9;
 // rows는 metric 내림차순이어야 함. 각 행에 _t(티어|null) 기록
 function assignTiers(rows, metric, usePct=true){
@@ -307,7 +307,7 @@ function assignTiers(rows, metric, usePct=true){
   for(const r of rows){
     const v=r[metric], pct=v/top*100;
     if(usePct&&level<5&&n>=R.caps[level]&&boundary!=null&&v>=boundary*(1-R.tie)&&pct>=R.minPct[level]){ r._t=R.names[level]; n++; continue; }
-    while(level<5&&(n>=R.caps[level]||(usePct&&pct<R.minPct[level]))){ level++; boundary=null; }
+    while(level<5&&(n>=R.caps[level]||(usePct&&pct<R.minPct[level]))){ level++; n=0; boundary=null; }
     r._t=level<5?R.names[level]:null;
     if(r._t){ n++; boundary=v; }
   }
@@ -315,8 +315,8 @@ function assignTiers(rows, metric, usePct=true){
 }
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const legendHTML=(usePct=true)=>{ const R=TIER_RULE; let prev=0;
-  return R.names.map((t,i)=>{ const cnt=R.caps[i]-prev; prev=R.caps[i]; return `<span><i class="tb ${t}">${t}</i>최대 ${cnt}${usePct?` · ${R.minPct[i]}%↑`:""}</span>`; }).join("")+`<span><i class="tb N">—</i>순위권 밖</span>`; };
+const legendHTML=(usePct=true)=>{ const R=TIER_RULE;
+  return R.names.map((t,i)=>{ const cnt=R.caps[i]; return `<span><i class="tb ${t}">${t}</i>최대 ${cnt}${usePct?` · ${R.minPct[i]}%↑`:""}</span>`; }).join("")+`<span><i class="tb N">—</i>순위권 밖</span>`; };
 const TB=t=>t?`<span class="tb ${t}">${t}</span>`:`<span class="tb N" title="순위권 밖">—</span>`;
 const LEAGUES=[["great","슈퍼리그","#4f92ff"],["ultra","하이퍼리그","#ffd36b"],["master","마스터리그","#b45bd1"]];
 const LN=Object.fromEntries(LEAGUES.map(l=>[l[0],l[1]]));
