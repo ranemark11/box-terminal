@@ -387,7 +387,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.8</small></button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.9</small></button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="match">상성표</button>
@@ -888,7 +888,7 @@ const BOARDS={
    st:{role:"deal",gauge:false,sel:null,tab:"all",sort:"score"}, note:NOTE_DMAX,
    cfg:st=>st.role==="deal"?{
      title:"맥스기 타입 선택", sels:()=>typeSels(k=>DEX.dmax[k]?.length), tabs:[["all","거다이맥스 포함"],["base","다이맥스만"]],
-     cols:[["score","점수",1],["max","맥스딜",0],["fdps","게이지",1],["bulk","내구",0]], tierCol:"score",
+     cols:[["score","맥스딜",0],["fdps","게이지",1],["bulk","내구",0]], tierCol:"score",
      pick:"위에서 포켓몬 타입(맥스기 타입)을 골라 주세요.", rows:(s,t)=>(DEX.dmax[s]||[]).filter(r=>t!=="base"||!r.tg.includes("g")), head:s=>`맥스${TN[s]} 딜러`
    }:{
      title:"상대 공격 타입 선택", sels:()=>typeSels(), tabs:[["all","거다이맥스 포함"],["base","다이맥스만"]],

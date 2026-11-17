@@ -391,11 +391,11 @@ async function main() {
       const mType = fixed ? fixed.type : F.type;
       const max = hit(g ? GMAX_POWER : MAX_POWER, atk, mType, p);
       const row = { id: p.speciesId, n: (g ? "거다이맥스 " : "") + cards[p.speciesId]?.ko, tg: g ? ["g"] : [],
-        mv: `${mvName(p, f)} → ${fixed ? fixed.name : "맥스" + (TYPE_KO[F.type] || "")}`, score: +Math.pow(max ** 3 * fdps, 0.25).toFixed(2),
+        mv: `${mvName(p, f)} → ${fixed ? fixed.name : "맥스" + (TYPE_KO[F.type] || "")}`, score: max, // 딜러 티어 = 맥스기 한 방 데미지
         max, fdps: +fdps.toFixed(2), bulk: Math.round(hp * def / 100) };
       const list = dmax[mType]; if (!list) continue;
       const dup = list.find(r => r.id === row.id && r.tg.join() === row.tg.join());
-      if (!dup) list.push(row); else if (row.score > dup.score) Object.assign(dup, row);
+      if (!dup) list.push(row); else if (row.score > dup.score || (row.score === dup.score && row.fdps > dup.fdps)) Object.assign(dup, row);
     }
   }
   dmaxCount = dmSet.size; report.counts.dynamaxPokemon = dmaxCount;
@@ -423,7 +423,7 @@ async function main() {
     assignTiers(raid[t], "er");
     const base = raid[t].filter(r => !r.tg.length).slice(0, LIMIT_RAID);
     raid[t] = [...new Map([...raid[t].slice(0, LIMIT_RAID), ...base].map(r => [r.id + r.tg.join() + r.n, r])).values()];
-    dmax[t] = dmax[t].filter(r => isFinal(r.id)).sort((a, b) => b.score - a.score);
+    dmax[t] = dmax[t].filter(r => isFinal(r.id)).sort((a, b) => b.score - a.score || b.fdps - a.fdps);
     assignTiers(dmax[t], "score");
   }
 
