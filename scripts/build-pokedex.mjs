@@ -185,7 +185,9 @@ async function main() {
     const roots = ids.filter(id => !parentOf(id) && !/_(alolan|galarian|hisuian|paldean)/.test(id) || (!parentOf(id) && suffix && id.includes(suffix)));
     const stages = []; let level = roots.length ? roots : [c.id]; const seen = new Set();
     while (level.length && stages.length < 4) {
-      const cur = level.filter(id => !seen.has(id) && cards[id]); cur.forEach(id => seen.add(id));
+      let cur = level.filter(id => !seen.has(id) && cards[id]); cur.forEach(id => seen.add(id));
+      // 코스튬 변형(예: pikachu_horizons)은 진화 단계에서 숨김. 지역폼·현재 카드는 유지
+      cur = cur.filter(id => id === c.id || !cur.some(o => o !== id && id.startsWith(o + "_") && !/_(alolan|galarian|hisuian|paldean)/.test(id.slice(o.length))));
       if (cur.length) stages.push(cur);
       level = ids.filter(id => cur.includes(parentOf(id)));
     }
