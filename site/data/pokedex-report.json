@@ -1,11 +1,11 @@
 {
  "warnings": [
-  "PvE 수치 없는 기술 19개: FUTURE_SIGHT, HIDDEN_POWER_WATER, HIDDEN_POWER_ELECTRIC, HIDDEN_POWER_ICE, HIDDEN_POWER_PSYCHIC, HIDDEN_POWER_ROCK, HIDDEN_POWER_GRASS, HIDDEN_POWER_BUG, HIDDEN_POWER_FIRE, HIDDEN_POWER_FLYING, TECHNO_BLAST_DOUSE, HIDDEN_POWER_FIGHTING, HIDDEN_POWER_POISON, HIDDEN_POWER_GROUND, HIDDEN_POWER_GHOST, HIDDEN_POWER_DRAGON, HIDDEN_POWER_DARK, HIDDEN_POWER_STEEL, PYRO_BALL"
+  "PvE 수치 없는 기술 2개: TECHNO_BLAST_DOUSE, PYRO_BALL"
  ],
  "counts": {
   "dynamaxPokemon": 1071,
   "cards": 1075,
-  "raidRows": 2265,
+  "raidRows": 2330,
   "pvpRows": {
    "great": 200,
    "ultra": 200,
@@ -14,7 +14,106 @@
   "koNamesMissing": 0
  },
  "probe": {
-  "pveMoves": 403,
+  "techno": [
+   "HIDDEN_POWER",
+   "TECHNO_BLAST_NORMAL",
+   "TECHNO_BLAST_BURN",
+   "TECHNO_BLAST_CHILL",
+   "TECHNO_BLAST_WATER",
+   "TECHNO_BLAST_SHOCK",
+   "PYROBALL",
+   "HIDDEN_POWER_NORMAL",
+   "HIDDEN_POWER_FIRE",
+   "HIDDEN_POWER_WATER",
+   "HIDDEN_POWER_GRASS",
+   "HIDDEN_POWER_ELECTRIC",
+   "HIDDEN_POWER_ICE",
+   "HIDDEN_POWER_FIGHTING",
+   "HIDDEN_POWER_POISON",
+   "HIDDEN_POWER_GROUND",
+   "HIDDEN_POWER_FLYING",
+   "HIDDEN_POWER_PSYCHIC",
+   "HIDDEN_POWER_BUG",
+   "HIDDEN_POWER_ROCK",
+   "HIDDEN_POWER_GHOST",
+   "HIDDEN_POWER_DRAGON",
+   "HIDDEN_POWER_DARK",
+   "HIDDEN_POWER_STEEL",
+   "HIDDEN_POWER_FAIRY"
+  ],
+  "dmaxTemplates": [
+   "AVATAR_f_gloves_dynamaxswsh",
+   "AVATAR_m_gloves_dynamaxswsh",
+   "BREAD_BATTLE_CLIENT_SETTINGS",
+   "BREAD_FEATURE_FLAGS",
+   "BREAD_LOBBY_COUNTER_SETTINGS",
+   "BREAD_LOBBY_UPDATE_SETTINGS",
+   "BREAD_MOVE_LEVEL_SETTINGS_GROUP_1",
+   "BREAD_MOVE_LEVEL_SETTINGS_GROUP_2",
+   "BREAD_MOVE_LEVEL_SETTINGS_GROUP_3",
+   "BREAD_MOVE_LEVEL_SETTINGS_GROUP_4",
+   "BREAD_MOVE_LEVEL_SETTINGS_GROUP_7",
+   "BREAD_MOVE_LEVEL_SETTINGS_GROUP_8",
+   "BREAD_MOVE_LEVEL_SETTINGS_GROUP_Z",
+   "BREAD_MOVE_MAPPING_SETTINGS",
+   "BREAD_POKEMON_SCALING_SETTINGS",
+   "BREAD_SHARED_SETTINGS",
+   "COMBAT_V0482_MOVE_DYNAMAX_CANNON",
+   "NON_COMBAT_V0482_MOVE_DYNAMAX_CANNON",
+   "N_DISPLAY_n_gloves_dynamaxswsh_0",
+   "SOURDOUGH_MOVE_MAPPING_SETTINGS",
+   "STICKER_BREADKOREA_001",
+   "STICKER_BREADKOREA_002",
+   "STICKER_BREADKOREA_003",
+   "STICKER_BREADKOREA_004",
+   "STICKER_BREADKOREA_005",
+   "STICKER_BREADKOREA_006",
+   "V0482_MOVE_DYNAMAX_CANNON",
+   "bundle.gmaxday.1",
+   "sequence_dynamax_cannon"
+  ],
+  "dmaxTemplateCount": 29,
+  "dmaxSamples": [
+   "{\"templateId\":\"AVATAR_f_gloves_dynamaxswsh\",\"avatarCustomization\":{\"enabled\":true,\"avatarType\":\"PLAYER_AVATAR_FEMALE\",\"slot\":[\"GLOVES\"],\"bundleName\":\"f_gloves_dynamaxswsh_bundle\",\"assetName\":\"f_gloves_dynamaxswsh_0\",\"groupName\":\"group_gloves\",\"sortOrder\":101632,\"unlockType\":\"IAP_CLOTHING\",\"iapSku\":\"pgorelease.avatar.f_gloves_dynamaxswsh_0\",\"iconName\":\"f_gloves_dynamaxswsh_00_bundle_icon\"}}",
+   "{\"templateId\":\"AVATAR_m_gloves_dynamaxswsh\",\"avatarCustomization\":{\"enabled\":true,\"slot\":[\"GLOVES\"],\"bundleName\":\"m_gloves_dynamaxswsh_bundle\",\"assetName\":\"m_gloves_dynamaxswsh_0\",\"groupName\":\"group_gloves\",\"sortOrder\":101631,\"unlockType\":\"IAP_CLOTHING\",\"iapSku\":\"pgorelease.avatar.m_gloves_dynamaxswsh_0\",\"iconName\":\"m_gloves_dynamaxswsh_00_bundle_icon\"}}",
+   "{\"templateId\":\"BREAD_BATTLE_CLIENT_SETTINGS\",\"breadBattleClientSettings\":{\"remoteBreadBattleEnabled\":true,\"breadBattleMinPlayerLevel\":13,\"remoteBreadBattleMinPlayerLevel\":13,\"maxNumFriendInvites\":10,\"friendInviteCutoffTimeSec\":20,\"canInviteFriendsInPerson\":true,\"canInviteFriendsRemotely\":true,\"maxPlayersPerBreadLobby\":4,\"maxRemotePlayersPerBreadLobby\":4,\"inviteCooldownDurationMillis\":\"30000\",\"maxNumFriendInvitesPerAction\":3,\"prepareBreadLobbyEnabled\":true,\"minPlayersToPrepareBreadLobby\":1,\"prepareBreadLobbyCutoffMs\":15000,\"prepareBreadLobbySoloMs\":80000,\"rvnVersion\":1,\"maxPlayersPerBreadDoughLobby\":100,\"maxRemotePlayersPerBreadDoughLobby\":100,\"maxRemoteBreadBattlePassesAllowed\":10,\"maxNumFri",
+   "{\"templateId\":\"BREAD_FEATURE_FLAGS\",\"breadFeatureFlags\":{\"enabled\":true,\"discoveryEnabled\":true,\"mpEnabled\":true,\"stationDiscoveryMode\":\"DYNAMIC_STATIONS\",\"battleSpawnMode\":\"GMT_SPAWN\",\"battleEnabled\":true,\"nearbyLobbyCounterEnabled\":true,\"minimumPlayerLevel\":20,\"breadPostBattleRecoveryEnabled\":true,\"powerSpotEditsEnabled\":true,\"canUseMasterBallPostBattle\":true,\"boostItemEnabled\":true,\"lobbyPushUpdateEnabled\":true}}",
+   "{\"templateId\":\"BREAD_LOBBY_COUNTER_SETTINGS\",\"breadLobbyCounterSettings\":{\"showCounterRadiusMeters\":709,\"subscribeS2Level\":13,\"subscriptionNamespace\":\"pgorelease/BREAD_RAID_LOBBY_COUNT\",\"publishCutoffTimeMs\":\"20000\",\"breadDoughLobbyMaxCountToUpdate\":100}}",
+   "{\"templateId\":\"BREAD_LOBBY_UPDATE_SETTINGS\",\"breadLobbyUpdateSettings\":{\"joinPublishCutoffTimeMs\":\"15000\",\"serverPublishRateLimitIntervalMs\":\"1000\"}}"
+  ],
+  "dataKeys": [
+   "breadBattleClientSettings",
+   "breadFeatureFlags",
+   "breadLobbyCounterSettings",
+   "breadLobbyUpdateSettings",
+   "breadMoveLevelSettings",
+   "breadMoveMappings",
+   "breadPokemonScalingSettings",
+   "breadSettings",
+   "sourdoughMoveMappingSettings"
+  ],
+  "pvpokeTags": [
+   "starter",
+   "shadoweligible",
+   "shadow",
+   "mega",
+   "supermega",
+   "alolan",
+   "galarian",
+   "include1500",
+   "hisuian",
+   "regional",
+   "paldean",
+   "legendary",
+   "wildlegendary",
+   "mythical",
+   "untradeable",
+   "include2500",
+   "teambuilderexclude",
+   "ultrabeast",
+   "include10000"
+  ],
+  "pveMoves": 422,
   "dynamaxKeys": [
    "breadTierGroup"
   ],
@@ -259,5 +358,5 @@
    }
   ]
  },
- "bytes": 841467
+ "bytes": 883506
 }
