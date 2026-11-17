@@ -106,7 +106,8 @@ async function translate(items) {
   const key = process.env.GEMINI_API_KEY;
   if (!items.length) return {};
   if (!key) { report.gemini.push("API 키 없음 — 원문 유지"); return {}; }
-  const models = [...new Set([process.env.GEMINI_MODEL, "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash"].filter(Boolean))];
+  // 구형 모델은 신규 키에서 막힘(404) → 최신 별칭·모델 순서로 시도, 혼잡(503/429)은 잠시 후 1회 재시도
+  const models = [...new Set([process.env.GEMINI_MODEL, "gemini-3.8-flash", "gemini-flash-latest", "gemini-3.5-flash-lite", "gemini-flash-lite-latest"].filter(Boolean))];
   const prompt = `다음은 포켓몬고 이벤트 목록(JSON)이다. 각 항목을 한국어로 옮겨라.
 규칙:
 - 포켓몬 이름은 반드시 한국 공식 명칭
@@ -116,7 +117,11 @@ async function translate(items) {
 - 출력은 JSON 배열만: [{"id":..., "title":..., "desc":..., "pokemon":[...]}]
 입력:
 ${JSON.stringify(items)}`;
-  for (const model of models) {
+  const attempts = models.flatMap(m => [m, m]);
+  for (let i = 0; i < attempts.length; i++) {
+    const model = attempts[i], retry = i % 2 === 1;
+    if (retry && !/: (503|429|500)/.test(report.gemini.at(-1) || "")) continue;
+    if (retry) await new Promise(r => setTimeout(r, 8000));
     try {
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
         method: "POST",
