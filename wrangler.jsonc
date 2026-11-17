@@ -1,0 +1,6 @@
+// Cloudflare Workers(정적 파일) 배포 설정 — site 폴더를 그대로 공개
+{
+  "name": "box-terminal",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./site" }
+}
