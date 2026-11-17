@@ -309,8 +309,13 @@ async function main() {
     const def = (p.baseStats.def + 15) * CPM40 * (shadow ? 5 / 6 : 1);
     const hp = Math.floor((p.baseStats.hp + 15) * CPM40);
     const FD = hit(F.power, atk, F.type, p), CD = hit(C.power, atk, C.type, p);
-    const dps = (FD * C.energy + CD * F.energy) / (C.energy * F.dur + F.energy * C.dur);
-    const tdo = dps * hp * def / SURV_K;
+    // 맞으면서 얻는 에너지 포함 (GamePress 방식): 상대에게 받는 초당 피해 y = 900/방어, 잃은 체력 1당 에너지 0.5,
+    // 쓰러질 때 남아 버려지는 에너지 x = (스페셜 에너지 + 노말 에너지)/2
+    const FDPS = FD / F.dur, FEPS = F.energy / F.dur, CDPS = CD / C.dur, CEPS = C.energy / C.dur;
+    const dps0 = (FDPS * CEPS + CDPS * FEPS) / (CEPS + FEPS);
+    const y = SURV_K / def, x = 0.5 * C.energy + 0.5 * F.energy;
+    const dps = Math.max(FDPS, dps0 + (CDPS - FDPS) / (CEPS + FEPS) * (0.5 - x / hp) * y);
+    const tdo = dps * hp / y; // = DPS × 체력 × 방어 / 900
     return { dps, tdo, er: Math.pow(dps ** 3 * tdo, 0.25) };
   }
   const elite = p => new Set([...(p.eliteMoves || []), ...(p.legacyMoves || [])]);

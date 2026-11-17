@@ -57,8 +57,9 @@
 
 ## 계산식 (레이드)
 - 한 방 = ⌊0.5 × 위력 × 공격/방어 × 자속1.2 × 효과굉장1.6⌋ + 1, 기준 상대 방어 180, Lv40 15/15/15
-- DPS = (FD×CE + CD×FE) / (CE×Fdur + FE×Cdur)
-- TDO = DPS × 체력 × 방어 / 900, ER = (DPS³ × TDO)^¼ (딜 3 : 내구 1)
+- DPS = **맞으면서 얻는 에너지 포함**(GamePress 방식): DPS0 = (FDPS×CEPS + CDPS×FEPS)/(CEPS+FEPS) (FDPS=FD/Fdur, FEPS=FE/Fdur, CDPS=CD/Cdur, CEPS=CE/Cdur)
+  → DPS = DPS0 + (CDPS−FDPS)/(CEPS+FEPS) × (0.5 − x/체력) × y, y = 900/방어(받는 초당 피해), x = (CE+FE)/2(쓰러질 때 남는 에너지). 노말기만 쓸 때보다 낮으면 FDPS.
+- TDO = DPS × 체력 / y = DPS × 체력 × 방어 / 900, ER = (DPS³ × TDO)^¼ (딜 3 : 내구 1)
 - 그림자: 공격 ×1.2, 방어 ×5/6. 포켓몬마다 해당 타입 최고 기술 조합. 기술명 뒤 `*` = 레거시·특수
 - **메가 플러스 기술**(예: 역린+): 메가진화 중에만 쓰는 추가 스페셜어택. 어떤 메가가 쓰는지는 PvPoke `extraChargedMoves`,
   레이드 수치는 게임 데이터 `VM_MOVE_TEMP_EVOLUTION_MEGA[_X|_Y]_V####_POKEMON_이름` 템플릿(기술 이름이 아니라 포켓몬 이름으로 저장됨).
