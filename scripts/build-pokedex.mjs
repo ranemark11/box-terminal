@@ -143,6 +143,22 @@ async function main() {
   report.probe.dataKeys = [...dataKeys].filter(k => /bread|sourdough|max|dough/i.test(k));
   report.probe.pvpokeTags = [...new Set((gm.pokemon || []).flatMap(p => p.tags || []))];
   report.probe.pveMoves = Object.keys(pve).length;
+  // 플러스 기술(메가 전용 "+") 탐색: 게임 데이터·PvPoke 양쪽에서 이름·필드 확인
+  {
+    const plusT = pm.filter(t => /PLUS/i.test(t.templateId) || /PLUS/i.test(JSON.stringify(t.data?.moveSettings?.movementId || t.data?.combatMove?.uniqueId || "")));
+    report.probe.plusMoveTemplates = plusT.slice(0, 40).map(t => ({ id: t.templateId, data: JSON.stringify(t.data).slice(0, 400) }));
+    const megaLvl = pm.filter(t => /MEGA_LEVEL|MEGA_EVO_LEVEL|TEMP_EVO.*LEVEL|SUPER_MAX/i.test(t.templateId));
+    report.probe.megaLevelTemplates = megaLvl.slice(0, 15).map(t => ({ id: t.templateId, data: JSON.stringify(t.data).slice(0, 600) }));
+    const dn = pm.find(t => t.data?.pokemonSettings && t.data.pokemonSettings.pokemonId === "DRAGONITE" && !t.data.pokemonSettings.form?.includes("_"))
+            || pm.find(t => t.data?.pokemonSettings?.pokemonId === "DRAGONITE");
+    report.probe.dragoniteTempEvo = JSON.stringify(dn?.data?.pokemonSettings?.tempEvoOverrides || null).slice(0, 1500);
+    const keysWithPlus = new Set();
+    for (const t of pm) { const ps = t.data?.pokemonSettings; if (!ps) continue;
+      for (const o of ps.tempEvoOverrides || []) for (const k of Object.keys(o)) if (/move|attack|plus/i.test(k)) keysWithPlus.add(k); }
+    report.probe.tempEvoMoveKeys = [...keysWithPlus];
+    report.probe.pvpokePlusMoves = (gm.moves || []).filter(m => /PLUS|\+/.test(m.moveId + " " + m.name)).map(m => ({ id: m.moveId, name: m.name, type: m.type, power: m.power, energy: m.energy }));
+    report.probe.pvpokeMegaDragonite = (gm.pokemon || []).filter(p => /^dragonite_mega/.test(p.speciesId)).map(p => ({ id: p.speciesId, fast: p.fastMoves, charged: p.chargedMoves }));
+  }
   report.probe.dynamaxKeys = [...breadKeys];
   report.probe.samplePokemonKeys = Object.keys(pmPokemon["charizard"] || {});
   report.probe.charizardBread = Object.fromEntries([...breadKeys].map(k => [k, (pmPokemon["charizard"] || {})[k]]));
