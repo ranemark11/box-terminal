@@ -47,16 +47,14 @@ button{font:inherit;color:inherit}
 .vents i{width:18px;height:4px;border-radius:2px;background:var(--bezel-lo);box-shadow:inset 0 1px 1px rgba(0,0,0,.6)}
 .nav{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:0 2px 10px}
 .subnav{margin:0 0 12px}
-.skill{display:flex;flex-direction:column;gap:2px}
-.srow{display:grid;grid-template-columns:86px 1fr;gap:8px;align-items:start;padding:6px 0;border-top:1px solid rgba(111,179,154,.15);font-size:12.5px;line-height:1.5}
-.srow:first-child{border-top:0}
-.srow .sk{font-size:11.5px;color:var(--dim);padding-top:1px}
+.skill{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.55;padding:2px 0 4px}
+.skill .tchip{flex:none;margin-top:1px}
 .skill .elite{color:var(--amber);font-weight:700}
-.skill .up{color:#5cff9d;font-family:VT323,monospace;font-size:15px}
-.skill .dimtxt{color:var(--dim);font-size:11.5px}
-.plusmv{margin-top:5px;font-size:12px}
-.plusmv small{color:var(--dim);font-size:10.5px}
-.plusmv .tag{margin:0 4px 0 0}
+.skill .alt{font-size:11.5px;color:var(--dim);margin-top:2px}
+.skill .plusbox{display:inline-flex;flex-wrap:wrap;gap:6px;margin-left:8px}
+.skill .plusmv{font-size:12px;white-space:nowrap}
+.skill .plusmv small{color:var(--dim);font-size:10.5px}
+.skill .plusmv .tag{margin:0 3px 0 0}
 
 .devnote{margin:0 2px 12px;padding:9px 11px;border:1px dashed var(--amber);border-radius:10px;background:rgba(255,211,107,.08);font-size:12.5px;line-height:1.6;color:var(--ink)}
 .devnote a{color:var(--amber);text-decoration:underline;text-underline-offset:3px;word-break:break-all}
@@ -528,20 +526,17 @@ function sumCell(label, res){
   return `<div class="sumc"><div class="m">${label}</div>${b?`${TB(b.t)}<div class="w">${esc(noteOf(b))}</div>`:`${TB(null)}<div class="w">순위권 밖</div>`}</div>`;
 }
 function formLine(x){ const where=x.f.includes(x.w)?"":` · ${esc(x.w)}`; return `<div class="form">${TB(x.t)}<span><b>${esc(x.f)}</b>${where} ${x.r}위 (${x.p}%)</span></div>`; }
-// 기술 추천 (최종 진화형): 레이드 최고 티어 타입 기준
+// 기술 추천 (최종 진화형): 레이드 최고 티어 타입 기준. 가장 강한 조합을 먼저, 그게 레거시·이벤트 기술이면 아래에 "또는 일반 조합"
 function skillHTML(c){
   const r=c.final&&c.rec; if(!r) return "";
   const mv=(x,el)=>`<span class="${el?"elite":""}">${esc(x)}</span>`;
   const combo=b=>`${mv(b.f,b.ef)} · ${mv(b.c,b.ec)}`;
-  const plus=(r.plus||[]).map(x=>`<div class="plusmv"><span class="tag p">+기술</span><b>${esc(x.move)}</b> <small>${esc(x.mega)} 메가진화 시${x.raid?"":" · 레이드 수치 미공개"}</small></div>`).join("");
-  const nRow=r.n?combo(r.n):`<span class="dimtxt">이 타입은 일반 기술머신으로 배우는 조합이 없어요</span>`;
-  const eRow=r.e?`${combo(r.e)}${r.n?` <small class="up">+${Math.round((r.e.er/r.n.er-1)*100)}%</small>`:""}`:`<span class="dimtxt">일반 기술머신 조합이 가장 좋아요</span>`;
-  return `<div class="sec">SKILL</div>
-    <div class="skill">
-      <div class="srow"><span class="sk">추천 기준</span><span><span class="tchip" style="--tc:${TC[r.t]}">${svg(r.t,"#fff")}${TN[r.t]}</span> <small class="dimtxt">레이드 최고 티어 타입</small></span></div>
-      <div class="srow"><span class="sk">일반 기술머신</span><span>${nRow}</span></div>
-      <div class="srow"><span class="sk">이벤트·<br>대단한 기술머신</span><span>${eRow}${plus}</span></div>
-    </div>`;
+  const main=r.e||r.n; if(!main) return "";
+  const alt=r.e&&r.n?`<div class="alt">또는 ${combo(r.n)}</div>`:"";
+  const plus=(r.plus||[]).map(x=>`<span class="plusmv"><span class="tag p">+</span>${esc(x.move)} <small>${esc(x.mega)}</small></span>`).join("");
+  return `<div class="sec">추천 스킬</div>
+    <div class="skill"><span class="tchip" style="--tc:${TC[r.t]}">${svg(r.t,"#fff")}${TN[r.t]}</span>
+      <div class="sk-main"><div>${combo(main)}${plus?`<span class="plusbox">${plus}</span>`:""}</div>${alt}</div></div>`;
 }
 function openCard(id, keepShadow){
   const c=CARDS[id]; if(!c) return;
