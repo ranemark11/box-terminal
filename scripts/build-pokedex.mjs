@@ -250,7 +250,8 @@ async function main() {
   try {
     const ITEM_KO = { ITEM_SUN_STONE: "태양의돌", ITEM_KINGS_ROCK: "왕의징표석", ITEM_METAL_COAT: "금속코트", ITEM_DRAGON_SCALE: "용의비늘",
       ITEM_UP_GRADE: "업그레이드", ITEM_GEN4_EVOLUTION_STONE: "신오의돌", ITEM_GEN5_EVOLUTION_STONE: "하나의돌",
-      ITEM_OTHER_EVOLUTION_STONE_A: "진화의돌", ITEM_TROY_DISK_GLACIAL: "빙하 루어", ITEM_TROY_DISK_MOSSY: "이끼 루어",
+      ITEM_OTHER_EVOLUTION_STONE_A: "코인 999개", ITEM_BEANS: "지가르데 셀",
+      ITEM_OTHER_EVOLUTION_STONE_MAPLE_A: "달콤한사과", ITEM_OTHER_EVOLUTION_STONE_MAPLE_B: "새콤한사과", ITEM_OTHER_EVOLUTION_STONE_MAPLE_C: "꿀맛사과", ITEM_TROY_DISK_GLACIAL: "빙하 루어", ITEM_TROY_DISK_MOSSY: "이끼 루어",
       ITEM_TROY_DISK_MAGNETIC: "마그넷 루어", ITEM_TROY_DISK_RAINY: "레이니 루어", ITEM_TROY_DISK_SPARKLY: "반짝반짝 루어" };
     const REGION_KW = c => (c.id.match(/_(alolan|galarian|hisuian|paldean)/) || [])[1] || "";
     const nameDex = {};
@@ -277,6 +278,7 @@ async function main() {
         const to = br.form ? cardOf(br.evolution, br.form)
           : (REGION_KW(from) && cardOf(br.evolution, br.evolution + "_" + String(ps.form).split("_").pop())) || cardOf(br.evolution, "");
         if (!to) { miss++; continue; }
+        if (from.id === to.id) continue;
         const key = from.id + ">" + to.id; if (seen.has(key)) continue; seen.add(key);
         const x = [];
         for (const k of ["evolutionItemRequirement", "lureItemRequirement"]) if (br[k]) { if (!ITEM_KO[br[k]]) unknownItems.add(br[k]); x.push(ITEM_KO[br[k]] || br[k].replace(/^ITEM_/, "").toLowerCase()); }
@@ -286,7 +288,7 @@ async function main() {
         if (br.kmBuddyDistanceRequirement) x.push(`파트너로 ${br.kmBuddyDistanceRequirement}km`);
         else if (br.mustBeBuddy) x.push("파트너일 때");
         if (br.onlyUpsideDown) x.push("기기를 뒤집어서");
-        if (br.questDisplay?.length) x.push("특별 미션");
+        if (br.questDisplay?.length && !br.kmBuddyDistanceRequirement) x.push("특별 미션");
         if (br.noCandyCostViaTrade) x.push("교환하면 사탕 0");
         (to.how ||= []).push({ from: from.id, c: br.candyCost || 0, x });
         edges++;
