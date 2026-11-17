@@ -145,20 +145,17 @@ async function main() {
   report.probe.pveMoves = Object.keys(pve).length;
   // 플러스 기술(메가 전용 "+") 탐색: 게임 데이터·PvPoke 양쪽에서 이름·필드 확인
   {
-    const plusT = pm.filter(t => /PLUS/i.test(t.templateId) || /PLUS/i.test(JSON.stringify(t.data?.moveSettings?.movementId || t.data?.combatMove?.uniqueId || "")));
-    report.probe.plusMoveTemplates = plusT.slice(0, 40).map(t => ({ id: t.templateId, data: JSON.stringify(t.data).slice(0, 400) }));
-    const megaLvl = pm.filter(t => /MEGA_LEVEL|MEGA_EVO_LEVEL|TEMP_EVO.*LEVEL|SUPER_MAX/i.test(t.templateId));
-    report.probe.megaLevelTemplates = megaLvl.slice(0, 15).map(t => ({ id: t.templateId, data: JSON.stringify(t.data).slice(0, 600) }));
-    const dn = pm.find(t => t.data?.pokemonSettings && t.data.pokemonSettings.pokemonId === "DRAGONITE" && !t.data.pokemonSettings.form?.includes("_"))
-            || pm.find(t => t.data?.pokemonSettings?.pokemonId === "DRAGONITE");
-    report.probe.dragoniteTempEvo = JSON.stringify(dn?.data?.pokemonSettings?.tempEvoOverrides || null).slice(0, 1500);
-    const keysWithPlus = new Set();
-    for (const t of pm) { const ps = t.data?.pokemonSettings; if (!ps) continue;
-      for (const o of ps.tempEvoOverrides || []) for (const k of Object.keys(o)) if (/move|attack|plus/i.test(k)) keysWithPlus.add(k); }
-    report.probe.tempEvoMoveKeys = [...keysWithPlus];
-    report.probe.pvpokePlusMoves = (gm.moves || []).filter(m => /PLUS|\+/.test(m.moveId + " " + m.name)).map(m => ({ id: m.moveId, name: m.name, type: m.type, power: m.power, energy: m.energy }));
-    report.probe.pvpokeMegaDragonite = (gm.pokemon || []).filter(p => /^dragonite_mega/.test(p.speciesId)).map(p => ({ id: p.speciesId, fast: p.fastMoves, charged: p.chargedMoves }));
+    report.probe.pvePlus = Object.fromEntries(Object.entries(pve).filter(([k]) => /_PLUS/.test(k)));
+    const linkPM = [];
+    for (const t of pm) { const js = JSON.stringify(t.data || {}); if (/_PLUS"/.test(js) && !/MOVE_.*_PLUS/.test(t.templateId) && !/PLUS_POINTS|AVATAR|PLUSLE/.test(t.templateId)) linkPM.push({ id: t.templateId, hit: (js.match(/.{0,200}_PLUS".{0,200}/) || [""])[0] }); }
+    report.probe.pmPlusLinks = linkPM.slice(0, 40);
+    const linkPV = [];
+    for (const p of gm.pokemon || []) { const js = JSON.stringify(p); if (/_PLUS/.test(js)) linkPV.push({ id: p.speciesId, hit: (js.match(/.{0,120}_PLUS.{0,120}/) || [""])[0] }); }
+    report.probe.pvpokePlusLinks = linkPV.slice(0, 40);
+    report.probe.pvpokeTopKeys = Object.keys(gm);
+    report.probe.pvpokePlusMoves = (gm.moves || []).filter(m => /_PLUS/.test(m.moveId)).map(m => ({ id: m.moveId, name: m.name, type: m.type, power: m.power, energy: m.energy, ext: Object.keys(m).join(",") }));
   }
+
   report.probe.dynamaxKeys = [...breadKeys];
   report.probe.samplePokemonKeys = Object.keys(pmPokemon["charizard"] || {});
   report.probe.charizardBread = Object.fromEntries([...breadKeys].map(k => [k, (pmPokemon["charizard"] || {})[k]]));
