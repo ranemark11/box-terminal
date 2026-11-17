@@ -25,12 +25,26 @@ const KO = 3; // PokeAPI 한국어 language id
 // ---------- 계산 상수 (사이트 설명과 동일) ----------
 const CPM40 = 0.7903, BOSS_DEF = 180, SE = 1.6, SURV_K = 900;
 const MAX_POWER = 350, GMAX_POWER = 450;
-const TIERS = [["SS", 95], ["S", 90], ["A", 80], ["B", 70], ["C", 50], ["D", 0]];
-const tierOf = p => TIERS.find(([, m]) => p >= m)[0];
+// 티어 규칙: ER(점수) 순으로 내려가며, 남은 자리(누적 상한)가 있고 최소 %를 넘는 가장 높은 티어.
+// 바로 앞 포켓몬과 1% 이내로 거의 같으면 같은 티어(상한 초과 허용). 나머지는 순위권 밖(null).
+const TIER_RULE = { names: ["SS", "S", "A", "B", "C"], caps: [3, 7, 12, 22, 40], minPct: [95, 88, 80, 70, 55], tie: 0.01 };
+function assignTiers(rows, metric, usePct = true) {
+  const R = TIER_RULE; if (!rows.length) return;
+  const top = rows[0][metric]; let level = 0, prev = null, n = 0;
+  for (const r of rows) {
+    const pct = r[metric] / top * 100;
+    if (prev && prev.t && r[metric] >= prev[metric] * (1 - R.tie)) r.t = prev.t;
+    else {
+      while (level < 5 && (n >= R.caps[level] || (usePct && pct < R.minPct[level]))) level++;
+      r.t = level < 5 ? R.names[level] : null;
+    }
+    r.p = Math.round(pct); if (r.t) n++; prev = r;
+  }
+}
 const TYPES = ["normal","fire","water","grass","electric","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"];
 const TYPE_KO = {normal:"노말",fire:"불꽃",water:"물",grass:"풀",electric:"전기",ice:"얼음",fighting:"격투",poison:"독",ground:"땅",flying:"비행",psychic:"에스퍼",bug:"벌레",rock:"바위",ghost:"고스트",dragon:"드래곤",dark:"악",steel:"강철",fairy:"페어리"};
 const LEAGUES = [["great", 1500, "슈퍼리그"], ["ultra", 2500, "하이퍼리그"], ["master", 10000, "마스터리그"]];
-const LIMIT_RAID = 150, LIMIT_PVP = 200;
+const LIMIT_RAID = 120, LIMIT_PVP = 40;
 
 const report = { warnings: [], counts: {}, probe: {} };
 const warn = m => { report.warnings.push(m); console.warn("⚠", m); };
@@ -263,7 +277,11 @@ async function main() {
   dmaxCount = dmSet.size; report.counts.dynamaxPokemon = dmaxCount;
   if (!dmaxCount) warn("다이맥스 가능 포켓몬을 찾지 못함 — probe.dynamaxKeys 확인 필요");
 
-  // ---- 배틀 (PvPoke 랭킹 점수) ----
+  // ---- 최종진화 여부 ----
+  const isFinal = id => !!cards[id] && cards[id].evo[cards[id].evo.length - 1].includes(id);
+  for (const c of Object.values(cards)) c.final = isFinal(c.id);
+
+  // ---- 배틀 (PvPoke 랭킹 점수, 리그당 상위 40, 개수 상한만) ----
   const pvp = {};
   LEAGUES.forEach(([lg], i) => {
     pvp[lg] = (ranks[i] || []).filter(r => cards[r.speciesId.replace(/_shadow$/, "")] && byId[r.speciesId]).map(r => {
@@ -271,41 +289,45 @@ async function main() {
       const ms = r.moveset || [];
       return { id: card.id, n: card.ko, tg: isShadow(p) ? ["s"] : [], mv: ms.map(m => mvName(p, m)).join(" · "),
         score: +(+r.score).toFixed(1), sp: r.stats?.product ? Math.round(r.stats.product) : null, rating: r.rating ?? null };
-    }).slice(0, LIMIT_PVP);
+    }).sort((a, b) => b.score - a.score).slice(0, LIMIT_PVP);
+    assignTiers(pvp[lg], "score", false);
   });
 
-  // ---- 카드별 티어 요약 ----
-  function attach(mode, lists, metric, whereOf, formOf) {
-    for (const [key, rows] of Object.entries(lists)) {
-      if (!rows.length) continue;
-      const top = Math.max(...rows.map(r => r[metric]));
-      for (const r of rows) {
-        const c = cards[r.id]; if (!c) continue;
-        const pct = r[metric] / top * 100, form = formOf(r);
-        const arr = (c.tiers[mode] ||= []);
-        const ex = arr.find(x => x.f === form);
-        if (!ex || pct > ex.p) { if (ex) arr.splice(arr.indexOf(ex), 1); arr.push({ f: form, t: tierOf(pct), p: Math.round(pct), w: whereOf(key) }); }
-      }
-    }
-  }
-  attach("raid", raid, "er", k => TYPE_KO[k], r => r.tg.includes("m") ? r.n : r.tg.includes("s") ? "그림자" : "일반");
-  attach("dmax", dmax, "score", k => TYPE_KO[k], r => r.tg.includes("g") ? "거다이맥스" : "다이맥스");
-  attach("pvp", pvp, "score", k => LEAGUES.find(l => l[0] === k)[2], r => (r.tg.includes("s") ? "그림자 · " : "") + LEAGUES.find(l => pvp[l[0]].includes(r))[2]);
-  for (const c of Object.values(cards)) for (const m in c.tiers) c.tiers[m].sort((a, b) => b.p - a.p);
-
-  // ---- 정렬·자르기 ----
+  // ---- 레이드·다이맥스: 최종진화만, 정렬, 티어 ----
   for (const t of TYPES) {
-    raid[t].sort((a, b) => b.er - a.er);
+    raid[t] = raid[t].filter(r => isFinal(r.id)).sort((a, b) => b.er - a.er);
+    assignTiers(raid[t], "er");
     const base = raid[t].filter(r => !r.tg.length).slice(0, LIMIT_RAID);
     raid[t] = [...new Map([...raid[t].slice(0, LIMIT_RAID), ...base].map(r => [r.id + r.tg.join() + r.n, r])).values()];
-    dmax[t].sort((a, b) => b.score - a.score);
+    dmax[t] = dmax[t].filter(r => isFinal(r.id)).sort((a, b) => b.score - a.score);
+    assignTiers(dmax[t], "score");
   }
+
+  // ---- 카드별 티어 (n: 일반+메가, s: 그림자) ----
+  const ORDER = Object.fromEntries(TIER_RULE.names.map((n, i) => [n, i]));
+  function attach(mode, lists, whereOf, formOf) {
+    for (const [key, rows] of Object.entries(lists)) rows.forEach((r, i) => {
+      const c = cards[r.id]; if (!c || !r.t) return;
+      const side = r.tg.includes("s") ? "s" : "n", form = formOf(r, key);
+      const arr = ((c.tiers[mode] ||= {})[side] ||= []);
+      const e = { f: form, t: r.t, p: r.p, w: whereOf(key), r: i + 1 };
+      const ex = arr.find(x => x.f === form);
+      if (!ex) arr.push(e); else if (ORDER[e.t] < ORDER[ex.t] || (e.t === ex.t && e.p > ex.p)) Object.assign(ex, e);
+    });
+  }
+  attach("raid", raid, k => TYPE_KO[k], r => r.tg.includes("m") ? r.n : r.tg.includes("s") ? "그림자" : "일반");
+  attach("dmax", dmax, k => TYPE_KO[k], r => r.tg.includes("g") ? "거다이맥스" : "다이맥스");
+  attach("pvp", pvp, k => LEAGUES.find(l => l[0] === k)[2], (r, k) => LEAGUES.find(l => l[0] === k)[2]);
+  for (const c of Object.values(cards)) for (const m in c.tiers) for (const side in c.tiers[m])
+    c.tiers[m][side].sort((a, b) => ORDER[a.t] - ORDER[b.t] || b.p - a.p);
 
   const out = {
     updated: new Date().toISOString().slice(0, 10),
     sources: "PvPoke gamemaster·rankings, PokeMiners game master, PokeAPI (한국어 이름)",
-    tiers: TIERS, cards: Object.values(cards), raid, dmax, pvp
+    tierRule: TIER_RULE, cards: Object.values(cards), raid, dmax, pvp
   };
+  report.tierCounts = Object.fromEntries(Object.entries({ raid, dmax, pvp }).map(([m, lists]) => [m,
+    Object.fromEntries(Object.entries(lists).map(([k, rows]) => [k, TIER_RULE.names.map(n => rows.filter(r => r.t === n).length).join("/")]))]));
   report.counts.cards = out.cards.length;
   report.counts.raidRows = Object.values(raid).reduce((a, b) => a + b.length, 0);
   report.counts.pvpRows = Object.fromEntries(Object.entries(pvp).map(([k, v]) => [k, v.length]));
