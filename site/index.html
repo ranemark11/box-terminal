@@ -256,7 +256,7 @@ td.num.sorted{color:var(--amber)}
       <div class="boot">&gt; SYNC EVENT FEED ...... <span class="ok">OK</span><br>&gt; READY_</div>
       <div class="clock"><h1>지금 포켓몬고</h1><span id="today"></span></div>
       <div class="panel" style="margin-top:0">
-        <h3>현재 보스</h3>
+        <h3>현재 등장 포켓몬</h3>
         <div class="bosses" id="bosses"></div>
       </div>
       <div class="panel">
@@ -278,8 +278,8 @@ td.num.sorted{color:var(--amber)}
     </section>
 
     <!-- ===== 티어 보드 3종 ===== -->
-    <section class="view" id="v-raid"><div class="tabs modesw" data-for="raid"><button class="tab" data-mode="tier">타입별 티어</button><button class="tab" data-mode="boss">보스공략</button></div><div id="p-raid"></div><div id="b-raid"></div></section>
-    <section class="view" id="v-dmax"><div class="tabs modesw" data-for="dmax"><button class="tab" data-mode="tier">타입별 티어</button><button class="tab" data-mode="boss">보스공략</button></div><div id="p-dmax"></div><div id="b-dmax"></div></section>
+    <section class="view" id="v-raid"><div class="tabs modesw" data-for="raid"><button class="tab" data-mode="tier">타입별 티어</button><button class="tab" data-mode="boss">상대 포켓몬 공략</button></div><div id="p-raid"></div><div id="b-raid"></div></section>
+    <section class="view" id="v-dmax"><div class="tabs modesw" data-for="dmax"><button class="tab" data-mode="tier">타입별 티어</button><button class="tab" data-mode="boss">상대 포켓몬 공략</button></div><div id="p-dmax"></div><div id="b-dmax"></div></section>
     <section class="view" id="v-pvp"><div id="p-pvp"></div></section>
     <section class="view" id="v-type"></section>
 
@@ -432,10 +432,10 @@ function renderHome(){
   const next=EVENTS.filter(e=>P(e[2])>now&&P(e[2])-now<=30*864e5).sort((x,y)=>P(x[2])-P(y[2]));
   $("#evNow").innerHTML=live.length?live.map(e=>evHTML(e,now,true)).join(""):'<div class="empty">진행 중인 일정이 없어요.</div>';
   $("#evNext").innerHTML=next.length?next.map(e=>evHTML(e,now,false)).join(""):'<div class="empty">30일 이내 예정된 일정이 없어요.</div>';
-  // 현재 보스 보드
+  // 현재 등장 포켓몬 보드
   const slot=(key,label,color)=>{
     const e=live.filter(x=>x[0]===key && !/아워|데이|먼데이/.test(x[1]))[0];
-    if(!e) return `<div class="boss none" style="--bc:${color}"><div class="k">${label}</div><div class="n">—</div><div class="d">진행 중인 보스 없음</div></div>`;
+    if(!e) return `<div class="boss none" style="--bc:${color}"><div class="k">${label}</div><div class="n">—</div><div class="d">진행 중인 포켓몬 없음</div></div>`;
     const name=e[1].replace(/^[^:]+:\s*/,""), links=pokeLinks(e[5]);
     return `<div class="boss" style="--bc:${color}"><div class="k">${label}</div><div class="n">${links||esc(name)}</div><div class="d">~${fmtD(kst(P(e[3])))} ${esc(e[4]||"")}</div></div>`;
   };
@@ -456,10 +456,10 @@ function findIds(q){
   const part=SEARCH.filter(x=>!exact.includes(x)&&(norm(x.ko).includes(q)||norm(x.en).includes(q)));
   return [...exact,...part].map(x=>x.id);
 }
-// 최근 검색: 이 브라우저에만 저장, 최근 5개
+// 최근 검색: 이 브라우저에만 저장, 최근 10개
 const RECENT_KEY="pyo-recent";
-function getRecent(){ try{ return (JSON.parse(localStorage.getItem(RECENT_KEY)||"[]")||[]).filter(i=>CARDS[i]).slice(0,5); }catch(e){ return []; } }
-function addRecent(id){ try{ const r=[id,...getRecent().filter(x=>x!==id)].slice(0,5); localStorage.setItem(RECENT_KEY,JSON.stringify(r)); }catch(e){} }
+function getRecent(){ try{ return (JSON.parse(localStorage.getItem(RECENT_KEY)||"[]")||[]).filter(i=>CARDS[i]).slice(0,10); }catch(e){ return []; } }
+function addRecent(id){ try{ const r=[id,...getRecent().filter(x=>x!==id)].slice(0,10); localStorage.setItem(RECENT_KEY,JSON.stringify(r)); }catch(e){} }
 // 평소에는 최근 검색(한 줄, 좌우 스와이프), 입력 중에는 관련 목록을 임시로 표시
 function suggest(q){
   q=q.trim(); const box=$("#sugg");
@@ -534,7 +534,7 @@ const NOTE_RAID=`티어는 <b>ER 순위</b>로 정해요. 티어마다 개수 �
  <b>DPS</b> = (노말딜×스킬코스트 + 스킬딜×노말에너지) ÷ (스킬코스트×노말시간 + 노말에너지×스킬시간)<br>
  <b>한 방 데미지</b> = ⌊0.5 × 위력 × 공격/방어 × 자속 1.2 × 효과굉장 1.6⌋ + 1<br>
  <b>TDO</b> = DPS × 버티는 시간(체력 × 방어 ÷ 900) · <b>ER</b> = (DPS³ × TDO)<sup>¼</sup><br>
- 가정: Lv40 · 개체값 15/15/15 · 기준 보스 방어 180 · 날씨 없음 · 그림자는 주는 피해·받는 피해 ×1.2 · 각 포켓몬은 해당 타입 최고 기술 조합 기준`;
+ 가정: Lv40 · 개체값 15/15/15 · 기준 상대 포켓몬 방어 180 · 날씨 없음 · 그림자는 주는 피해·받는 피해 ×1.2 · 각 포켓몬은 해당 타입 최고 기술 조합 기준`;
 const NOTE_DMAX=`맥스기 타입은 <b>노말기 타입</b>을 따라가요. 티어는 <b>점수 순위</b>로 정하고, 레이드와 같은 개수 상한·최소 조건을 써요. 최종 진화형만 표시해요.<br>
  <b>맥스딜</b> = 맥스기 한 방 데미지 (위력: 다이맥스 Lv3 350 · 거다이맥스 Lv3 450)<br>
  <b>게이지</b> = 노말기 DPS (맥스 게이지를 채우는 속도의 대용 지표)<br>
@@ -735,10 +735,10 @@ function renderType(){
 function saveType(){ try{ localStorage.setItem("pyo-type",JSON.stringify({OPP,TMODE})); }catch(e){} }
 try{ const t=JSON.parse(localStorage.getItem("pyo-type")||"null"); if(t){ TMODE=t.TMODE||TMODE; } }catch(e){}
 
-// ===== 보스공략 (레이드·다이맥스) =====
-// 보스 = 검색한 포켓몬(타입 자동) 또는 직접 고른 타입(최대 2). 보스는 자기 타입 기술을 쓴다고 가정.
-const BOSS={id:null,opp:[]}, MODE={raid:"tier",dmax:"tier"};
-function bossRaidRows(opp){ // ER × (내 기술 상성 ÷ 1.6) × (1 ÷ 보스 기술이 나에게 주는 배율)^¼
+// ===== 상대 포켓몬 공략 (레이드·다이맥스) =====
+// 상대 포켓몬 = 검색한 포켓몬(타입 자동) 또는 직접 고른 타입(최대 2). 상대는 자기 타입 기술을 쓴다고 가정.
+const BOSS={id:null,opp:[],q:""}, MODE={raid:"tier",dmax:"tier"};
+function bossRaidRows(opp){ // ER × (내 기술 상성 ÷ 1.6) × (1 ÷ 상대 기술이 나에게 주는 배율)^¼
   const best={};
   for(const [t,rows] of Object.entries(DEX.raid)){ const e=eff(t,opp);
     for(const r of rows){ const c=CARDS[r.id]; if(!c) continue;
@@ -753,7 +753,7 @@ function bossDmaxRows(opp,role,gauge){
       for(const r of rows){ const v=r.score*e/1.6, k=r.id+r.tg.join(); if(!best[k]||v>best[k].v) best[k]={...r,v:+v.toFixed(2),mt:t}; } }
     return Object.values(best).map(r=>({...r,tr:r.v}));
   }
-  return dmaxTankPool().map(e=>{ // 내구 ÷ 보스 기술이 나에게 주는 배율 (양쪽 타입 중 더 아픈 쪽)
+  return dmaxTankPool().map(e=>{ // 내구 ÷ 상대 기술이 나에게 주는 배율 (양쪽 타입 중 더 아픈 쪽)
     const c=CARDS[e.id], worst=Math.max(...opp.map(o=>eff(o,c?.types||[]))), eb=Math.round(e.bulk/worst);
     const lab=worst<0.6?"이중반감":worst<0.99?"반감":worst>2.5?"이중약점":worst>1.5?"약점":"보통", onlyG=e.g&&!e.d;
     const v=gauge?+Math.pow(eb**3*e.fdps,0.25).toFixed(2):eb;
@@ -773,7 +773,7 @@ function renderBoss(view){
   const sels=TYPES.map(([k,n,c])=>{ const i=opp.indexOf(k); return `<button class="sbtn${i>=0?" pick":""}" style="--c:${c}" data-bt="${k}">${i>=0?`<span class="ord">${i+1}</span>`:""}${svg(k)}<span>${n}</span></button>`; }).join("");
   const chips=opp.map(k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`).join(" + ");
   let body="";
-  if(!opp.length) body=`<div class="empty">보스 이름을 검색하거나, 위에서 보스 타입을 골라 주세요.<br>타입이 두 개면 두 개 모두 눌러요.</div>`;
+  if(!opp.length) body=`<div class="empty">상대 포켓몬 이름을 검색하거나, 아래에서 상대 포켓몬의 타입을 골라 주세요.<br>타입이 두 개면 두 개 모두 눌러요.</div>`;
   else{
     const role=view==="dmax"?st.role:"deal";
     const rows=view==="raid"?bossRaidRows(opp):bossDmaxRows(opp,role,st.gauge);
@@ -789,22 +789,22 @@ function renderBoss(view){
         return `<tr style="--tc:${r.mt?TC[r.mt]:"#5aa8ff"}"><td class="rank">${i+1}</td><td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></div></div></td>
           <td class="num sorted">${(+r.v).toFixed(view==="dmax"&&role==="tank"&&!st.gauge?0:1)}<span class="p">${(r.v/top*100).toFixed(0)}%</span></td><td class="tier">${TB(r._t)}</td></tr>`;}).join("")}</tbody></table>`;
   }
-  root.innerHTML=`<div class="label">&gt; 보스 검색 또는 타입 선택</div>
-    <form class="search bsearch"><input placeholder="보스 이름 (예: 테오키스)" autocomplete="off" value=""><button>검색</button></form>
+  root.innerHTML=`<div class="label">&gt; 상대 포켓몬 검색 또는 타입 선택</div>
+    <form class="search bsearch"><input placeholder="상대 포켓몬 이름 (예: 테오키스)" autocomplete="off" value="${esc(BOSS.q)}"><button>검색</button></form>
     <div class="sugg bsugg"></div>
+    <div class="bossCard">${bc?`${SPRITE(bc.id)}<b>${esc(bc.ko)}</b>`:"<span style='color:var(--dim)'>상대 포켓몬</span>"} ${chips||"<span style='color:var(--dim)'>선택 안 함</span>"}<button class="clr">초기화</button></div>
     <div class="sels">${sels}</div>
-    <div class="bossCard">${bc?`${SPRITE(bc.id)}<b>${esc(bc.ko)}</b>`:"<span style='color:var(--dim)'>보스</span>"} ${chips||"<span style='color:var(--dim)'>선택 안 함</span>"}<button class="clr">초기화</button></div>
     ${view==="dmax"?roleSwitch(st.role):""}
     ${body}
     <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
   const inp=root.querySelector("input"), sg=root.querySelector(".bsugg");
-  const choose=id=>{ const c=CARDS[id]; if(!c) return; BOSS.id=id; BOSS.opp=c.types.slice(0,2); ["raid","dmax"].forEach(renderBoss); };
-  inp.oninput=()=>{ const q=inp.value.trim(); sg.innerHTML=q?findIds(q).slice(0,8).map(i=>`<button class="chip" data-bid="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):""; };
+  const choose=(id,q)=>{ const c=CARDS[id]; if(!c) return; BOSS.id=id; BOSS.q=q??c.ko; BOSS.opp=c.types.slice(0,2); ["raid","dmax"].forEach(renderBoss); };
+  inp.oninput=()=>{ BOSS.q=inp.value; const q=inp.value.trim(); sg.innerHTML=q?findIds(q).slice(0,8).map(i=>`<button class="chip" data-bid="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):""; };
   sg.onclick=e=>{const b=e.target.closest("[data-bid]"); if(b) choose(b.dataset.bid);};
-  root.querySelector("form").onsubmit=e=>{e.preventDefault(); const id=findIds(inp.value)[0]; if(id) choose(id);};
+  root.querySelector("form").onsubmit=e=>{e.preventDefault(); const id=findIds(inp.value)[0]; if(id) choose(id,inp.value);};
   root.querySelectorAll("[data-bt]").forEach(b=>b.onclick=()=>{ const k=b.dataset.bt, i=BOSS.opp.indexOf(k); BOSS.id=null;
     if(i>=0) BOSS.opp.splice(i,1); else { BOSS.opp.push(k); if(BOSS.opp.length>2) BOSS.opp.shift(); } ["raid","dmax"].forEach(renderBoss); });
-  root.querySelector(".clr").onclick=()=>{ BOSS.id=null; BOSS.opp=[]; ["raid","dmax"].forEach(renderBoss); };
+  root.querySelector(".clr").onclick=()=>{ BOSS.id=null; BOSS.opp=[]; BOSS.q=""; ["raid","dmax"].forEach(renderBoss); };
   root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ st.role=b.dataset.role; save(); renderBoss(view); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
   root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ st.gauge=b.dataset.g==="1"; save(); renderBoss(view); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
 }
