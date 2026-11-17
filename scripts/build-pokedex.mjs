@@ -70,7 +70,9 @@ const FORM_KO = {
   "Terastal":"테라스탈폼","Stellar":"스텔라폼","Burn":"번드라이브","Chill":"프리즈드라이브","Douse":"아쿠아드라이브","Shock":"번개드라이브",
   "Fan":"스핀폼","Frost":"프로스트폼","Heat":"히트폼","Mow":"커트폼","Wash":"워시폼","Overcast":"네거폼","Sunshine":"포지폼",
   "East Sea":"동쪽바다","West Sea":"서쪽바다","Baile":"이글이글스타일","Pom-Pom":"파칙파칙스타일","Pa'u":"훌라훌라스타일","Sensu":"하늘하늘스타일",
-  "Dawn":"새벽","Eternamax":"무한다이맥스","Family of Three":"세 식구","Family of Four":"네 식구"
+  "Dawn":"새벽","Eternamax":"무한다이맥스","Standard":"노말모드","Complete Forme":"퍼펙트폼","Core":"코어","Shield":"실드폼",
+  "Curly":"젖힌 모습","Droopy":"늘어진 모습","Stretchy":"뻗은 모습","Flying":"날으는","Libre":"마스크드","Pop Star":"팝스타","Rock Star":"록스타",
+  "Horizons":"호라이즌","Jr":"주니어","Kariyushi":"카리유시","5th Anniversary":"5주년","Shaymin Scarf":"쉐이미 스카프","Family of Three":"세 식구","Family of Four":"네 식구"
 };
 
 async function main() {
@@ -231,7 +233,7 @@ async function main() {
   const dmList = JSON.parse(await readFile(new URL("./dynamax.json", import.meta.url), "utf8"));
   const pick = ([dex, kw]) => {
     const c = mons.filter(p => p.dex === dex && !isShadow(p) && !isMega(p));
-    if (kw) return c.find(p => p.speciesName.toLowerCase().includes(kw.toLowerCase()));
+    if (kw) { const hit = c.find(p => p.speciesName.toLowerCase().includes(kw.toLowerCase())); if (hit || c.length > 1) return hit; }
     return c.find(p => !p.speciesName.includes("(")) || c.find(p => /\((Normal|Standard|Altered|Incarnate)/i.test(p.speciesName)) || c[0];
   };
   const dmSet = new Map(), unmatched = [];
