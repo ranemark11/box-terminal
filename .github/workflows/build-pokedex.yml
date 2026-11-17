@@ -1,0 +1,36 @@
+name: 포켓몬 도감 갱신
+
+on:
+  schedule:
+    - cron: "47 19 * * 0"   # 매주 월요일 04:47 (한국 시간)
+  push:
+    branches: [main]
+    paths: ["scripts/build-pokedex.mjs"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-commit
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 도감·티어 빌드
+        run: node scripts/build-pokedex.mjs
+      - name: 바뀐 내용이 있으면 저장
+        run: |
+          git config user.name "box-terminal-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add site/data
+          git diff --cached --quiet && exit 0
+          git commit -m "도감 데이터 갱신 $(date -u +%F)"
+          git pull --rebase origin main
+          git push
