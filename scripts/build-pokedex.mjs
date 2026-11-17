@@ -153,6 +153,16 @@ async function main() {
     for (const p of gm.pokemon || []) { const js = JSON.stringify(p); if (/_PLUS/.test(js)) linkPV.push({ id: p.speciesId, hit: (js.match(/.{0,120}_PLUS.{0,120}/) || [""])[0] }); }
     report.probe.pvpokePlusLinks = linkPV.slice(0, 40);
     report.probe.pvpokeTopKeys = Object.keys(gm);
+    // 플러스 대상 기술 이름이 들어간 모든 템플릿 (레이드 수치가 다른 이름으로 있는지)
+    const names = /OUTRAGE|VOLT_TACKLE|ZAP_CANNON|DRILL_PECK|SEED_BOMB|MYSTICAL_FIRE|BRICK_BREAK|LIQUIDATION|ACID_SPRAY|PSYBEAM/;
+    report.probe.plusNameTemplates = pm.filter(t => names.test(t.templateId)).map(t => ({ id: t.templateId, keys: Object.keys(t.data || {}).join(","), data: JSON.stringify(t.data).slice(0, 350) }));
+    // 메가 관련 설정 템플릿 (메가레벨·추가 기술 설정 위치 찾기)
+    const megaT = pm.filter(t => /MEGA|TEMP_EVO|TEMPORARY_EVO/i.test(t.templateId) && !/AVATAR|STICKER|BADGE|N_DISPLAY|BUNDLE|SKU|PASS|LOOT|ITEM_MEGA/i.test(t.templateId));
+    report.probe.megaTemplates = megaT.slice(0, 60).map(t => ({ id: t.templateId, keys: Object.keys(t.data || {}).join(","), data: JSON.stringify(t.data).slice(0, 500) }));
+    // 템플릿 전체에서 "PLUS" 기술 이름이 값으로 등장하는 곳
+    const vals = [];
+    for (const t of pm) { const js = JSON.stringify(t.data || {}); const m = js.match(/"(OUTRAGE|VOLT_TACKLE|ZAP_CANNON|DRILL_PECK)_PLUS[^"]*"/); if (m && !/^COMBAT_/.test(t.templateId)) vals.push({ id: t.templateId, hit: js.slice(Math.max(0, js.indexOf(m[0]) - 300), js.indexOf(m[0]) + 200) }); }
+    report.probe.plusValueTemplates = vals.slice(0, 20);
     report.probe.pvpokePlusMoves = (gm.moves || []).filter(m => /_PLUS/.test(m.moveId)).map(m => ({ id: m.moveId, name: m.name, type: m.type, power: m.power, energy: m.energy, ext: Object.keys(m).join(",") }));
   }
 
