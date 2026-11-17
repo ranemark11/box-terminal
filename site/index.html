@@ -27,6 +27,19 @@ button{font:inherit;color:inherit}
 .vents i{width:18px;height:4px;border-radius:2px;background:var(--bezel-lo);box-shadow:inset 0 1px 1px rgba(0,0,0,.6)}
 .nav{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:0 2px 10px}
 .subnav{margin:0 0 12px}
+.modesw{margin:0 0 12px}
+.modesw .tab{padding:7px 6px;font-size:12.5px}
+.roleSw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 4px}
+.roleSw .rb{appearance:none;display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 6px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;
+  border:2px solid var(--rc);background:rgba(0,0,0,.3);color:var(--rc);box-shadow:inset 0 -3px 0 rgba(0,0,0,.35)}
+.roleSw .rb svg{width:20px;height:20px}
+.roleSw .rb.tank{--rc:#5aa8ff}.roleSw .rb.deal{--rc:#ff7a4d}
+.roleSw .rb.on{background:var(--rc);color:#0b1418;box-shadow:0 0 14px color-mix(in srgb,var(--rc) 55%,transparent), inset 0 2px 0 rgba(255,255,255,.25)}
+.bsearch{margin:2px 0 4px}
+.bossCard{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 2px 4px;font-size:13px}
+.bossCard b{font-size:15px}
+.bossCard .clr{margin-left:auto;appearance:none;border:1px solid var(--faint);background:none;color:var(--dim);border-radius:7px;padding:3px 9px;font-size:11.5px;cursor:pointer}
+
 .roles{margin:0 0 10px}
 .gopt{margin:-2px 0 10px}
 .nav button{appearance:none;border:0;border-radius:8px;padding:7px 0 6px;background:var(--bezel-lo);color:#8a93a8;font-size:11px;cursor:pointer;white-space:nowrap;
@@ -265,9 +278,9 @@ td.num.sorted{color:var(--amber)}
     </section>
 
     <!-- ===== 티어 보드 3종 ===== -->
-    <section class="view" id="v-raid"></section>
-    <section class="view" id="v-dmax"></section>
-    <section class="view" id="v-pvp"></section>
+    <section class="view" id="v-raid"><div class="tabs modesw" data-for="raid"><button class="tab" data-mode="tier">타입별 티어</button><button class="tab" data-mode="boss">보스공략</button></div><div id="p-raid"></div><div id="b-raid"></div></section>
+    <section class="view" id="v-dmax"><div class="tabs modesw" data-for="dmax"><button class="tab" data-mode="tier">타입별 티어</button><button class="tab" data-mode="boss">보스공략</button></div><div id="p-dmax"></div><div id="b-dmax"></div></section>
+    <section class="view" id="v-pvp"><div id="p-pvp"></div></section>
     <section class="view" id="v-type"></section>
 
   </div>
@@ -531,6 +544,9 @@ const NOTE_DMAX=`맥스기 타입은 <b>노말기 타입</b>을 따라가요. �
 const NOTE_PVP=`티어는 리그별 <b>순위 개수 상한</b>으로만 정해요 (PvPoke 점수는 상위권이 촘촘해서 % 조건을 쓰지 않아요).<br>
  <b>점수</b> = PvPoke 종합 점수 (모든 상대·실드 상황 대전 시뮬레이션 결과) · <b>스탯곱</b> = 공격×방어×체력 ÷ 1000 (내구 지표) · <b>레이팅</b> = PvPoke 대전 레이팅<br>
  기술은 PvPoke 추천 조합이에요. 리그별 상위 40위까지 표시해요.`;
+// 다이맥스 역할 스위치 (큰 설정값: 탱커=파랑 방패, 딜러=주황 칼)
+const ROLE_ICON={tank:'<path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" fill="currentColor"/>',deal:'<path d="M14.5 3H21v6.5L10 20.5 3.5 14zM4 17l3 3-2 2-3-3z" fill="currentColor"/>'};
+const roleSwitch=role=>`<div class="roleSw">${[["tank","다이맥스 탱커"],["deal","다이맥스 딜러"]].map(([k,l])=>`<button class="rb ${k}${role===k?" on":""}" data-role="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${ROLE_ICON[k]}</svg>${l}</button>`).join("")}</div>`;
 // 다이맥스 탱커: 다이맥스 가능 포켓몬(최종진화) 한 줄씩, 내구 = 체력×방어/100, 게이지 = 가장 빠른 노말기 DPS
 let TANK_POOL=null;
 function dmaxTankPool(){
@@ -576,15 +592,15 @@ const BOARDS={
    st:{sel:null,tab:"all",sort:"score"}, note:NOTE_PVP, noPct:true }
 };
 function renderBoard(id){
-  const B=BOARDS[id], st=B.st, root=$("#v-"+id);
+  const B=BOARDS[id], st=B.st, root=$("#p-"+id);
   if(!DEX){ root.innerHTML=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`; return; }
   const C=B.cfg?B.cfg(st):B;
   if(!C.cols.some(c=>c[0]===st.sort)) st.sort=C.tierCol;
   const key=id+":"+(st.role||"")+":"+(st.gauge?1:0);
   if(root.dataset.ready!==key){
     const sels=C.sels();
-    root.innerHTML=`${B.roles?`<div class="tabs roles">${B.roles.map(([k,l])=>`<button class="tab" data-role="${k}">${l}</button>`).join("")}</div>`:""}
-      <div class="label">&gt; ${C.title}</div><div class="sels${sels.length===3?" three":""}"></div>
+    root.innerHTML=`<div class="label">&gt; ${C.title}</div><div class="sels${sels.length===3?" three":""}"></div>
+      ${B.roles?roleSwitch(st.role):""}
       <div class="pickMsg empty">${C.pick}</div>
       <div class="boardBody"><div class="head"></div>
       ${C.tabs?`<div class="tabs">${C.tabs.map(([k,l])=>`<button class="tab" data-tab="${k}">${l}</button>`).join("")}</div>`:""}
@@ -594,8 +610,8 @@ function renderBoard(id){
       <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
     root.querySelector(".sels").addEventListener("click",e=>{const b=e.target.closest("[data-s]"); if(b){st.sel=b.dataset.s; save(); renderBoard(id);}});
     root.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{st.tab=b.dataset.tab; save(); renderBoard(id);});
-    root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ if(st.role!==b.dataset.role){ st.role=b.dataset.role; st.sel=null; save(); renderBoard(id);} });
-    root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{st.gauge=b.dataset.g==="1"; save(); renderBoard(id);});
+    root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ if(st.role!==b.dataset.role){ st.role=b.dataset.role; st.sel=null; save(); renderBoard(id); renderBoss("dmax");} });
+    root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{st.gauge=b.dataset.g==="1"; save(); renderBoard(id); renderBoss("dmax");});
     root.querySelectorAll("th button").forEach(b=>b.onclick=()=>{st.sort=b.dataset.k; save(); renderBoard(id);});
     root.dataset.ready=key;
   }
@@ -660,7 +676,7 @@ function tieredList(mode,type){ // 보드 "전체" 탭과 같은 티어
   const src=mode==="raid"?DEX.raid[type]:DEX.dmax[type], m=mode==="raid"?"er":"score";
   return TIER_CACHE[k]=assignTiers((src||[]).map(r=>({...r})).sort((a,b)=>b[m]-a[m]),m);
 }
-function openBoard(mode,type){ const B=BOARDS[mode]; if(mode==="dmax") B.st.role="deal"; B.st.sel=type; B.st.tab="all"; save(); renderBoard(mode); go(mode); }
+function openBoard(mode,type){ setMode(mode,"tier"); const B=BOARDS[mode]; if(mode==="dmax") B.st.role="deal"; B.st.sel=type; B.st.tab="all"; save(); renderBoard(mode); go(mode); }
 function renderType(){
   const root=$("#v-type");
   const sels=TYPES.map(([k,n,c])=>{ const i=OPP.indexOf(k); return `<button class="sbtn${i>=0?" pick":""}" style="--c:${c}" data-t="${k}">${i>=0?`<span class="ord">${i+1}</span>`:""}${svg(k)}<span>${n}</span></button>`; }).join("");
@@ -719,6 +735,81 @@ function renderType(){
 function saveType(){ try{ localStorage.setItem("pyo-type",JSON.stringify({OPP,TMODE})); }catch(e){} }
 try{ const t=JSON.parse(localStorage.getItem("pyo-type")||"null"); if(t){ TMODE=t.TMODE||TMODE; } }catch(e){}
 
+// ===== 보스공략 (레이드·다이맥스) =====
+// 보스 = 검색한 포켓몬(타입 자동) 또는 직접 고른 타입(최대 2). 보스는 자기 타입 기술을 쓴다고 가정.
+const BOSS={id:null,opp:[]}, MODE={raid:"tier",dmax:"tier"};
+function bossRaidRows(opp){ // ER × (내 기술 상성 ÷ 1.6) × (1 ÷ 보스 기술이 나에게 주는 배율)^¼
+  const best={};
+  for(const [t,rows] of Object.entries(DEX.raid)){ const e=eff(t,opp);
+    for(const r of rows){ const c=CARDS[r.id]; if(!c) continue;
+      const inc=Math.max(...opp.map(o=>eff(o,c.types))), v=r.er*(e/1.6)*Math.pow(1/inc,0.25), k=r.id+r.tg.join()+r.n;
+      if(!best[k]||v>best[k].v) best[k]={...r,v:+v.toFixed(2),mt:t};
+    } }
+  return Object.values(best);
+}
+function bossDmaxRows(opp,role,gauge){
+  if(role==="deal"){ const best={}; // 점수 × (맥스기 상성 ÷ 1.6)
+    for(const [t,rows] of Object.entries(DEX.dmax)){ const e=eff(t,opp);
+      for(const r of rows){ const v=r.score*e/1.6, k=r.id+r.tg.join(); if(!best[k]||v>best[k].v) best[k]={...r,v:+v.toFixed(2),mt:t}; } }
+    return Object.values(best).map(r=>({...r,tr:r.v}));
+  }
+  return dmaxTankPool().map(e=>{ // 내구 ÷ 보스 기술이 나에게 주는 배율 (양쪽 타입 중 더 아픈 쪽)
+    const c=CARDS[e.id], worst=Math.max(...opp.map(o=>eff(o,c?.types||[]))), eb=Math.round(e.bulk/worst);
+    const lab=worst<0.6?"이중반감":worst<0.99?"반감":worst>2.5?"이중약점":worst>1.5?"약점":"보통", onlyG=e.g&&!e.d;
+    const v=gauge?+Math.pow(eb**3*e.fdps,0.25).toFixed(2):eb;
+    return {id:e.id,n:(onlyG?"거다이맥스 ":"")+e.n,tg:onlyG?["g"]:[],mv:`${lab} · ${e.fast}`,v,tr:Math.sqrt(v)};
+  });
+}
+function setMode(view,m){ MODE[view]=m;
+  document.querySelectorAll(`.modesw[data-for="${view}"] .tab`).forEach(b=>b.classList.toggle("on",b.dataset.mode===m));
+  $("#p-"+view).style.display=m==="tier"?"":"none"; $("#b-"+view).style.display=m==="boss"?"":"none";
+  if(m==="boss") renderBoss(view);
+}
+document.querySelectorAll(".modesw").forEach(sw=>sw.addEventListener("click",e=>{const b=e.target.closest("[data-mode]"); if(b) setMode(sw.dataset.for,b.dataset.mode);}));
+function renderBoss(view){
+  const root=$("#b-"+view); if(!root) return;
+  if(!DEX){ root.innerHTML=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`; return; }
+  const st=BOARDS.dmax.st, opp=BOSS.opp, bc=BOSS.id&&CARDS[BOSS.id];
+  const sels=TYPES.map(([k,n,c])=>{ const i=opp.indexOf(k); return `<button class="sbtn${i>=0?" pick":""}" style="--c:${c}" data-bt="${k}">${i>=0?`<span class="ord">${i+1}</span>`:""}${svg(k)}<span>${n}</span></button>`; }).join("");
+  const chips=opp.map(k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`).join(" + ");
+  let body="";
+  if(!opp.length) body=`<div class="empty">보스 이름을 검색하거나, 위에서 보스 타입을 골라 주세요.<br>타입이 두 개면 두 개 모두 눌러요.</div>`;
+  else{
+    const role=view==="dmax"?st.role:"deal";
+    const rows=view==="raid"?bossRaidRows(opp):bossDmaxRows(opp,role,st.gauge);
+    const tk=view==="raid"?"v":"tr";
+    rows.sort((a,b)=>b[tk]-a[tk]); assignTiers(rows,tk);
+    rows.sort((a,b)=>b.v-a.v);
+    const top=rows[0]?.v||1, list=rows.slice(0,30);
+    const label=view==="raid"?"추천 딜러":role==="tank"?"추천 탱커":"추천 딜러", col=view==="raid"?"점수":role==="tank"?(st.gauge?"점수":"내구"):"점수";
+    body=`${view==="dmax"&&role==="tank"?`<div class="seg gopt"><button data-g="0" class="${st.gauge?"":"on"}">내구만</button><button data-g="1" class="${st.gauge?"on":""}">게이지 반영</button></div>`:""}
+      <div class="sec">${label} · 상위 ${list.length}</div>
+      <table><thead><tr><th>#</th><th>포켓몬 / 기술</th><th class="num">${col}</th><th style="text-align:center">티어</th></tr></thead><tbody>${list.map((r,i)=>{
+        const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"");
+        return `<tr style="--tc:${r.mt?TC[r.mt]:"#5aa8ff"}"><td class="rank">${i+1}</td><td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></div></div></td>
+          <td class="num sorted">${(+r.v).toFixed(view==="dmax"&&role==="tank"&&!st.gauge?0:1)}<span class="p">${(r.v/top*100).toFixed(0)}%</span></td><td class="tier">${TB(r._t)}</td></tr>`;}).join("")}</tbody></table>`;
+  }
+  root.innerHTML=`<div class="label">&gt; 보스 검색 또는 타입 선택</div>
+    <form class="search bsearch"><input placeholder="보스 이름 (예: 테오키스)" autocomplete="off" value=""><button>검색</button></form>
+    <div class="sugg bsugg"></div>
+    <div class="sels">${sels}</div>
+    <div class="bossCard">${bc?`${SPRITE(bc.id)}<b>${esc(bc.ko)}</b>`:"<span style='color:var(--dim)'>보스</span>"} ${chips||"<span style='color:var(--dim)'>선택 안 함</span>"}<button class="clr">초기화</button></div>
+    ${view==="dmax"?roleSwitch(st.role):""}
+    ${body}
+    <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
+  const inp=root.querySelector("input"), sg=root.querySelector(".bsugg");
+  const choose=id=>{ const c=CARDS[id]; if(!c) return; BOSS.id=id; BOSS.opp=c.types.slice(0,2); ["raid","dmax"].forEach(renderBoss); };
+  inp.oninput=()=>{ const q=inp.value.trim(); sg.innerHTML=q?findIds(q).slice(0,8).map(i=>`<button class="chip" data-bid="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):""; };
+  sg.onclick=e=>{const b=e.target.closest("[data-bid]"); if(b) choose(b.dataset.bid);};
+  root.querySelector("form").onsubmit=e=>{e.preventDefault(); const id=findIds(inp.value)[0]; if(id) choose(id);};
+  root.querySelectorAll("[data-bt]").forEach(b=>b.onclick=()=>{ const k=b.dataset.bt, i=BOSS.opp.indexOf(k); BOSS.id=null;
+    if(i>=0) BOSS.opp.splice(i,1); else { BOSS.opp.push(k); if(BOSS.opp.length>2) BOSS.opp.shift(); } ["raid","dmax"].forEach(renderBoss); });
+  root.querySelector(".clr").onclick=()=>{ BOSS.id=null; BOSS.opp=[]; ["raid","dmax"].forEach(renderBoss); };
+  root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ st.role=b.dataset.role; save(); renderBoss(view); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
+  root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ st.gauge=b.dataset.g==="1"; save(); renderBoss(view); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
+}
+["raid","dmax"].forEach(v=>setMode(v,"tier"));
+
 // ===== 시작 =====
 renderHome(); show();
 ["raid","dmax","pvp"].forEach(renderBoard); renderType();
@@ -727,12 +818,13 @@ fetch("data/pokedex.json").then(r=>{ if(!r.ok) throw new Error(r.status); return
   DEX=d; TANK_POOL=null; if(d.tierRule) TIER_RULE=d.tierRule;
   for(const c of d.cards){ CARDS[c.id]=c; SEARCH.push({id:c.id,ko:c.ko,en:c.en}); if(!NAME2ID[c.ko]) NAME2ID[c.ko]=c.id; }
   suggest(""); openCard(CARDS.pikachu?"pikachu":d.cards[0].id);
-  ["raid","dmax","pvp"].forEach(id=>{ $("#v-"+id).dataset.ready=""; renderBoard(id); });
+  ["raid","dmax","pvp"].forEach(id=>{ $("#p-"+id).dataset.ready=""; renderBoard(id); });
+  ["raid","dmax"].forEach(renderBoss);
   renderType();
   renderHome();
 }).catch(err=>{
   const msg=`<div class="empty">도감 데이터를 불러오지 못했어요. (${esc(err.message)})<br>잠시 후 새로고침해 주세요.</div>`;
-  $("#cardOut").innerHTML=msg; ["raid","dmax","pvp","type"].forEach(id=>$("#v-"+id).innerHTML=msg);
+  $("#cardOut").innerHTML=msg; ["p-raid","p-dmax","p-pvp","v-type"].forEach(id=>$("#"+id).innerHTML=msg);
 });
 fetch("data/events.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{
   if(d&&Array.isArray(d.events)&&d.events.length){ EVENTS=d.events; FEED_UPDATED=d.updated||FEED_UPDATED; FEED_SOURCE=d.source||FEED_SOURCE; }
