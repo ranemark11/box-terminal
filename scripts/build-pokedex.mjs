@@ -378,6 +378,35 @@ async function main() {
   for (const c of Object.values(cards)) for (const m in c.tiers) for (const side in c.tiers[m])
     c.tiers[m][side].sort((a, b) => ORDER[a.t] - ORDER[b.t] || b.p - a.p);
 
+  // ---- 기술 추천 (최종 진화형 카드) ----
+  // 레이드 최고 티어의 타입 기준. 일반 기술머신으로 배우는 조합 / 레거시·이벤트(대단한 기술머신) 포함 최고 조합 / 메가 플러스 기술
+  const KO2TYPE = Object.fromEntries(Object.entries(TYPE_KO).map(([k, v]) => [v, k]));
+  const bestCombo = (p, T, allowElite) => {
+    const el = elite(p), ok = m => allowElite || !el.has(m);
+    let best = null;
+    for (const f of (p.fastMoves || []).filter(m => moveType(m) === T && ok(m)))
+      for (const c of (p.chargedMoves || []).filter(m => moveType(m) === T && ok(m))) {
+        const r = raidCalc(p, f, c, false); if (r && (!best || r.er > best.er)) best = { f, c, er: r.er };
+      }
+    return best;
+  };
+  for (const c of Object.values(cards)) {
+    if (!c.final) continue;
+    const p = byId[c.id]; if (!p) continue;
+    const top = c.tiers.raid?.n?.[0] || c.tiers.raid?.s?.[0];
+    let T = top ? KO2TYPE[top.w] : null;
+    if (!T) { // 순위권 밖이면 이 포켓몬이 가장 강한 타입
+      let bestEr = 0; for (const t of TYPES) { const b = bestCombo(p, t, true); if (b && b.er > bestEr) { bestEr = b.er; T = t; } }
+    }
+    if (!T) continue;
+    const n = bestCombo(p, T, false), e = bestCombo(p, T, true);
+    const el = elite(p);
+    const fmt = b => b && { f: moveKo(b.f), c: moveKo(b.c), er: +b.er.toFixed(1), ef: el.has(b.f), ec: el.has(b.c) };
+    const plus = c.megas.map(id => byId[id]).filter(Boolean).flatMap(m => (m.extraChargedMoves || []).filter(x => /_PLUS$/.test(x))
+      .map(x => ({ mega: koName(m), move: moveKo(x), type: moveType(x) || plusPve[m.speciesId]?.type || null, raid: !!plusPve[m.speciesId] })));
+    c.rec = { t: T, n: fmt(n), e: e && (!n || e.f !== n.f || e.c !== n.c) ? fmt(e) : null, plus: plus.length ? plus : undefined };
+  }
+
   const out = {
     updated: new Date().toISOString().slice(0, 10),
     sources: "PvPoke gamemaster·rankings, PokeMiners game master, PokeAPI (한국어 이름)",
