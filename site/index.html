@@ -113,6 +113,10 @@ button{font:inherit;color:inherit}
 .pick.dimmed{opacity:.6}
 .pick.slim{padding:4px 8px}
 .pick.slim .pn{font-size:12.5px}
+.mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:4px}
+.mc{appearance:none;border:1px solid var(--faint);background:rgba(0,0,0,.25);border-radius:8px;padding:2px 2px 4px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:var(--ink);min-width:0}
+.mc .spr{width:40px;height:40px}
+.mc span{font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .dmust summary{list-style:none;cursor:pointer}
 .dmust summary::-webkit-details-marker{display:none}
 .dmust summary h3{margin:0}
@@ -358,7 +362,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.2</small></button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.3</small></button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="match">상성표</button>
@@ -381,10 +385,7 @@ td.num.sorted{color:var(--amber)}
         <h3>곧 나오는 포켓몬 <span style="font-weight:400;color:var(--dim);font-size:11px">· 30일 이내</span></h3>
         <div class="picks" id="soon"></div>
       </div>
-      <details class="panel dmust" id="dmustBox">
-        <summary><h3>다이맥스 필수 목록 <span class="cnt" id="dmustCnt"></span><span class="chev">▾</span></h3></summary>
-        <div class="picks" id="dmust"></div>
-      </details>
+      <div id="pickLists"></div>
       <div class="panel">
         <h3>진행 중인 일정</h3>
         <div class="evlist" id="evNow"></div>
@@ -614,7 +615,15 @@ function eventPicks(list,skip){
   const vo=x=>{ const j=judge(x.id,x.cat==="max"?"max":x.cat==="shadow"?"shadow":"raid"); return j?.v==="must"?0:j?.v==="rec"?1:2; };
   return out.sort((a,b)=>vo(a)-vo(b));
 }
-let EV_ALL={now:false,next:false};
+let EV_ALL={now:false,next:false}, PICKS=null;
+// 사람이 고르는 추천 목록 (data/picks.json): 기간 안에만 표시
+function renderPickLists(now){
+  const box=$("#pickLists"); if(!box) return;
+  const lists=(PICKS?.lists||[]).filter(l=>(!l.start||P(l.start)<=now)&&(!l.end||now<P(l.end)));
+  box.innerHTML=lists.map(l=>{ const ids=(l.names||[]).map(n=>[n,n2id(n)]);
+    return `<div class="panel"><h3>${esc(l.title)}${l.end?` <span style="font-weight:400;color:var(--dim);font-size:11px">· ~${fmtD(kst(P(l.end)))}</span>`:""}</h3>
+      <div class="mini">${ids.map(([n,id])=>id?`<button class="mc" data-poke="${esc(id)}">${SPRITE(id)}<span>${esc(CARDS[id].ko)}</span></button>`:`<span class="mc"><span>${esc(n)}</span></span>`).join("")}</div></div>`; }).join("");
+}
 function renderHome(){
   const today=()=>{ const k=kst(new Date()); $("#today").textContent=`${k.getFullYear()}.${String(k.getMonth()+1).padStart(2,"0")}.${String(k.getDate()).padStart(2,"0")}`; };
   today();
@@ -629,22 +638,8 @@ function renderHome(){
     $("#bosses").innerHTML=nowP.length?nowP.map(x=>pickRow(x.id,x.cat,`~${fmtD(kst(P(x.e[3])))}`)).join(""):'<div class="empty">지금 레이드·맥스배틀에 나온 포켓몬 정보가 없어요.</div>';
     const soonP=eventPicks(next,nowP.map(x=>x.cat+":"+x.id));
     $("#soon").innerHTML=soonP.length?soonP.map(x=>pickRow(x.id,x.cat,`${fmtD(kst(P(x.e[2])))}부터 · ${untilText(P(x.e[2])-now)}`)).join(""):'<div class="empty">30일 이내 예정된 레이드·맥스배틀 포켓몬이 없어요.</div>';
-    // 다이맥스 필수 목록: 필수(SS·S) 다이맥스 포켓몬과 잡아야 할 포켓몬(다이맥스 가능한 가장 이른 진화 단계)
-    const hot=new Set([...nowP,...soonP].filter(x=>x.cat==="max").map(x=>x.id)), tb=tankBest(), rows=[];
-    for(const e of dmaxTankPool()){ const F=CARDS[e.id]; if(!F) continue;
-      const d=bestOf(F.tiers?.dmax?.n||[]), k=tb[e.id], t=[d?.t,k?.t].filter(Boolean).sort((a,b)=>ORDER(a)-ORDER(b))[0];
-      if(VERDICT(t)!=="must") continue;
-      const tgt=F.evo.flat().find(s=>CARDS[s]?.dmx)||e.id;
-      rows.push({e,F,d,k,t,tgt,hot:hot.has(tgt)||hot.has(e.id)}); }
-    rows.sort((a,b)=>(b.hot-a.hot)||ORDER(a.t)-ORDER(b.t)||a.F.dex-b.F.dex);
-    $("#dmustCnt").textContent=`· ${rows.length}마리`;
-    $("#dmust").innerHTML=rows.map(r=>{ const T=CARDS[r.tgt];
-      const info=[r.d&&VERDICT(r.d.t)?`딜러 <b>${r.d.t}</b> ${esc(r.d.w)}`:"", r.k&&VERDICT(r.k.t)?`탱커 <b>${r.k.t}</b> ${esc(r.k.w)} 상대`:""].filter(Boolean).join(" · ");
-      return `<div class="pick slim" style="--bc:${CAT.max[1]}"><div class="pi">
-        <div class="pc">${r.hot?"맥스배틀 등장 중·예정":"다이맥스"}</div>
-        <div class="pn"><a data-poke="${esc(r.tgt)}">다이맥스 ${esc(T.ko)}</a>${r.tgt!==r.e.id?` <span style="font-weight:400;color:var(--dim);font-size:11.5px">→ ${esc(r.F.ko)}로 진화</span>`:""}${VTAG.must}</div>
-        <div class="pr">${info}</div></div></div>`; }).join("")||'<div class="empty">없음</div>';
   }
+  renderPickLists(now);
   // 일정 (간단히: 진행 중·예정 각각 4개까지, 나머지는 펼치기)
   const evBlock=(list,key,isNow,empty)=>{
     if(!list.length) return `<div class="empty">${empty}</div>`;
@@ -1093,6 +1088,7 @@ fetch("data/events.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=
   else EVENTS=FALLBACK_EVENTS;
   renderHome();
 }).catch(()=>{ EVENTS=FALLBACK_EVENTS; renderHome(); });
+fetch("data/picks.json",{cache:"no-cache"}).then(r=>r.json()).then(j=>{ PICKS=j; renderHome(); }).catch(()=>{});
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f285f8b484c8414c91a5f88bce921438"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
