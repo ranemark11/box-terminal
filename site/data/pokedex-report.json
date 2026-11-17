@@ -1078,7 +1078,18 @@
      "tyranitar"
     ]
    ],
-   "final": true
+   "final": true,
+   "rec": {
+    "t": "rock",
+    "n": null,
+    "e": {
+     "f": "떨어뜨리기",
+     "c": "스톤에지",
+     "er": 48.8,
+     "ef": true,
+     "ec": false
+    }
+   }
   },
   "raidDragonTop5": [
    {
@@ -1226,5 +1237,5 @@
    }
   ]
  },
- "bytes": 461859
+ "bytes": 518640
 }
