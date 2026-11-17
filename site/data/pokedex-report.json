@@ -24,7 +24,7 @@
    "staraptor_mega",
    "chandelure_mega"
   ],
-  "dynamaxPokemon": 160,
+  "dynamaxPokemon": 161,
   "cards": 1075,
   "raidRows": 1474,
   "pvpRows": {
@@ -1009,7 +1009,7 @@
    "poison": "1/0/1/0/1",
    "ground": "1/1/1/4/3",
    "flying": "1/1/3/0/2",
-   "psychic": "4/4/2/3/7",
+   "psychic": "4/4/2/3/8",
    "bug": "1/3/2/3/1",
    "rock": "1/1/1/2/4",
    "ghost": "1/0/1/0/3",
@@ -1250,5 +1250,5 @@
    }
   ]
  },
- "bytes": 541605
+ "bytes": 541910
 }
