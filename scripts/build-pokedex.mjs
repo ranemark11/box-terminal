@@ -29,16 +29,17 @@ const MAX_POWER = 350, GMAX_POWER = 450;
 // 바로 앞 포켓몬과 1% 이내로 거의 같으면 같은 티어(상한 초과 허용). 나머지는 순위권 밖(null).
 const TIER_RULE = { names: ["SS", "S", "A", "B", "C"], caps: [3, 7, 12, 22, 40], minPct: [95, 88, 80, 70, 55], tie: 0.01 };
 function assignTiers(rows, metric, usePct = true) {
+  // usePct=false(배틀): % 조건·동점 규칙 없이 개수 상한만
   const R = TIER_RULE; if (!rows.length) return;
-  const top = rows[0][metric]; let level = 0, prev = null, n = 0;
+  const top = rows[0][metric]; let level = 0, n = 0, boundary = null;
   for (const r of rows) {
-    const pct = r[metric] / top * 100;
-    if (prev && prev.t && r[metric] >= prev[metric] * (1 - R.tie)) r.t = prev.t;
-    else {
-      while (level < 5 && (n >= R.caps[level] || (usePct && pct < R.minPct[level]))) level++;
-      r.t = level < 5 ? R.names[level] : null;
-    }
-    r.p = Math.round(pct); if (r.t) n++; prev = r;
+    const v = r[metric], pct = v / top * 100;
+    r.p = Math.round(pct);
+    // 동점 규칙: 상한이 찼지만 이 티어 마지막 포켓몬과 1% 이내면 같은 티어
+    if (usePct && level < 5 && n >= R.caps[level] && boundary != null && v >= boundary * (1 - R.tie) && pct >= R.minPct[level]) { r.t = R.names[level]; n++; continue; }
+    while (level < 5 && (n >= R.caps[level] || (usePct && pct < R.minPct[level]))) { level++; boundary = null; }
+    r.t = level < 5 ? R.names[level] : null;
+    if (r.t) { n++; boundary = v; }
   }
 }
 const TYPES = ["normal","fire","water","grass","electric","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"];
