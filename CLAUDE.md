@@ -11,7 +11,8 @@
 
 ## 배포·호스팅
 - 저장소: `ranemark11/box-terminal` (public), 브랜치 `main`
-- 사이트: Cloudflare Workers 정적 배포 → `https://box-terminal.pyoages.workers.dev` (계정 `pyoages`)
+- 사이트: Cloudflare Workers 정적 배포 → **대표 주소 `https://pogo.hhhpyo.cloud`** (사용자 도메인)
+  - 기본 주소 `https://box-terminal.pyoages.workers.dev` (계정 `pyoages`)도 동작하지만, canonical·og:url·sitemap·robots는 대표 주소 기준.
   - `wrangler.jsonc`가 `site/` 폴더를 그대로 공개. `main`에 push하면 Cloudflare가 자동 재배포.
 - 비용: 전부 무료 범위 (GitHub Actions public 무제한, Cloudflare 정적 요청 무제한, Gemini 무료 등급).
   Cloudflare Workers Builds 무료 한도: 월 3,000 빌드 분, 동시 1개 (배포 1회 ≈ 1분 미만).
