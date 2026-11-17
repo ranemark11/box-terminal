@@ -1,0 +1,263 @@
+{
+ "warnings": [
+  "PvE 수치 없는 기술 19개: FUTURE_SIGHT, HIDDEN_POWER_WATER, HIDDEN_POWER_ELECTRIC, HIDDEN_POWER_ICE, HIDDEN_POWER_PSYCHIC, HIDDEN_POWER_ROCK, HIDDEN_POWER_GRASS, HIDDEN_POWER_BUG, HIDDEN_POWER_FIRE, HIDDEN_POWER_FLYING, TECHNO_BLAST_DOUSE, HIDDEN_POWER_FIGHTING, HIDDEN_POWER_POISON, HIDDEN_POWER_GROUND, HIDDEN_POWER_GHOST, HIDDEN_POWER_DRAGON, HIDDEN_POWER_DARK, HIDDEN_POWER_STEEL, PYRO_BALL"
+ ],
+ "counts": {
+  "dynamaxPokemon": 1071,
+  "cards": 1075,
+  "raidRows": 2265,
+  "pvpRows": {
+   "great": 200,
+   "ultra": 200,
+   "master": 200
+  },
+  "koNamesMissing": 0
+ },
+ "probe": {
+  "pveMoves": 403,
+  "dynamaxKeys": [
+   "breadTierGroup"
+  ],
+  "samplePokemonKeys": [
+   "pokemonId",
+   "modelScale",
+   "type",
+   "type2",
+   "camera",
+   "encounter",
+   "stats",
+   "quickMoves",
+   "cinematicMoves",
+   "animationTime",
+   "evolutionPips",
+   "pokedexHeightM",
+   "pokedexWeightKg",
+   "parentPokemonId",
+   "heightStdDev",
+   "weightStdDev",
+   "familyId",
+   "kmBuddyDistance",
+   "buddySize",
+   "modelHeight",
+   "evolutionBranch",
+   "modelScaleV2",
+   "form",
+   "buddyOffsetMale",
+   "buddyOffsetFemale",
+   "buddyScale",
+   "thirdMove",
+   "isTransferable",
+   "isDeployable",
+   "isTradable",
+   "shadow",
+   "buddyGroupNumber",
+   "eliteQuickMove",
+   "eliteCinematicMove",
+   "tempEvoOverrides",
+   "buddyWalkedMegaEnergyAwards",
+   "useIrisFlyingPlacement",
+   "irisPhotoEmote1",
+   "ibfc",
+   "breadTierGroup"
+  ],
+  "charizardBread": {
+   "breadTierGroup": "GROUP_1"
+  }
+ },
+ "sample": {
+  "tyranitar": {
+   "id": "tyranitar",
+   "dex": 248,
+   "ko": "마기라스",
+   "en": "Tyranitar",
+   "types": [
+    "rock",
+    "dark"
+   ],
+   "stats": [
+    251,
+    207,
+    225
+   ],
+   "fam": "FAMILY_LARVITAR",
+   "shadow": true,
+   "megas": [
+    "tyranitar_mega"
+   ],
+   "tiers": {
+    "raid": [
+     {
+      "f": "메가마기라스",
+      "t": "SS",
+      "p": 100,
+      "w": "바위"
+     },
+     {
+      "f": "그림자",
+      "t": "A",
+      "p": 89,
+      "w": "바위"
+     },
+     {
+      "f": "일반",
+      "t": "B",
+      "p": 77,
+      "w": "바위"
+     }
+    ],
+    "dmax": [
+     {
+      "f": "다이맥스",
+      "t": "S",
+      "p": 91,
+      "w": "악"
+     }
+    ],
+    "pvp": [
+     {
+      "f": "그림자 · 마스터리그",
+      "t": "A",
+      "p": 82,
+      "w": "마스터리그"
+     },
+     {
+      "f": "마스터리그",
+      "t": "B",
+      "p": 79,
+      "w": "마스터리그"
+     }
+    ]
+   },
+   "evo": [
+    [
+     "larvitar"
+    ],
+    [
+     "pupitar"
+    ],
+    [
+     "tyranitar"
+    ]
+   ]
+  },
+  "raidDragonTop5": [
+   {
+    "id": "eternatus",
+    "n": "무한다이노",
+    "tg": [],
+    "mv": "드래곤테일 · 다이맥스포*",
+    "er": 88.49,
+    "dps": 35.07,
+    "tdo": 1421.6
+   },
+   {
+    "id": "rayquaza",
+    "n": "메가레쿠쟈",
+    "tg": [
+     "m"
+    ],
+    "mv": "드래곤테일 · 와이드브레이커*",
+    "er": 84.15,
+    "dps": 33.95,
+    "tdo": 1281.2
+   },
+   {
+    "id": "garchomp",
+    "n": "메가한카리아스",
+    "tg": [
+     "m"
+    ],
+    "mv": "드래곤테일 · 와이드브레이커",
+    "er": 76.63,
+    "dps": 30.17,
+    "tdo": 1255.8
+   },
+   {
+    "id": "salamence",
+    "n": "메가보만다",
+    "tg": [
+     "m"
+    ],
+    "mv": "드래곤테일 · 용성군",
+    "er": 72.77,
+    "dps": 28.5,
+    "tdo": 1211.6
+   },
+   {
+    "id": "dragonite",
+    "n": "메가망나뇽",
+    "tg": [
+     "m"
+    ],
+    "mv": "드래곤테일 · 용성군*",
+    "er": 69.44,
+    "dps": 27.28,
+    "tdo": 1144.9
+   }
+  ],
+  "dmaxFireTop3": [
+   {
+    "id": "blacephalon",
+    "n": "두파팡",
+    "tg": [],
+    "mv": "불태우기 → 맥스불꽃",
+    "score": 213.53,
+    "max": 487,
+    "fdps": 18,
+    "bulk": 160
+   },
+   {
+    "id": "reshiram",
+    "n": "레시라무",
+    "tg": [],
+    "mv": "불꽃엄니 → 맥스불꽃",
+    "score": 188.2,
+    "max": 428,
+    "fdps": 16,
+    "bulk": 309
+   },
+   {
+    "id": "chandelure",
+    "n": "샹델라",
+    "tg": [],
+    "mv": "회오리불꽃 → 맥스불꽃",
+    "score": 186.21,
+    "max": 422,
+    "fdps": 16,
+    "bulk": 209
+   }
+  ],
+  "greatTop3": [
+   {
+    "id": "melmetal",
+    "n": "멜메탈",
+    "tg": [],
+    "mv": "전기쇼크 · 더블펀처* · 폭발펀치",
+    "score": 94.4,
+    "sp": 2,
+    "rating": 714
+   },
+   {
+    "id": "altaria",
+    "n": "파비코리",
+    "tg": [],
+    "mv": "용의숨결 · 문포스* · 화염방사",
+    "score": 92.9,
+    "sp": 2,
+    "rating": 661
+   },
+   {
+    "id": "ninetales",
+    "n": "나인테일",
+    "tg": [
+     "s"
+    ],
+    "mv": "불꽃세례* · 웨더볼(불꽃) · 에너지볼*",
+    "score": 92.9,
+    "sp": 2,
+    "rating": 696
+   }
+  ]
+ },
+ "bytes": 841467
+}
