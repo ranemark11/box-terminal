@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: "17 19 * * *"   # 매일 04:17 (한국 시간)
   workflow_dispatch:        # GitHub 화면에서 직접 실행 버튼
+  push:
+    branches: [main]
+    paths: ["scripts/update-events.mjs"]
 
 permissions:
   contents: write
@@ -28,7 +31,7 @@ jobs:
         run: |
           git config user.name "box-terminal-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add site/data
+          git add site/data/events.json site/data/translations.json site/data/events-report.json
           git diff --cached --quiet && exit 0
           git commit -m "일정 데이터 갱신 $(date -u +%F)"
           git pull --rebase origin main

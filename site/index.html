@@ -348,7 +348,8 @@ let FEED_UPDATED="2026-11-17", FEED_SOURCE="Pokémon GO Hub, pokemongo.com 공�
 const CAT={ event:["이벤트","#8ef0b0"], raid:["레이드","#ff7a8a"], mega:["메가","#a58bff"], shadow:["그림자","#c27bff"], max:["맥스배틀","#ff5fa8"],
   cday:["커뮤데이","#ffd36b"], spot:["스포트라이트","#7fd3ff"], hour:["레이드아워","#ff9a62"], pass:["GO 패스","#9fb4c8"] };
 // [분류, 제목, 시작, 끝, 설명, 관련 포켓몬]
-let EVENTS=[
+let EVENTS=null; // events.json을 받을 때까지 비워 둠 (내장 일정은 실패 시에만 사용)
+const FALLBACK_EVENTS=[
  ["pass","GO 패스: 11월","2026-11-03T10:00","2026-12-01T10:00","보상에 그란돈 만남 포함",["그란돈"]],
  ["shadow","그림자 레이드: 그림자 토네로스(화신폼)","2026-11-03T00:00","2026-12-01T23:59","주말에만 등장",[]],
  ["raid","5성 레이드: 크레세리아 · 다크라이","2026-11-09T10:00","2026-11-25T10:00","",["크레세리아","다크라이"]],
@@ -391,6 +392,8 @@ function evHTML(e,now,isNow){
     ${desc||links?`<div class="s">${esc(desc)}${desc&&links?" · ":""}${links?"카드 보기: "+links:""}</div>`:""}</div></div>`;
 }
 function renderHome(){
+  if(!EVENTS){ const w='<div class="empty">일정 불러오는 중…</div>'; $("#bosses").innerHTML=w; $("#evNow").innerHTML=""; $("#evNext").innerHTML=""; $("#feedNote").innerHTML=""; 
+    const k=kst(new Date()); $("#today").textContent=`${k.getFullYear()}.${String(k.getMonth()+1).padStart(2,"0")}.${String(k.getDate()).padStart(2,"0")}`; return; }
   const now=new Date(), k=kst(now);
   $("#today").textContent=`${k.getFullYear()}.${String(k.getMonth()+1).padStart(2,"0")}.${String(k.getDate()).padStart(2,"0")}`;
   const live=EVENTS.filter(e=>P(e[2])<=now&&now<P(e[3]));
@@ -653,8 +656,10 @@ fetch("data/pokedex.json").then(r=>{ if(!r.ok) throw new Error(r.status); return
   $("#cardOut").innerHTML=msg; ["raid","dmax","pvp","type"].forEach(id=>$("#v-"+id).innerHTML=msg);
 });
 fetch("data/events.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{
-  if(d&&Array.isArray(d.events)&&d.events.length){ EVENTS=d.events; FEED_UPDATED=d.updated||FEED_UPDATED; FEED_SOURCE=d.source||FEED_SOURCE; renderHome(); }
-}).catch(()=>{});
+  if(d&&Array.isArray(d.events)&&d.events.length){ EVENTS=d.events; FEED_UPDATED=d.updated||FEED_UPDATED; FEED_SOURCE=d.source||FEED_SOURCE; }
+  else EVENTS=FALLBACK_EVENTS;
+  renderHome();
+}).catch(()=>{ EVENTS=FALLBACK_EVENTS; renderHome(); });
 </script>
 </body>
 </html>
