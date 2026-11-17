@@ -1,9 +1,9 @@
 {
  "warnings": [
-  "PvE 수치 없는 기술 2개: TECHNO_BLAST_DOUSE, PYRO_BALL"
+  "다이맥스 목록 중 매칭 실패: d:849 Low Key, d:849 Amped, g:849 Low Key, g:849 Amped"
  ],
  "counts": {
-  "dynamaxPokemon": 1071,
+  "dynamaxPokemon": 158,
   "cards": 1075,
   "raidRows": 2330,
   "pvpRows": {
@@ -39,7 +39,9 @@
    "HIDDEN_POWER_DRAGON",
    "HIDDEN_POWER_DARK",
    "HIDDEN_POWER_STEEL",
-   "HIDDEN_POWER_FAIRY"
+   "HIDDEN_POWER_FAIRY",
+   "PYRO_BALL",
+   "TECHNO_BLAST_DOUSE"
   ],
   "dmaxTemplates": [
    "AVATAR_f_gloves_dynamaxswsh",
@@ -113,7 +115,7 @@
    "ultrabeast",
    "include10000"
   ],
-  "pveMoves": 422,
+  "pveMoves": 424,
   "dynamaxKeys": [
    "breadTierGroup"
   ],
@@ -204,14 +206,6 @@
       "w": "바위"
      }
     ],
-    "dmax": [
-     {
-      "f": "다이맥스",
-      "t": "S",
-      "p": 91,
-      "w": "악"
-     }
-    ],
     "pvp": [
      {
       "f": "그림자 · 마스터리그",
@@ -296,34 +290,38 @@
   ],
   "dmaxFireTop3": [
    {
-    "id": "blacephalon",
-    "n": "두파팡",
-    "tg": [],
-    "mv": "불태우기 → 맥스불꽃",
-    "score": 213.53,
-    "max": 487,
-    "fdps": 18,
-    "bulk": 160
+    "id": "cinderace",
+    "n": "거다이맥스 에이스번",
+    "tg": [
+     "g"
+    ],
+    "mv": "회오리불꽃 → 맥스불꽃",
+    "score": 198.36,
+    "max": 480,
+    "fdps": 14,
+    "bulk": 228
    },
    {
-    "id": "reshiram",
-    "n": "레시라무",
+    "id": "charizard",
+    "n": "거다이맥스 리자몽",
+    "tg": [
+     "g"
+    ],
+    "mv": "회오리불꽃 → 맥스불꽃",
+    "score": 189.62,
+    "max": 452,
+    "fdps": 14,
+    "bulk": 235
+   },
+   {
+    "id": "darmanitan_standard",
+    "n": "불비달마(Standard)",
     "tg": [],
     "mv": "불꽃엄니 → 맥스불꽃",
-    "score": 188.2,
-    "max": 428,
+    "score": 182.56,
+    "max": 411,
     "fdps": 16,
-    "bulk": 309
-   },
-   {
-    "id": "chandelure",
-    "n": "샹델라",
-    "tg": [],
-    "mv": "회오리불꽃 → 맥스불꽃",
-    "score": 186.21,
-    "max": 422,
-    "fdps": 16,
-    "bulk": 209
+    "bulk": 199
    }
   ],
   "greatTop3": [
@@ -358,5 +356,5 @@
    }
   ]
  },
- "bytes": 883506
+ "bytes": 619802
 }
