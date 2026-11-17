@@ -188,7 +188,7 @@ async function main() {
     if (/_PLUS$/.test(id)) return moveKo(id.replace(/_PLUS$/, "")) + "+";
     const m = pvpMove[id];
     const base = id.replace(/^(HIDDEN_POWER|WEATHER_BALL|TECHNO_BLAST|AURA_WHEEL|REVELATION_DANCE|MULTI_ATTACK)_.*/, "$1");
-    const ident = base.toLowerCase().replace(/_/g, "-").replace("futuresight", "future-sight").replace("vice-grip", "vise-grip");
+    const ident = base.toLowerCase().replace(/_/g, "-").replace("futuresight", "future-sight").replace("vice-grip", "vise-grip").replace("vise-grip", "vice-grip").replace("super-power", "superpower");
     const ko = koMove[moveIdent[ident]];
     if (!ko) return m?.name || id;
     return base !== id && m?.type ? `${ko}(${TYPE_KO[m.type] || m.type})` : ko;
