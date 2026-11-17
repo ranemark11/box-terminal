@@ -86,7 +86,11 @@ button{font:inherit;color:inherit}
 .search input{flex:1;min-width:0;background:rgba(0,0,0,.4);border:1px solid var(--faint);border-radius:9px;color:var(--ink);padding:10px 11px;font:inherit;font-size:15px}
 .search input::placeholder{color:var(--faint)}
 .search button{appearance:none;border:0;background:var(--ink);color:#0b2124;border-radius:9px;padding:0 14px;font-weight:700;cursor:pointer}
-.sugg{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 12px;min-height:8px}
+.sugg{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 12px;min-height:27px;align-items:center}
+.sugg.recent{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.sugg.recent::-webkit-scrollbar{display:none}
+.sugg .chip{flex:none;white-space:nowrap}
+.sugg .hint{flex:none;font-size:11.5px;color:var(--dim)}
 .chip{appearance:none;border:1px solid var(--faint);background:rgba(0,0,0,.25);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;color:var(--ink)}
 /* 트레이딩 카드 */
 .tcard{max-width:440px;margin:0 auto;border-radius:18px;padding:7px;
@@ -253,7 +257,6 @@ td.num.sorted{color:var(--amber)}
 
     <!-- ===== 카드 검색 ===== -->
     <section class="view" id="v-card">
-      <div class="label">&gt; 포켓몬 카드 검색</div>
       <form class="search" id="sform"><input id="q" placeholder="포켓몬 이름 (예: 데기라스)" autocomplete="off"><button>검색</button></form>
       <div class="sugg" id="sugg"></div>
       <div id="cardOut"></div>
@@ -437,14 +440,20 @@ function findIds(q){
   const part=SEARCH.filter(x=>!exact.includes(x)&&(norm(x.ko).includes(q)||norm(x.en).includes(q)));
   return [...exact,...part].map(x=>x.id);
 }
+// 최근 검색: 이 브라우저에만 저장, 최근 5개
+const RECENT_KEY="pyo-recent";
+function getRecent(){ try{ return (JSON.parse(localStorage.getItem(RECENT_KEY)||"[]")||[]).filter(i=>CARDS[i]).slice(0,5); }catch(e){ return []; } }
+function addRecent(id){ try{ const r=[id,...getRecent().filter(x=>x!==id)].slice(0,5); localStorage.setItem(RECENT_KEY,JSON.stringify(r)); }catch(e){} }
+// 평소에는 최근 검색(한 줄, 좌우 스와이프), 입력 중에는 관련 목록을 임시로 표시
 function suggest(q){
-  q=q.trim();
-  const ids = q ? findIds(q).slice(0,12) : ["pikachu","pupitar","charizard","eevee","kirlia","magikarp"].filter(i=>CARDS[i]);
-  $("#sugg").innerHTML=(q?"":'<span style="font-size:11.5px;color:var(--dim);align-self:center">예시 ›</span>')+ids.map(i=>`<button class="chip" data-id="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join("");
+  q=q.trim(); const box=$("#sugg");
+  if(q){ box.classList.remove("recent"); box.innerHTML=findIds(q).slice(0,12).map(i=>`<button class="chip" data-id="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join("")||'<span class="hint">일치하는 포켓몬이 없어요</span>'; return; }
+  const r=getRecent(); box.classList.add("recent");
+  box.innerHTML='<span class="hint">최근</span>'+(r.length?r.map(i=>`<button class="chip" data-id="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):'<span class="hint">아직 검색 기록이 없어요</span>');
 }
-$("#sugg").addEventListener("click",e=>{const b=e.target.closest("[data-id]"); if(b) openCard(b.dataset.id);});
+$("#sugg").addEventListener("click",e=>{const b=e.target.closest("[data-id]"); if(b){ addRecent(b.dataset.id); openCard(b.dataset.id); }});
 $("#q").addEventListener("input",e=>DEX&&suggest(e.target.value));
-$("#sform").addEventListener("submit",e=>{e.preventDefault(); if(!DEX) return; const id=findIds($("#q").value)[0]; if(id) openCard(id); else $("#cardOut").innerHTML=`<div class="empty">"${esc($("#q").value)}"을(를) 찾지 못했어요.<br>한글 또는 영어 이름으로 검색해 보세요.</div>`;});
+$("#sform").addEventListener("submit",e=>{e.preventDefault(); if(!DEX) return; const id=findIds($("#q").value)[0]; if(id){ addRecent(id); openCard(id); } else $("#cardOut").innerHTML=`<div class="empty">"${esc($("#q").value)}"을(를) 찾지 못했어요.<br>한글 또는 영어 이름으로 검색해 보세요.</div>`;});
 
 const SPR_URL=dex=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${dex}.png`;
 const SPRITE=(id,cls="")=>{ const c=CARDS[id]; return c?`<img class="spr ${cls}" src="${SPR_URL(c.dex)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`:`<span class="spr ${cls}"></span>`; };
@@ -522,34 +531,40 @@ const NOTE_PVP=`티어는 리그별 <b>순위 개수 상한</b>으로만 정해�
 const BOARDS={
  raid:{ title:"레이드 티어리스트 · 공격 타입", sels:()=>typeSels(k=>DEX.raid[k]?.length), tabs:[["all","메가·그림자 포함"],["base","기본만"]],
    cols:[["er","ER",1],["dps","DPS",1],["tdo","TDO",0]], tierCol:"er",
-   rows:(s,t)=>(DEX.raid[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>`${TN[s]} 타입 공격자`,
-   st:{sel:"dragon",tab:"all",sort:"er"}, note:NOTE_RAID },
+   pick:"위에서 포켓몬 타입을 골라 주세요.", rows:(s,t)=>(DEX.raid[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>`${TN[s]} 타입 공격자`,
+   st:{sel:null,tab:"all",sort:"er"}, note:NOTE_RAID },
  dmax:{ title:"다이맥스 티어리스트 · 맥스기 타입", sels:()=>typeSels(k=>DEX.dmax[k]?.length), tabs:[["all","거다이맥스 포함"],["base","다이맥스만"]],
    cols:[["score","점수",1],["max","맥스딜",0],["fdps","게이지",1],["bulk","내구",0]], tierCol:"score",
-   rows:(s,t)=>(DEX.dmax[s]||[]).filter(r=>t!=="base"||!r.tg.includes("g")), head:s=>`맥스${TN[s]} 공격자`,
-   st:{sel:"fire",tab:"all",sort:"score"}, note:NOTE_DMAX },
+   pick:"위에서 포켓몬 타입(맥스기 타입)을 골라 주세요.", rows:(s,t)=>(DEX.dmax[s]||[]).filter(r=>t!=="base"||!r.tg.includes("g")), head:s=>`맥스${TN[s]} 공격자`,
+   st:{sel:null,tab:"all",sort:"score"}, note:NOTE_DMAX },
  pvp:{ title:"배틀리그 티어리스트 · 리그", sels:()=>LEAGUES.map(([k,n,c])=>({k,n,c,icon:lgSvg(k,c)})), tabs:[["all","그림자 포함"],["base","기본만"]],
    cols:[["score","점수",1],["sp","스탯곱",0],["rating","레이팅",0]], tierCol:"score",
-   rows:(s,t)=>(DEX.pvp[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>`${LN[s]} 순위`,
-   st:{sel:"great",tab:"all",sort:"score"}, note:NOTE_PVP, noPct:true }
+   pick:"위에서 리그를 골라 주세요.", rows:(s,t)=>(DEX.pvp[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>`${LN[s]} 순위`,
+   st:{sel:null,tab:"all",sort:"score"}, note:NOTE_PVP, noPct:true }
 };
 function renderBoard(id){
   const B=BOARDS[id], st=B.st, root=$("#v-"+id);
   if(!DEX){ root.innerHTML=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`; return; }
   if(!root.dataset.ready){
     const sels=B.sels();
-    root.innerHTML=`<div class="label">&gt; ${B.title}</div><div class="sels${sels.length===3?" three":""}"></div><div class="head"></div>
+    root.innerHTML=`<div class="label">&gt; ${B.title}</div><div class="sels${sels.length===3?" three":""}"></div>
+      <div class="pickMsg empty">${B.pick}</div>
+      <div class="boardBody"><div class="head"></div>
       ${B.tabs?`<div class="tabs">${B.tabs.map(([k,l])=>`<button class="tab" data-tab="${k}">${l}</button>`).join("")}</div>`:""}
       <table><thead><tr><th>#</th><th>포켓몬 / 기술</th>${B.cols.map(([k,l])=>`<th class="num"><button data-k="${k}">${l}</button></th>`).join("")}<th style="text-align:center">티어</th></tr></thead><tbody></tbody></table>
-      <div class="emptyBox"></div>
+      <div class="emptyBox"></div></div>
       <div class="note"><div class="legend">${legendHTML(!B.noPct)}</div>${B.note}<br>데이터 갱신: <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
     root.querySelector(".sels").addEventListener("click",e=>{const b=e.target.closest("[data-s]"); if(b){st.sel=b.dataset.s; save(); renderBoard(id);}});
     root.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{st.tab=b.dataset.tab; save(); renderBoard(id);});
     root.querySelectorAll("th button").forEach(b=>b.onclick=()=>{st.sort=b.dataset.k; save(); renderBoard(id);});
     root.dataset.ready=1;
   }
-  const sels=B.sels(), sel=sels.find(s=>s.k===st.sel)||sels[0], c=sel.c;
+  const sels=B.sels(), sel=sels.find(s=>s.k===st.sel);
   root.querySelector(".sels").innerHTML=sels.map(s=>`<button class="sbtn${s.k===st.sel?" on":""}${s.off?" off":""}" style="--c:${s.c}" data-s="${s.k}">${s.icon}<span>${s.n}</span></button>`).join("");
+  root.querySelector(".pickMsg").style.display=sel?"none":"";
+  root.querySelector(".boardBody").style.display=sel?"":"none";
+  if(!sel) return;
+  const c=sel.c;
   const rows=assignTiers(B.rows(st.sel,st.tab).map(r=>({...r})).sort((a,b)=>b[B.tierCol]-a[B.tierCol]),B.tierCol,!B.noPct);
   const head=root.querySelector(".head"); head.style.setProperty("--c",c);
   head.innerHTML=`<div class="ico">${sel.icon}</div><h2>${B.head(st.sel)}</h2><div class="cnt">${rows.length} 마리</div>`;
@@ -568,8 +583,8 @@ function renderBoard(id){
       <td class="tier">${TB(r._t)}</td></tr>`;
   }).join("");
 }
-function save(){ try{ localStorage.setItem("boxterm4",JSON.stringify({raid:BOARDS.raid.st,dmax:BOARDS.dmax.st,pvp:BOARDS.pvp.st})); }catch(e){} }
-try{ const s=JSON.parse(localStorage.getItem("boxterm4")||"null"); if(s) for(const k in s) Object.assign(BOARDS[k].st,s[k]); }catch(e){}
+function save(){ try{ const o={}; for(const k of ["raid","dmax","pvp"]){ const {tab,sort}=BOARDS[k].st; o[k]={tab,sort}; } localStorage.setItem("boxterm4",JSON.stringify(o)); }catch(e){} }
+try{ const s=JSON.parse(localStorage.getItem("boxterm4")||"null"); if(s) for(const k in s){ const {tab,sort}=s[k]||{}; if(tab) BOARDS[k].st.tab=tab; if(sort) BOARDS[k].st.sort=sort; } }catch(e){}
 
 // ===== 상성표 =====
 // 포켓몬고 상성 배율: 효과굉장 1.6 / 별로 0.625 / 효과없음 0.390625
@@ -595,7 +610,7 @@ const CHART={
 };
 const eff=(atk,defTypes)=>defTypes.reduce((m,d)=>m*(CHART[atk].s.includes(d)?1.6:CHART[atk].n.includes(d)?0.625:CHART[atk].i.includes(d)?0.390625:1),1);
 const fmtX=x=>x>=2.5?"2.56":x>=1.5?"1.6":x>=0.99?"1":x>=0.6?"0.63":x>=0.39?"0.39":"0.24";
-let OPP=["rock","dark"], TMODE="raid";
+let OPP=[], TMODE="raid";
 const TIER_CACHE={};
 function tieredList(mode,type){ // 보드 "전체" 탭과 같은 티어
   const k=mode+type; if(TIER_CACHE[k]) return TIER_CACHE[k];
@@ -607,7 +622,7 @@ function renderType(){
   const root=$("#v-type");
   const sels=TYPES.map(([k,n,c])=>{ const i=OPP.indexOf(k); return `<button class="sbtn${i>=0?" pick":""}" style="--c:${c}" data-t="${k}">${i>=0?`<span class="ord">${i+1}</span>`:""}${svg(k)}<span>${n}</span></button>`; }).join("");
   let body="";
-  if(!OPP.length) body=`<div class="empty">상대 포켓몬의 타입을 골라 주세요.<br>타입이 두 개면 두 개 모두 눌러요.</div>`;
+  if(!OPP.length) body=`<div class="empty">위에서 상대 포켓몬의 타입을 골라 주세요.<br>타입이 두 개면 두 개 모두 눌러요.</div>`;
   else if(!DEX) body=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`;
   else{
     const atk=TYPES.map(([k])=>({k,x:eff(k,OPP)})).sort((a,b)=>b.x-a.x);
@@ -660,7 +675,7 @@ function renderType(){
   const clr=$("#oppClr"); if(clr) clr.onclick=()=>{OPP=[]; saveType(); renderType();};
 }
 function saveType(){ try{ localStorage.setItem("pyo-type",JSON.stringify({OPP,TMODE})); }catch(e){} }
-try{ const t=JSON.parse(localStorage.getItem("pyo-type")||"null"); if(t){ OPP=t.OPP||OPP; TMODE=t.TMODE||TMODE; } }catch(e){}
+try{ const t=JSON.parse(localStorage.getItem("pyo-type")||"null"); if(t){ TMODE=t.TMODE||TMODE; } }catch(e){}
 
 // ===== 시작 =====
 renderHome(); show();
