@@ -1,6 +1,6 @@
 {
  "updated": "2026-11-17",
- "source": "LeekDuck (ScrapedDuck) · Gemini 번역",
+ "source": "LeekDuck (ScrapedDuck)",
  "events": [
   [
    "event",
@@ -12,7 +12,7 @@
   ],
   [
    "pass",
-   "GO Pass: November",
+   "GO 패스: 11월",
    "2026-11-03T10:00",
    "2026-12-01T10:00",
    "",
@@ -28,31 +28,38 @@
   ],
   [
    "raid",
-   "Cresselia and Darkrai in 5-star Raid Battles",
+   "5성 레이드: 크레세리아 · 다크라이",
    "2026-11-16T06:00",
    "2026-11-24T22:00",
    "",
-   []
+   [
+    "크레세리아",
+    "다크라이"
+   ]
   ],
   [
-   "raid",
-   "Mega Banette in Mega Raids",
+   "mega",
+   "메가 레이드: 메가다크펫",
    "2026-11-16T06:00",
    "2026-11-24T22:00",
    "",
-   []
+   [
+    "다크펫"
+   ]
   ],
   [
-   "raid",
-   "Shadow Tornadus (Incarnate Forme) in Shadow Raids",
+   "shadow",
+   "그림자 레이드: 그림자 토네로스 (화신폼)",
    "2026-11-16T06:00",
    "2026-12-01T22:00",
    "",
-   []
+   [
+    "토네로스"
+   ]
   ],
   [
-   "event",
-   "Dynamax Trails",
+   "max",
+   "다이맥스 트레일",
    "2026-11-16T10:00",
    "2026-11-23T20:00",
    "",
@@ -68,43 +75,56 @@
   ],
   [
    "hour",
-   "Cresselia and Darkrai Raid Hour",
+   "레이드 아워: 크레세리아 · 다크라이",
    "2026-11-18T18:00",
    "2026-11-18T19:00",
    "",
-   []
+   [
+    "크레세리아",
+    "다크라이"
+   ]
   ],
   [
    "spot",
-   "Grookey, Scorbunny, and Sobble Spotlight Hour",
+   "스포트라이트 아워: 흥나숭 · 염버니 · 울머기",
    "2026-11-19T18:00",
    "2026-11-19T19:00",
    "",
-   []
+   [
+    "흥나숭",
+    "염버니",
+    "울머기"
+   ]
   ],
   [
    "max",
-   "Eternamax Eternatus Returns",
+   "무한다이맥스 무한다이노 재등장",
    "2026-11-21T11:00",
    "2026-11-21T14:00",
    "",
-   []
+   [
+    "무한다이노"
+   ]
   ],
   [
    "cday",
-   "Pawniard Community Day",
+   "커뮤니티 데이: 자망칼",
    "2026-11-21T14:00",
    "2026-11-21T17:00",
    "",
-   []
+   [
+    "자망칼"
+   ]
   ],
   [
    "max",
-   "Dynamax Espurr during Max Monday",
+   "맥스 먼데이: 다이맥스 냐스퍼",
    "2026-11-23T06:00",
    "2026-11-23T21:00",
    "",
-   []
+   [
+    "냐스퍼"
+   ]
   ],
   [
    "event",
@@ -116,55 +136,67 @@
   ],
   [
    "raid",
-   "Deoxys (Normal, Defense, Attack, and Speed Formes) in 5-star Raid Battles",
+   "5성 레이드: 테오키스 (노말·디펜스·어택·스피드폼)",
    "2026-11-25T06:00",
    "2026-12-01T22:00",
    "",
-   []
+   [
+    "테오키스"
+   ]
   ],
   [
-   "raid",
-   "Mega Metagross in Mega Raids",
+   "mega",
+   "메가 레이드: 메가메타그로스",
    "2026-11-25T06:00",
    "2026-12-01T22:00",
    "",
-   []
+   [
+    "메타그로스"
+   ]
   ],
   [
    "hour",
-   "Deoxys (Normal, Defense, Attack, and Speed Formes) Raid Hour",
+   "레이드 아워: 테오키스 (노말·디펜스·어택·스피드폼)",
    "2026-11-25T18:00",
    "2026-11-25T19:00",
    "",
-   []
+   [
+    "테오키스"
+   ]
   ],
   [
    "spot",
-   "Noibat Spotlight Hour",
+   "스포트라이트 아워: 음뱃",
    "2026-11-26T18:00",
    "2026-11-26T19:00",
    "",
-   []
+   [
+    "음뱃"
+   ]
   ],
   [
-   "raid",
-   "Clefable Super Mega Raid Day",
+   "mega",
+   "슈퍼 메가 레이드 데이: 메가픽시",
    "2026-11-28T14:00",
    "2026-11-28T17:00",
    "",
-   []
+   [
+    "픽시"
+   ]
   ],
   [
    "max",
-   "Dynamax Cryogonal during Max Monday",
+   "맥스 먼데이: 다이맥스 프리지오",
    "2026-11-30T06:00",
    "2026-11-30T21:00",
    "",
-   []
+   [
+    "프리지오"
+   ]
   ],
   [
    "max",
-   "Max Battle Day",
+   "맥스배틀 데이",
    "2026-12-05T14:00",
    "2026-12-05T17:00",
    "",
@@ -180,7 +212,7 @@
   ],
   [
    "cday",
-   "December Community Day",
+   "커뮤니티 데이 (12월)",
    "2026-12-12T14:00",
    "2026-12-13T17:00",
    "",
