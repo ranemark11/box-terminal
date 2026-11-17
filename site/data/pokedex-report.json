@@ -651,6 +651,100 @@
    }
   ],
   "plusValueTemplates": [],
+  "vmMoves": [
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_V0071_POKEMON_VICTREEBEL",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_V0071_POKEMON_VICTREEBEL\",\"moveSettings\":{\"movementId\":508,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_POISON\",\"power\":160,\"accuracyChance\":1,\"staminaLossScalar\":0.01,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"acid_spray\",\"durationMs\":3000,\"damageWindowStartMs\":2100,\"damageWindowEndMs\":2800,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_V0121_POKEMON_STARMIE",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_V0121_POKEMON_STARMIE\",\"moveSettings\":{\"movementId\":512,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_WATER\",\"power\":180,\"accuracyChance\":1,\"staminaLossScalar\":0.01,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"liquidation\",\"durationMs\":3000,\"damageWindowStartMs\":2000,\"damageWindowEndMs\":2700,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_V0149_POKEMON_DRAGONITE",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_V0149_POKEMON_DRAGONITE\",\"moveSettings\":{\"movementId\":515,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_DRAGON\",\"power\":185,\"accuracyChance\":1,\"criticalChance\":0.05,\"staminaLossScalar\":0.04,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"outrage\",\"durationMs\":4000,\"damageWindowStartMs\":2600,\"damageWindowEndMs\":3800,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_V0227_POKEMON_SKARMORY",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_V0227_POKEMON_SKARMORY\",\"moveSettings\":{\"movementId\":522,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_FLYING\",\"power\":170,\"accuracyChance\":1,\"criticalChance\":0.05,\"staminaLossScalar\":0.08,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"drill_peck\",\"durationMs\":2500,\"damageWindowStartMs\":1900,\"damageWindowEndMs\":2300,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_V0652_POKEMON_CHESNAUGHT",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_V0652_POKEMON_CHESNAUGHT\",\"moveSettings\":{\"movementId\":566,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_GRASS\",\"power\":150,\"accuracyChance\":1,\"criticalChance\":0.05,\"staminaLossScalar\":0.08,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"seed_bomb\",\"durationMs\":2000,\"damageWindowStartMs\":1100,\"damageWindowEndMs\":1800,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_V0655_POKEMON_DELPHOX",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_V0655_POKEMON_DELPHOX\",\"moveSettings\":{\"movementId\":567,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_FIRE\",\"power\":140,\"accuracyChance\":1,\"staminaLossScalar\":0.01,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"myst_fire\",\"durationMs\":2000,\"damageWindowStartMs\":1300,\"damageWindowEndMs\":2000,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_V0658_POKEMON_GRENINJA",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_V0658_POKEMON_GRENINJA\",\"moveSettings\":{\"movementId\":568,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_WATER\",\"power\":130,\"accuracyChance\":1,\"staminaLossScalar\":0.01,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"surf\",\"durationMs\":1500,\"damageWindowStartMs\":1200,\"damageWindowEndMs\":1400,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_V0687_POKEMON_MALAMAR",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_V0687_POKEMON_MALAMAR\",\"moveSettings\":{\"movementId\":572,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_PSYCHIC\",\"power\":170,\"accuracyChance\":1,\"criticalChance\":0.05,\"staminaLossScalar\":0.065,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"psybeam\",\"durationMs\":3000,\"damageWindowStartMs\":1100,\"damageWindowEndMs\":2500,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_V0870_POKEMON_FALINKS",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_V0870_POKEMON_FALINKS\",\"moveSettings\":{\"movementId\":583,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_FIGHTING\",\"power\":150,\"accuracyChance\":1,\"criticalChance\":0.25,\"staminaLossScalar\":0.075,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"brick_break\",\"durationMs\":1500,\"damageWindowStartMs\":700,\"damageWindowEndMs\":1300,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_X_V0026_POKEMON_RAICHU",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_X_V0026_POKEMON_RAICHU\",\"moveSettings\":{\"movementId\":504,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_ELECTRIC\",\"power\":170,\"accuracyChance\":1,\"staminaLossScalar\":0.01,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"volt_tackle\",\"durationMs\":3500,\"damageWindowStartMs\":2100,\"damageWindowEndMs\":2600,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_X_V0150_POKEMON_MEWTWO",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_X_V0150_POKEMON_MEWTWO\",\"moveSettings\":{\"movementId\":495,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_FIGHTING\",\"power\":130,\"accuracyChance\":1,\"criticalChance\":0.05,\"staminaLossScalar\":0.04,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"dynamic_punch\",\"durationMs\":2500,\"damageWindowStartMs\":1000,\"damageWindowEndMs\":2500,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_Y_V0026_POKEMON_RAICHU",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_Y_V0026_POKEMON_RAICHU\",\"moveSettings\":{\"movementId\":505,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_ELECTRIC\",\"power\":160,\"accuracyChance\":1,\"criticalChance\":0.05,\"staminaLossScalar\":0.04,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"zap_cannon\",\"durationMs\":3500,\"damageWindowStartMs\":2800,\"damageWindowEndMs\":3300,\"energyDelta\":-100,\"isLocked\":true}}"
+   },
+   {
+    "id": "VM_MOVE_TEMP_EVOLUTION_MEGA_Y_V0150_POKEMON_MEWTWO",
+    "data": "{\"templateId\":\"VM_MOVE_TEMP_EVOLUTION_MEGA_Y_V0150_POKEMON_MEWTWO\",\"moveSettings\":{\"movementId\":496,\"animationId\":5,\"pokemonType\":\"POKEMON_TYPE_PSYCHIC\",\"power\":140,\"accuracyChance\":1,\"criticalChance\":0.05,\"staminaLossScalar\":0.04,\"trainerLevelMin\":1,\"trainerLevelMax\":100,\"vfxName\":\"futuresight\",\"durationMs\":2500,\"damageWindowStartMs\":1200,\"damageWindowEndMs\":2500,\"energyDelta\":-100,\"isLocked\":true}}"
+   }
+  ],
+  "megaLevelGeneric": [
+   {
+    "id": "MEGA_EVOLUTION_LEVEL_0",
+    "data": "{\"templateId\":\"MEGA_EVOLUTION_LEVEL_0\",\"megaEvoLevelSettings\":{\"progression\":{\"pointsLimitPerPeriod\":1,\"pointsPerMegaEvoAction\":1},\"cooldown\":{\"durationMs\":\"1209600000\",\"bypassCostInitial\":200,\"bypassCostRoundingValue\":1},\"effects\":{\"differentTypeAttackBoost\":1.1,\"sameTypeAttackBoost\":1.3,\"sameTypeExtraCatchCandy\":1}}}"
+   },
+   {
+    "id": "MEGA_EVOLUTION_LEVEL_1",
+    "data": "{\"templateId\":\"MEGA_EVOLUTION_LEVEL_1\",\"megaEvoLevelSettings\":{\"level\":1,\"progression\":{\"pointsRequired\":1,\"pointsLimitPerPeriod\":1,\"pointsPerMegaEvoAction\":1},\"cooldown\":{\"durationMs\":\"604800000\",\"bypassCostInitial\":40,\"bypassCostRoundingValue\":1},\"effects\":{\"differentTypeAttackBoost\":1.1,\"sameTypeAttackBoost\":1.3,\"sameTypeExtraCatchCandy\":1}}}"
+   },
+   {
+    "id": "MEGA_EVOLUTION_LEVEL_2",
+    "data": "{\"templateId\":\"MEGA_EVOLUTION_LEVEL_2\",\"megaEvoLevelSettings\":{\"level\":2,\"progression\":{\"pointsRequired\":7,\"pointsLimitPerPeriod\":1,\"pointsPerMegaEvoAction\":1},\"cooldown\":{\"durationMs\":\"432000000\",\"bypassCostInitial\":20,\"bypassCostRoundingValue\":1},\"effects\":{\"differentTypeAttackBoost\":1.1,\"sameTypeAttackBoost\":1.3,\"sameTypeExtraCatchCandy\":1,\"sameTypeExtraCatchXp\":50,\"sameTypeExtraCatchCandyXlChance\":0.1},\"megaEnergyCostPerPoint\":80}}"
+   },
+   {
+    "id": "MEGA_EVOLUTION_LEVEL_3",
+    "data": "{\"templateId\":\"MEGA_EVOLUTION_LEVEL_3\",\"megaEvoLevelSettings\":{\"level\":3,\"progression\":{\"pointsRequired\":30,\"pointsLimitPerPeriod\":1,\"pointsPerMegaEvoAction\":1},\"cooldown\":{\"durationMs\":\"259200000\",\"bypassCostInitial\":10,\"bypassCostRoundingValue\":1},\"effects\":{\"differentTypeAttackBoost\":1.1,\"sameTypeAttackBoost\":1.3,\"sameTypeExtraCatchCandy\":2,\"sameTypeExtraCatchXp\":100,\"sameTypeExtraCatchCandyXlChance\":0.25},\"megaEnergyCostPerPoint\":40}}"
+   }
+  ],
+  "megaLevelDragonite": [
+   {
+    "id": "MEGA_EVOLUTION_LEVEL_0_V0149_POKEMON_DRAGONITE",
+    "data": "{\"templateId\":\"MEGA_EVOLUTION_LEVEL_0_V0149_POKEMON_DRAGONITE\",\"megaEvoLevelSettings\":{\"pokemonId\":\"DRAGONITE\",\"progression\":{\"pointsLimitPerPeriod\":1,\"pointsPerMegaEvoAction\":1},\"cooldown\":{\"durationMs\":\"1209600000\",\"bypassCostInitial\":500,\"bypassCostRoundingValue\":1},\"effects\":{\"differentTypeAttackBoost\":1.1,\"sameTypeAttackBoost\":1.3,\"sameTypeExtraCatchCandy\":1}}}"
+   },
+   {
+    "id": "MEGA_EVOLUTION_LEVEL_1_V0149_POKEMON_DRAGONITE",
+    "data": "{\"templateId\":\"MEGA_EVOLUTION_LEVEL_1_V0149_POKEMON_DRAGONITE\",\"megaEvoLevelSettings\":{\"level\":1,\"pokemonId\":\"DRAGONITE\",\"progression\":{\"pointsRequired\":1,\"pointsLimitPerPeriod\":1,\"pointsPerMegaEvoAction\":1},\"cooldown\":{\"durationMs\":\"604800000\",\"bypassCostInitial\":60,\"bypassCostRoundingValue\":1},\"effects\":{\"differentTypeAttackBoost\":1.1,\"sameTypeAttackBoost\":1.3,\"sameTypeExtraCatchCandy\":1}}}"
+   },
+   {
+    "id": "MEGA_EVOLUTION_LEVEL_2_V0149_POKEMON_DRAGONITE",
+    "data": "{\"templateId\":\"MEGA_EVOLUTION_LEVEL_2_V0149_POKEMON_DRAGONITE\",\"megaEvoLevelSettings\":{\"level\":2,\"pokemonId\":\"DRAGONITE\",\"progression\":{\"pointsRequired\":7,\"pointsLimitPerPeriod\":1,\"pointsPerMegaEvoAction\":1},\"cooldown\":{\"durationMs\":\"432000000\",\"bypassCostInitial\":30,\"bypassCostRoundingValue\":1},\"effects\":{\"differentTypeAttackBoost\":1.1,\"sameTypeAttackBoost\":1.3,\"sameTypeExtraCatchCandy\":1,\"sameTypeExtraCatchXp\":50,\"sameTypeExtraCatchCandyXlChance\":0.1},\"megaEnergyCostPerPoint\":160}}"
+   },
+   {
+    "id": "MEGA_EVOLUTION_LEVEL_3_V0149_POKEMON_DRAGONITE",
+    "data": "{\"templateId\":\"MEGA_EVOLUTION_LEVEL_3_V0149_POKEMON_DRAGONITE\",\"megaEvoLevelSettings\":{\"level\":3,\"pokemonId\":\"DRAGONITE\",\"progression\":{\"pointsRequired\":30,\"pointsLimitPerPeriod\":1,\"pointsPerMegaEvoAction\":1},\"cooldown\":{\"durationMs\":\"259200000\",\"bypassCostInitial\":15,\"bypassCostRoundingValue\":1},\"effects\":{\"differentTypeAttackBoost\":1.1,\"sameTypeAttackBoost\":1.3,\"sameTypeExtraCatchCandy\":2,\"sameTypeExtraCatchXp\":100,\"sameTypeExtraCatchCandyXlChance\":0.25},\"megaEnergyCostPerPoint\":80}}"
+   },
+   {
+    "id": "MEGA_EVOLUTION_LEVEL_4_V0149_POKEMON_DRAGONITE",
+    "data": "{\"templateId\":\"MEGA_EVOLUTION_LEVEL_4_V0149_POKEMON_DRAGONITE\",\"megaEvoLevelSettings\":{\"level\":4,\"pokemonId\":\"DRAGONITE\",\"progression\":{\"pointsRequired\":30,\"pointsLimitPerPeriod\":1,\"pointsPerMegaEvoAction\":1},\"cooldown\":{\"durationMs\":\"86400000\",\"bypassCostInitial\":5,\"bypassCostRoundingValue\":1},\"effects\":{\"differentTypeAttackBoost\":1.1,\"sameTypeAttackBoost\":1.3,\"sameTypeExtraCatchCandy\":3,\"sameTypeExtraCatchXp\":200,\"sameTypeExtraCatchCandyXlChance\":0.3,\"selfCpBoostAdditionalLevel\":2},\"megaEnergyCostToUnlock\":5000,\"ftueExpirationTimestamp\":\"1775001600000\"}}"
+   }
+  ],
   "pvpokePlusMoves": [
    {
     "id": "ACID_SPRAY_PLUS",
