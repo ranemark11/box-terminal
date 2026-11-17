@@ -163,6 +163,9 @@ async function main() {
     const vals = [];
     for (const t of pm) { const js = JSON.stringify(t.data || {}); const m = js.match(/"(OUTRAGE|VOLT_TACKLE|ZAP_CANNON|DRILL_PECK)_PLUS[^"]*"/); if (m && !/^COMBAT_/.test(t.templateId)) vals.push({ id: t.templateId, hit: js.slice(Math.max(0, js.indexOf(m[0]) - 300), js.indexOf(m[0]) + 200) }); }
     report.probe.plusValueTemplates = vals.slice(0, 20);
+    report.probe.vmMoves = pm.filter(t => /^VM_MOVE_TEMP_EVOLUTION/.test(t.templateId)).map(t => ({ id: t.templateId, data: JSON.stringify(t.data).slice(0, 700) }));
+    report.probe.megaLevelGeneric = pm.filter(t => /^MEGA_EVOLUTION_LEVEL_\d+$/.test(t.templateId)).map(t => ({ id: t.templateId, data: JSON.stringify(t.data) }));
+    report.probe.megaLevelDragonite = pm.filter(t => /^MEGA_EVOLUTION_LEVEL_\d+_V0149_POKEMON_DRAGONITE$/.test(t.templateId)).map(t => ({ id: t.templateId, data: JSON.stringify(t.data) }));
     report.probe.pvpokePlusMoves = (gm.moves || []).filter(m => /_PLUS/.test(m.moveId)).map(m => ({ id: m.moveId, name: m.name, type: m.type, power: m.power, energy: m.energy, ext: Object.keys(m).join(",") }));
   }
 
