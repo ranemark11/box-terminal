@@ -19,7 +19,7 @@
   두 워크플로는 `concurrency: data-commit`으로 겹치지 않게 되어 있음.
 
 ## 파일 구조
-- `site/index.html` — 사이트 전체(HTML·CSS·JS 한 파일). 페이지 제목 `PYOkemongo`, 화면 로고 "BOX TERMINAL"
+- `site/index.html` — 사이트 전체(HTML·CSS·JS 한 파일). 페이지 제목 "표켓몬고 티어리스트(PYOkemongo) - 포켓몬고 정보 사이트", 화면 로고 "BOX TERMINAL"
 - `site/data/pokedex.json` — 도감·티어 (자동 생성, 직접 수정 금지)
 - `site/data/events.json`, `translations.json` — 홈 일정·번역 캐시 (자동 생성)
 - `site/data/*-report.json` — 빌드 결과·경고. 문제 생기면 여기부터 확인
@@ -38,7 +38,8 @@
 ## 검색·링크 미리보기
 - index.html `<head>`: description, Open Graph(카카오톡 등 미리보기), twitter 카드, 아이콘.
   미리보기 제목 "표켓몬고 티어리스트(PYOkemongo)"(표 맞음), 설명 "포켓몬고 정보 사이트", 이미지 = PokeAPI 피카츄 공식 아트워크.
-- `site/robots.txt`, `site/sitemap.xml`. 탭 제목(`<title>`)은 PYOkemongo 유지.
+- `site/robots.txt`, `site/sitemap.xml`. 탭 제목(`<title>`) = "표켓몬고 티어리스트(PYOkemongo) - 포켓몬고 정보 사이트".
+- 네이버 서치어드바이저 소유 확인 메타 태그(`naver-site-verification`)가 `<head>`에 있음 — 지우지 말 것.
 - 카카오톡은 미리보기를 캐시함 → 바꾼 뒤 예전 모습이면 카카오 개발자 사이트의 OG 캐시 초기화 도구 사용.
 
 ## 데이터 출처
