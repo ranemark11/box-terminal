@@ -114,6 +114,326 @@
    "include10000"
   ],
   "pveMoves": 424,
+  "plusMoveTemplates": [
+   {
+    "id": "APRIL1_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"APRIL1_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.april1_2026_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_shockingly_good_2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-03-31T10:00:00\",\"skuDisableTime\":\"2025-04-08T20:00"
+   },
+   {
+    "id": "APRIL2_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"APRIL2_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.april2_2026_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_sustainabilityweek2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-04-14T10:00:00\",\"skuDisableTime\":\"2025-04-22T20:"
+   },
+   {
+    "id": "APRIL3_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"APRIL3_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.april3_2026_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_steeled_resolve_2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-04-28T10:00:00\",\"skuDisableTime\":\"2025-05-06T20:00"
+   },
+   {
+    "id": "AUGUST1_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"AUGUST1_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.august1_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_summermarathon2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-08-04T10:00:00\",\"skuDisableTime\":\"2025-08-12T20:00:00\",\"skuE"
+   },
+   {
+    "id": "AUGUST2_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"AUGUST2_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.august2_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_uu_water_festival_2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-08-18T10:00:04\",\"skuDisableTime\":\"2026-08-26T20:00:00\",\""
+   },
+   {
+    "id": "AUGUST3_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"AUGUST3_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.august3_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"title\":\"season_pass_premium_track_plus_six_ranks_title_WCS_2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-08-25T10:00:00\",\"skuDisableTime\":\"2026-09-01T20:00:00\",\"skuEnableTimeUtcMs\":\"1756116"
+   },
+   {
+    "id": "AVATAR_f_shirt_spring2021plusle",
+    "data": "{\"templateId\":\"AVATAR_f_shirt_spring2021plusle\",\"avatarCustomization\":{\"enabled\":true,\"avatarType\":\"PLAYER_AVATAR_FEMALE\",\"slot\":[\"SHIRT\"],\"bundleName\":\"f_shirt_spring2021plusle_bundle\",\"assetName\":\"f_shirt_spring2021plusle_0\",\"groupName\":\"group_shirt\",\"sortOrder\":100906,\"unlockType\":\"IAP_CLOTHING\",\"iapSku\":\"pgorelease.avatar.f_shirt_spring2021plusle_0\",\"iconName\":\"f_shirt_spring2021plusle_00_bund"
+   },
+   {
+    "id": "AVATAR_m_shirt_spring2021plusle",
+    "data": "{\"templateId\":\"AVATAR_m_shirt_spring2021plusle\",\"avatarCustomization\":{\"enabled\":true,\"slot\":[\"SHIRT\"],\"bundleName\":\"m_shirt_spring2021plusle_bundle\",\"assetName\":\"m_shirt_spring2021plusle_0\",\"groupName\":\"group_shirt\",\"sortOrder\":100909,\"unlockType\":\"IAP_CLOTHING\",\"iapSku\":\"pgorelease.avatar.m_shirt_spring2021plusle_0\",\"iconName\":\"m_shirt_spring2021plusle_00_bundle_icon\"}}"
+   },
+   {
+    "id": "BADGE_BEST_FRIENDS_PLUS_ELIGIBLE",
+    "data": "{\"templateId\":\"BADGE_BEST_FRIENDS_PLUS_ELIGIBLE\",\"badgeSettings\":{\"badgeType\":\"BADGE_BEST_FRIENDS_PLUS_ELIGIBLE\",\"badgeRank\":2,\"targets\":[100],\"eventBadge\":true,\"eventBadgeSettings\":{\"suppressClientVisuals\":true}}}"
+   },
+   {
+    "id": "BEST_FRIENDS_PLUS_SETTINGS",
+    "data": "{\"templateId\":\"BEST_FRIENDS_PLUS_SETTINGS\",\"bestFriendsPlusSettings\":{\"enabled\":true,\"tutorialTimeCutoff\":\"1769905534000\"}}"
+   },
+   {
+    "id": "COMBAT_V0360_MOVE_AEROBLAST_PLUS",
+    "data": "{\"templateId\":\"COMBAT_V0360_MOVE_AEROBLAST_PLUS\",\"combatMove\":{\"uniqueId\":\"AEROBLAST_PLUS\",\"type\":\"POKEMON_TYPE_FLYING\",\"power\":170,\"vfxName\":\"aeroblast\",\"energyDelta\":-75,\"buffs\":{\"attackerAttackStatStageChange\":2,\"buffActivationChance\":0.125}}}"
+   },
+   {
+    "id": "COMBAT_V0361_MOVE_AEROBLAST_PLUS_PLUS",
+    "data": "{\"templateId\":\"COMBAT_V0361_MOVE_AEROBLAST_PLUS_PLUS\",\"combatMove\":{\"uniqueId\":\"AEROBLAST_PLUS_PLUS\",\"type\":\"POKEMON_TYPE_FLYING\",\"power\":170,\"vfxName\":\"aeroblast\",\"energyDelta\":-75,\"buffs\":{\"attackerAttackStatStageChange\":2,\"buffActivationChance\":0.125}}}"
+   },
+   {
+    "id": "COMBAT_V0362_MOVE_SACRED_FIRE_PLUS",
+    "data": "{\"templateId\":\"COMBAT_V0362_MOVE_SACRED_FIRE_PLUS\",\"combatMove\":{\"uniqueId\":\"SACRED_FIRE_PLUS\",\"type\":\"POKEMON_TYPE_FIRE\",\"power\":130,\"vfxName\":\"sacred_fire\",\"energyDelta\":-65,\"buffs\":{\"targetAttackStatStageChange\":-1,\"buffActivationChance\":0.5}}}"
+   },
+   {
+    "id": "COMBAT_V0363_MOVE_SACRED_FIRE_PLUS_PLUS",
+    "data": "{\"templateId\":\"COMBAT_V0363_MOVE_SACRED_FIRE_PLUS_PLUS\",\"combatMove\":{\"uniqueId\":\"SACRED_FIRE_PLUS_PLUS\",\"type\":\"POKEMON_TYPE_FIRE\",\"power\":130,\"vfxName\":\"sacred_fire\",\"energyDelta\":-65,\"buffs\":{\"targetAttackStatStageChange\":-1,\"buffActivationChance\":0.5}}}"
+   },
+   {
+    "id": "EXTENDED_V0311_POKEMON_PLUSLE",
+    "data": "{\"templateId\":\"EXTENDED_V0311_POKEMON_PLUSLE\",\"pokemonExtendedSettings\":{\"uniqueId\":\"PLUSLE\",\"sizeSettings\":{\"xxsLowerBound\":0.2009,\"xsLowerBound\":0.205,\"mLowerBound\":0.3075,\"mUpperBound\":0.5125,\"xlUpperBound\":0.615,\"xxlUpperBound\":0.7175}}}"
+   },
+   {
+    "id": "EXTENDED_V0311_POKEMON_PLUSLE_NORMAL",
+    "data": "{\"templateId\":\"EXTENDED_V0311_POKEMON_PLUSLE_NORMAL\",\"pokemonExtendedSettings\":{\"uniqueId\":\"PLUSLE\",\"form\":\"PLUSLE_NORMAL\",\"sizeSettings\":{\"xxsLowerBound\":0.2009,\"xsLowerBound\":0.205,\"mLowerBound\":0.3075,\"mUpperBound\":0.5125,\"xlUpperBound\":0.615,\"xxlUpperBound\":0.7175}}}"
+   },
+   {
+    "id": "FORMS_V0311_POKEMON_PLUSLE",
+    "data": "{\"templateId\":\"FORMS_V0311_POKEMON_PLUSLE\",\"formSettings\":{\"pokemon\":\"PLUSLE\",\"forms\":[{\"form\":\"PLUSLE_NORMAL\"}]}}"
+   },
+   {
+    "id": "GOFEST2025_FINALE_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"GOFEST2025_FINALE_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.gofest_finale_2025_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"gofest_2025_finale_deluxe_event_pass_track_unlock_plus_points_title\",\"description\":\"gofest_2025_finale_deluxe_event_pass_track_unlock_plus_points_description\",\"skuEnableTime\":\"2024-08-18T"
+   },
+   {
+    "id": "GOFEST_2025_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"GOFEST_2025_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.gofest_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"event_pass_gofest2025_premium_track_plus_points_title\",\"description\":\"gotour_2025_deluxe_event_pass_track_unlock_plus_points_description\",\"skuEnableTime\":\"2025-02-12T10:00:00\",\"skuDisableTime\":\"2025-06-29T"
+   },
+   {
+    "id": "GOFEST_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"GOFEST_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.gofest_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"event_pass_gofest2026_premium_track_plus_points_title\",\"description\":\"deluxe_event_pass_track_unlock_plus_points_description\",\"skuEnableTime\":\"2026-07-06T00:00:00\",\"skuDisableTime\":\"2026-07-14T23:59:59\",\"skuEna"
+   },
+   {
+    "id": "GOTOUR_2025_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"GOTOUR_2025_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.gotour_2025_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"gotour_2025_deluxe_event_pass_track_unlock_plus_points_title\",\"description\":\"gotour_2025_deluxe_event_pass_track_unlock_plus_points_description\",\"skuEnableTime\":\"2025-01-01T00:00:00\",\"skuDisableTime\":"
+   },
+   {
+    "id": "GOWILD_2025_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"GOWILD_2025_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.gowild_2025_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"gowa_2025_deluxe_event_pass_track_unlock_plus_points_title\",\"description\":\"gotour_2025_deluxe_event_pass_track_unlock_plus_points_description\",\"skuEnableTime\":\"2024-11-10T10:00:00\",\"skuDisableTime\":\"2"
+   },
+   {
+    "id": "HALLOWEEN2025_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"HALLOWEEN2025_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.halloween2025_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_ten_ranks_title_halloween_2025\",\"description\":\"gotour_2025_deluxe_event_pass_track_unlock_plus_points_description\",\"skuEnableTime\":\"2024-10-21T10:00:00\",\"skuDisableT"
+   },
+   {
+    "id": "JULY1_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"JULY1_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.july1_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_pikachu_celebration_2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-07-13T10:00:00\",\"skuDisableTime\":\"2025-07-22T20:00:00\",\"sk"
+   },
+   {
+    "id": "JULY2_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"JULY2_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.july2_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_10th_anniversary_2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-07-21T10:00:00\",\"skuDisableTime\":\"2025-07-29T20:00:00\",\"skuEn"
+   },
+   {
+    "id": "JUNE1_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"JUNE1_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.june1_2026_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_amer_2026\",\"description\":\"gotour_2025_deluxe_event_pass_track_unlock_plus_points_description\",\"skuEnableTime\":\"2025-06-02T10:00:00\",\"skuDisableTime\":\"2025-"
+   },
+   {
+    "id": "JUNE2_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"JUNE2_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.june2_2026_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_emea_2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-06-09T10:00:00\",\"skuDisableTime\":\"2025-06-17T10:00:00\",\"skuEnab"
+   },
+   {
+    "id": "JUNE4_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"JUNE4_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.june4_2026_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_flying_taxi_2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-06-23T10:00:00\",\"skuDisableTime\":\"2025-07-01T20:00:00\",\""
+   },
+   {
+    "id": "MARCH1_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"MARCH1_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.march1_2026_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_ten_ranks_title_30anniv_2026\",\"description\":\"gotour_2025_deluxe_event_pass_track_unlock_plus_points_description\",\"skuEnableTime\":\"2025-03-03T10:00:00\",\"skuDisableTime\":\""
+   },
+   {
+    "id": "MARCH2_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"MARCH2_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.march2_2026_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_ten_ranks_title_bugoutbuddies2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-03-17T10:00:00\",\"skuDisableTime\":\"2025-03-24T00:00:00"
+   },
+   {
+    "id": "MAY1_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"MAY1_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.may1_2026_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_spring_marathon_2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-05-12T10:00:00\",\"skuDisableTime\":\"2025-05-20T20:00:00\""
+   },
+   {
+    "id": "MAY2_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"MAY2_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.may2_2026_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_blanche2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-05-26T10:00:00\",\"skuDisableTime\":\"2025-06-03T20:00:00\",\"skuEnab"
+   },
+   {
+    "id": "MONTH1_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"MONTH1_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.month1_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_ten_ranks_title_sep\",\"description\":\"deluxe_event_pass_track_unlock_plus_points_description\",\"skuEnableTime\":\"2025-06-02T10:00:00\",\"skuDisableTime\":\"2026-10-08T10:00:00\",\"skuEnable"
+   },
+   {
+    "id": "MONTH2_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"MONTH2_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.month2_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_ten_ranks_title_july\",\"description\":\"gotour_2025_deluxe_event_pass_track_unlock_plus_points_description\",\"skuEnableTime\":\"2025-07-07T10:00:00\",\"skuDisableTime\":\"2025-08-06T10:00:0"
+   },
+   {
+    "id": "MONTH3_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"MONTH3_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.month3_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"title\":\"season_pass_premium_track_plus_ten_ranks_title_aug\",\"description\":\"gotour_2025_deluxe_event_pass_track_unlock_plus_points_description\",\"skuEnableTime\":\"2025-08-04T10:00:00\",\"skuDisableTime\":\"2026-09-10T10:00:00\",\"skuEnableTi"
+   },
+   {
+    "id": "N_DISPLAY_n_shirt_spring2021plusle_a_0",
+    "data": "{\"templateId\":\"N_DISPLAY_n_shirt_spring2021plusle_a_0\",\"avatarItemDisplay\":{\"iconAddress\":\"n_shirt_spring2021plusle_a_0_icon\",\"displayStringId\":\"n_shirt_spring2021plusle_a_0_display_name\"}}"
+   },
+   {
+    "id": "N_DISPLAY_n_shirt_spring2021plusle_b_0",
+    "data": "{\"templateId\":\"N_DISPLAY_n_shirt_spring2021plusle_b_0\",\"avatarItemDisplay\":{\"iconAddress\":\"n_shirt_spring2021plusle_b_0_icon\",\"displayStringId\":\"n_shirt_spring2021plusle_b_0_display_name\"}}"
+   },
+   {
+    "id": "SEPTEMBER1_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS",
+    "data": "{\"templateId\":\"SEPTEMBER1_2026_DELUXE_EVENT_PASS_TRACK_UNLOCK_PLUS_POINTS\",\"iapItemDisplay\":{\"sku\":\"pgorelease.september1_2026_deluxe_event_pass_track_unlock_plus_points\",\"sortOrder\":1,\"hidden\":true,\"title\":\"season_pass_premium_track_plus_six_ranks_title_mega_squads_2026\",\"description\":\"event_pass_plus_points_6_ranks_description\",\"skuEnableTime\":\"2025-09-08T10:00:00\",\"skuDisableTime\":\"2025-09-16T2"
+   },
+   {
+    "id": "SETTINGS_RULES_ALLOW_ONEPLUSCPH2399",
+    "data": "{\"templateId\":\"SETTINGS_RULES_ALLOW_ONEPLUSCPH2399\",\"settingsOverrideRule\":{\"ruleType\":\"DEVICE_MODEL\",\"sortOrder\":50,\"ruleValue\":\"OnePlus CPH2399\",\"meshingEnabled\":\"TRUE\",\"occlusionEnabled\":\"TRUE\",\"semanticsEnabled\":\"TRUE\",\"vpsEnabled\":\"TRUE\"}}"
+   },
+   {
+    "id": "SETTINGS_RULES_ALLOW_ONEPLUSCPH2449",
+    "data": "{\"templateId\":\"SETTINGS_RULES_ALLOW_ONEPLUSCPH2449\",\"settingsOverrideRule\":{\"ruleType\":\"DEVICE_MODEL\",\"sortOrder\":50,\"ruleValue\":\"OnePlus CPH2449\",\"meshingEnabled\":\"TRUE\",\"occlusionEnabled\":\"TRUE\",\"semanticsEnabled\":\"TRUE\",\"vpsEnabled\":\"TRUE\"}}"
+   }
+  ],
+  "megaLevelTemplates": [],
+  "dragoniteTempEvo": "[{\"tempEvoId\":\"TEMP_EVOLUTION_MEGA\",\"stats\":{\"baseStamina\":209,\"baseAttack\":299,\"baseDefense\":255},\"averageHeightM\":2.2,\"averageWeightKg\":290,\"typeOverride1\":\"POKEMON_TYPE_DRAGON\",\"typeOverride2\":\"POKEMON_TYPE_FLYING\",\"camera\":{\"cylinderRadiusM\":3,\"cylinderHeightM\":3.2,\"cylinderGroundM\":1.25},\"modelScaleV2\":0.9,\"modelHeight\":2.2}]",
+  "tempEvoMoveKeys": [],
+  "pvpokePlusMoves": [
+   {
+    "id": "ACID_SPRAY_PLUS",
+    "name": "Acid Spray+",
+    "type": "poison",
+    "power": 20,
+    "energy": 40
+   },
+   {
+    "id": "BRAVE_BIRD_PLUS",
+    "name": "Brave Bird+",
+    "type": "flying",
+    "power": 70,
+    "energy": 40
+   },
+   {
+    "id": "BRICK_BREAK_PLUS",
+    "name": "Brick Break+",
+    "type": "fighting",
+    "power": 40,
+    "energy": 35
+   },
+   {
+    "id": "DARK_PULSE_PLUS",
+    "name": "Dark Pulse+",
+    "type": "dark",
+    "power": 60,
+    "energy": 40
+   },
+   {
+    "id": "DRILL_PECK_PLUS",
+    "name": "Drill Peck+",
+    "type": "flying",
+    "power": 60,
+    "energy": 35
+   },
+   {
+    "id": "DYNAMIC_PUNCH_PLUS",
+    "name": "Dynamic Punch+",
+    "type": "fighting",
+    "power": 130,
+    "energy": 80
+   },
+   {
+    "id": "FELL_STINGER_PLUS",
+    "name": "Fell Stinger+",
+    "type": "bug",
+    "power": 40,
+    "energy": 35
+   },
+   {
+    "id": "FUTURE_SIGHT_PLUS",
+    "name": "Future Sight+",
+    "type": "psychic",
+    "power": 130,
+    "energy": 80
+   },
+   {
+    "id": "LIQUIDATION_PLUS",
+    "name": "Liquidation+",
+    "type": "water",
+    "power": 55,
+    "energy": 40
+   },
+   {
+    "id": "MOONBLAST_PLUS",
+    "name": "Moonblast+",
+    "type": "fairy",
+    "power": 80,
+    "energy": 50
+   },
+   {
+    "id": "MYSTICAL_FIRE_PLUS",
+    "name": "Mystical Fire+",
+    "type": "fire",
+    "power": 50,
+    "energy": 40
+   },
+   {
+    "id": "NIGHT_SHADE_PLUS",
+    "name": "Night Shade+",
+    "type": "ghost",
+    "power": 55,
+    "energy": 45
+   },
+   {
+    "id": "OMINOUS_WIND_PLUS",
+    "name": "Ominous Wind+",
+    "type": "ghost",
+    "power": 50,
+    "energy": 40
+   },
+   {
+    "id": "OUTRAGE_PLUS",
+    "name": "Outrage+",
+    "type": "dragon",
+    "power": 80,
+    "energy": 50
+   },
+   {
+    "id": "PSYBEAM_PLUS",
+    "name": "Psybeam+",
+    "type": "psychic",
+    "power": 60,
+    "energy": 45
+   },
+   {
+    "id": "SEED_BOMB_PLUS",
+    "name": "Seed Bomb+",
+    "type": "grass",
+    "power": 60,
+    "energy": 40
+   },
+   {
+    "id": "SURF_PLUS",
+    "name": "Surf+",
+    "type": "water",
+    "power": 55,
+    "energy": 35
+   },
+   {
+    "id": "VOLT_TACKLE_PLUS",
+    "name": "Volt Tackle+",
+    "type": "electric",
+    "power": 65,
+    "energy": 35
+   },
+   {
+    "id": "ZAP_CANNON_PLUS",
+    "name": "Zap Cannon+",
+    "type": "electric",
+    "power": 70,
+    "energy": 45
+   }
+  ],
+  "pvpokeMegaDragonite": [
+   {
+    "id": "dragonite_mega",
+    "fast": [
+     "DRAGON_BREATH",
+     "DRAGON_TAIL",
+     "STEEL_WING"
+    ],
+    "charged": [
+     "DRACO_METEOR",
+     "DRAGON_CLAW",
+     "DRAGON_PULSE",
+     "HURRICANE",
+     "HYPER_BEAM",
+     "OUTRAGE",
+     "SUPER_POWER",
+     "THUNDER_PUNCH"
+    ]
+   }
+  ],
   "dynamaxKeys": [
    "breadTierGroup"
   ],
