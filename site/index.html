@@ -25,7 +25,7 @@
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png">
 <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&family=Pacifico&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&family=VT323&display=swap" rel="stylesheet">
 <style>
 :root{
   --bezel:#2b3140; --bezel-hi:#3c4458; --bezel-lo:#1a1e28;
@@ -133,11 +133,10 @@ button{font:inherit;color:inherit}
 /* ---- 카드 이미지 저장 ---- */
 .savebtn{display:block;margin:10px auto 0;appearance:none;border:1px solid var(--ink);background:rgba(0,0,0,.3);color:var(--ink);border-radius:999px;padding:7px 18px;font-size:13px;font-weight:700;cursor:pointer}
 .savebtn:disabled{opacity:.6}
-.shot{position:fixed;left:-10000px;top:0;padding:12px 14px 16px;background:#0b1416;
+.shot{position:fixed;left:-10000px;top:0;padding:12px 14px 8px;background:#0b1416;
   background-image:linear-gradient(rgba(140,255,210,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(140,255,210,.05) 1px,transparent 1px);background-size:18px 18px}
 .shot .tcard{max-width:none}
-.shot-by{font-family:Pacifico,"Brush Script MT",cursive;font-size:26px;line-height:1.5;text-align:center;color:var(--ink);margin:0 0 8px;
-  text-shadow:0 0 10px rgba(140,255,210,.55),0 0 2px rgba(140,255,210,.9)}
+.shot-by{font-family:VT323,monospace;font-size:13px;line-height:1;text-align:right;color:var(--dim);opacity:.8;margin:6px 6px 0}
 .shotmodal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:16px}
 .shotbox{background:#11191c;border:1px solid var(--faint);border-radius:14px;padding:12px;max-width:min(460px,100%);max-height:100%;overflow:auto;text-align:center;color:var(--ink)}
 .shotbox img{width:100%;border-radius:10px;display:block}
@@ -388,7 +387,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.6</small></button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.7</small></button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="match">상성표</button>
@@ -768,12 +767,12 @@ async function saveCardImage(c,sh){
   btn.disabled=true; btn.textContent="이미지 만드는 중…";
   const wrap=document.createElement("div"); wrap.className="shot";
   wrap.style.width=Math.max(card.offsetWidth,340)+28+"px";
-  wrap.innerHTML=`<div class="shot-by">by. PYOkemongo</div>`;
+  wrap.innerHTML="";
   const clone=card.cloneNode(true); clone.querySelectorAll("img").forEach(i=>i.removeAttribute("loading"));
-  wrap.appendChild(clone); document.body.appendChild(wrap);
+  wrap.appendChild(clone); wrap.insertAdjacentHTML("beforeend",`<div class="shot-by">by. PYOkemongo</div>`); document.body.appendChild(wrap);
   const skip=n=>!(n.classList&&(n.classList.contains("shbtn")||n.classList.contains("skgo")));
   try{
-    const lib=await loadH2I(); try{ await document.fonts.load('26px Pacifico'); await document.fonts.ready; }catch(e){}
+    const lib=await loadH2I(); try{ await document.fonts.ready; }catch(e){}
     const opt={pixelRatio:2,filter:skip,style:{position:"static",left:"0",top:"0"},cacheBust:false,backgroundColor:"#0b1416",imagePlaceholder:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="};
     let url; try{ url=await lib.toPng(wrap,opt); }catch(e){ url=await lib.toPng(wrap,{...opt,skipFonts:true}); }
     showShot(url,`PYOkemongo_${sh?"그림자_":""}${c.ko}.png`);
