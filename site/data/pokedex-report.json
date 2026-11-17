@@ -971,6 +971,16 @@
    "breadTierGroup": "GROUP_1"
   }
  },
+ "evolution": {
+  "edges": 498,
+  "missingTarget": 21,
+  "unknownItems": [
+   "ITEM_BEANS",
+   "ITEM_OTHER_EVOLUTION_STONE_MAPLE_A",
+   "ITEM_OTHER_EVOLUTION_STONE_MAPLE_B",
+   "ITEM_OTHER_EVOLUTION_STONE_MAPLE_C"
+  ]
+ },
  "tierCounts": {
   "raid": {
    "normal": "3/1/2/3/18",
@@ -1077,6 +1087,13 @@
     [
      "tyranitar"
     ]
+   ],
+   "how": [
+    {
+     "from": "pupitar",
+     "c": 100,
+     "x": []
+    }
    ],
    "final": true,
    "rec": {
@@ -1237,5 +1254,5 @@
    }
   ]
  },
- "bytes": 518640
+ "bytes": 540505
 }
