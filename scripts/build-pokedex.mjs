@@ -259,18 +259,25 @@ async function main() {
     if (!p) { unmatched.push(kind + ":" + key.join(" ")); continue; }
     const cur = dmSet.get(p.speciesId) || { p, d: false, g: false }; cur[kind] = true; dmSet.set(p.speciesId, cur);
   }
+  // 다이맥스는 못 하지만 맥스배틀에 쓰는 포켓몬: 맥스기 타입·이름 고정 (검왕 자시안, 방패왕 자마젠타, 무한다이노)
+  for (const [dex, kw, mt, mname] of dmList.special || []) {
+    const p = pick(kw ? [dex, kw] : [dex]);
+    if (!p) { unmatched.push("s:" + dex + " " + (kw || "")); continue; }
+    dmSet.set(p.speciesId, { p, d: true, g: false, fixed: { type: mt, name: mname } });
+  }
   if (unmatched.length) warn("다이맥스 목록 중 매칭 실패: " + unmatched.join(", "));
-  for (const { p, d, g: gOK } of dmSet.values()) {
+  for (const { p, d, g: gOK, fixed } of dmSet.values()) {
     const canG = gOK, onlyG = gOK && !d;
     const atk = (p.baseStats.atk + 15) * CPM40, def = (p.baseStats.def + 15) * CPM40, hp = Math.floor((p.baseStats.hp + 15) * CPM40);
     for (const g of onlyG ? [true] : canG ? [false, true] : [false]) for (const f of p.fastMoves || []) {
       const F = pve[f]; if (!F) continue;
       const FD = hit(F.power, atk, F.type, p), fdps = FD / F.dur;
-      const max = hit(g ? GMAX_POWER : MAX_POWER, atk, F.type, p);
+      const mType = fixed ? fixed.type : F.type;
+      const max = hit(g ? GMAX_POWER : MAX_POWER, atk, mType, p);
       const row = { id: p.speciesId, n: (g ? "거다이맥스 " : "") + cards[p.speciesId]?.ko, tg: g ? ["g"] : [],
-        mv: `${mvName(p, f)} → 맥스${TYPE_KO[F.type] || ""}`, score: +Math.pow(max ** 3 * fdps, 0.25).toFixed(2),
+        mv: `${mvName(p, f)} → ${fixed ? fixed.name : "맥스" + (TYPE_KO[F.type] || "")}`, score: +Math.pow(max ** 3 * fdps, 0.25).toFixed(2),
         max, fdps: +fdps.toFixed(2), bulk: Math.round(hp * def / 100) };
-      const list = dmax[F.type]; if (!list) continue;
+      const list = dmax[mType]; if (!list) continue;
       const dup = list.find(r => r.id === row.id && r.tg.join() === row.tg.join());
       if (!dup) list.push(row); else if (row.score > dup.score) Object.assign(dup, row);
     }
