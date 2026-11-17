@@ -420,7 +420,7 @@ function renderHome(){
     return `<div class="boss" style="--bc:${color}"><div class="k">${label}</div><div class="n">${links||esc(name)}</div><div class="d">~${fmtD(kst(P(e[3])))} ${esc(e[4]||"")}</div></div>`;
   };
   $("#bosses").innerHTML=slot("raid","5성 레이드",CAT.raid[1])+slot("mega","메가 레이드",CAT.mega[1])+slot("max","맥스배틀",CAT.max[1])+slot("shadow","그림자 레이드",CAT.shadow[1]);
-  $("#feedNote").innerHTML=`일정 데이터 갱신: <b>${FEED_UPDATED}</b> · 출처: ${esc(FEED_SOURCE)}. 날짜가 지나면 자동으로 "진행 중 → 종료"로 넘어가요. 시간은 한국 시간이에요.`;
+  $("#feedNote").innerHTML=`갱신 <b>${FEED_UPDATED}</b> · 출처: ${esc(FEED_SOURCE)}`;
 }
 
 // 일정 속 포켓몬 이름 → 카드 링크
@@ -507,7 +507,7 @@ function openCard(id, keepShadow){
     </div>
     <div class="cfoot"><span>공 ${s[0]} · 방 ${s[1]} · 체 ${s[2]}</span><span>${esc(c.en)}</span></div>
   </div></article>
-  <div class="note">${sh?"<b>그림자</b> 기준이에요 (그림자는 메가진화 불가). ":"<b>일반·메가</b> 기준이에요. "}레이드·다이맥스는 <b>공격 타입별</b>, 배틀은 <b>리그별</b> 순위예요. 진화 전 포켓몬은 최종 진화형 티어를 보여줘요(배틀은 자기 자신이 순위권이면 자기 티어).</div>`;
+  <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
   $("#cardOut").querySelectorAll("[data-n2]").forEach(b=>b.onclick=()=>openCard(b.dataset.n2,true));
   const sb=$("#shBtn"); if(sb) sb.onclick=()=>{ SHADOW=!SHADOW; openCard(id,true); };
 }
@@ -553,7 +553,7 @@ function renderBoard(id){
       ${B.tabs?`<div class="tabs">${B.tabs.map(([k,l])=>`<button class="tab" data-tab="${k}">${l}</button>`).join("")}</div>`:""}
       <table><thead><tr><th>#</th><th>포켓몬 / 기술</th>${B.cols.map(([k,l])=>`<th class="num"><button data-k="${k}">${l}</button></th>`).join("")}<th style="text-align:center">티어</th></tr></thead><tbody></tbody></table>
       <div class="emptyBox"></div></div>
-      <div class="note"><div class="legend">${legendHTML(!B.noPct)}</div>${B.note}<br>데이터 갱신: <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
+      <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
     root.querySelector(".sels").addEventListener("click",e=>{const b=e.target.closest("[data-s]"); if(b){st.sel=b.dataset.s; save(); renderBoard(id);}});
     root.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{st.tab=b.dataset.tab; save(); renderBoard(id);});
     root.querySelectorAll("th button").forEach(b=>b.onclick=()=>{st.sort=b.dataset.k; save(); renderBoard(id);});
@@ -660,8 +660,7 @@ function renderType(){
       <div class="sec">탱커 추천 · 버티면서 딜하는 포켓몬</div>
       <div class="mgrid">${group("버티는 타입",resistTypes)}</div>
       <div class="rec" style="--c:#6fb39a"><ol>${tanks.map(t=>`<li>${SPRITE(t.r.id,"sm")}<a data-poke="${esc(t.r.id)}">${esc(t.r.n)}</a>${tags(t.r)}<small>TDO ${Math.round(t.tdo)}</small></li>`).join("")||'<li style="color:var(--dim)">양쪽 타입을 모두 반감하는 포켓몬이 없어요</li>'}</ol></div>
-      <div class="note">딜러 목록은 ${TMODE==="raid"?"레이드":"다이맥스"} 티어리스트의 각 타입 상위 6마리예요(메가·그림자 포함). "전체 보기"를 누르면 그 타입 티어리스트로 이동해요.<br>
-      탱커는 상대가 <b>자기 타입 기술</b>을 쓴다고 가정하고, 그 기술을 모두 반감 이하로 받는 포켓몬을 <b>이 상대 기준 TDO</b> 순으로 골랐어요. TDO = 레이드 TDO × (내 기술이 상대에게 들어가는 상성 ÷ 효과굉장) ÷ (상대 기술이 나에게 들어오는 배율). 상대가 다른 타입 기술을 쓰면 달라질 수 있어요.</div>`;
+      <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
   }
   root.innerHTML=`<div class="label">&gt; 상성표 · 상대 타입 선택 (최대 2개)</div><div class="sels">${sels}</div>
     <div class="opp">상대: ${OPP.length?OPP.map(k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`).join(" + "):"<span style='color:var(--dim)'>선택 안 함</span>"}<button class="clr" id="oppClr">초기화</button></div>${body}`;
