@@ -46,7 +46,30 @@ button{font:inherit;color:inherit}
 .vents{margin-left:auto;display:flex;gap:4px}
 .vents i{width:18px;height:4px;border-radius:2px;background:var(--bezel-lo);box-shadow:inset 0 1px 1px rgba(0,0,0,.6)}
 .nav{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:0 2px 10px}
-.subnav{margin:0 0 12px}
+/* ---- 고정 헤더 · 최상위 탭 · 하위 탭 ---- */
+.hdr{position:sticky;top:0;z-index:30;margin:-14px -14px 10px;padding:14px 14px 10px;border-radius:22px 22px 0 0;
+  background:linear-gradient(180deg,var(--bezel-hi),var(--bezel));box-shadow:0 6px 12px -6px rgba(0,0,0,.6)}
+.hdr .top{padding:0 6px 10px}
+.hdr .nav{margin:0 2px}
+.subtabs{display:flex;gap:2px;margin:-4px 0 14px;border-bottom:1px solid var(--faint)}
+.subtabs:empty{display:none}
+.subtabs button{appearance:none;flex:1;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;
+  color:var(--dim);font-size:13px;padding:8px 4px 7px;cursor:pointer}
+.subtabs button.on{color:var(--amber);border-bottom-color:var(--amber);font-weight:700}
+/* ---- 도감 ---- */
+.regions{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;margin:0 0 12px;padding-bottom:2px}
+.regions::-webkit-scrollbar{display:none}
+.regions button{flex:none;appearance:none;border:1px solid var(--faint);background:rgba(0,0,0,.25);color:var(--ink);border-radius:999px;padding:5px 11px;font-size:12px;cursor:pointer;white-space:nowrap}
+.regions button.on{background:var(--ink);color:#0b2124;font-weight:700;border-color:var(--ink)}
+.regions small{font-family:VT323,monospace;font-size:13px;opacity:.7;margin-left:3px}
+.dexgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px}
+.dexcell{appearance:none;border:1px solid var(--faint);background:rgba(0,0,0,.28);border-radius:10px;padding:4px 2px 6px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--ink);min-width:0}
+.dexcell:hover{border-color:var(--dim)}
+.dexcell img,.dexcell .ph{width:56px;height:56px;image-rendering:pixelated;object-fit:contain}
+.dexcell .no{font-family:VT323,monospace;font-size:13px;color:var(--dim);line-height:1}
+.dexcell .nm2{font-size:11.5px;line-height:1.25;text-align:center;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap}
+
 .skill{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.55;padding:2px 0 4px}
 .skill .tchip{flex:none;margin-top:1px}
 .skill .elite{color:var(--amber);font-weight:700}
@@ -59,8 +82,6 @@ button{font:inherit;color:inherit}
 .devnote{margin:0 2px 12px;padding:9px 11px;border:1px dashed var(--amber);border-radius:10px;background:rgba(255,211,107,.08);font-size:12.5px;line-height:1.6;color:var(--ink)}
 .devnote a{color:var(--amber);text-decoration:underline;text-underline-offset:3px;word-break:break-all}
 
-.modesw{margin:0 0 12px}
-.modesw .tab{padding:7px 6px;font-size:12.5px}
 .roleSw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 4px}
 .roleSw .rb{appearance:none;display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 6px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;
   border:2px solid var(--rc);background:rgba(0,0,0,.3);color:var(--rc);box-shadow:inset 0 -3px 0 rgba(0,0,0,.35)}
@@ -74,9 +95,9 @@ button{font:inherit;color:inherit}
 
 .roles{margin:0 0 10px}
 .gopt{margin:-2px 0 10px}
-.nav button{appearance:none;border:0;border-radius:8px;padding:7px 0 6px;background:var(--bezel-lo);color:#8a93a8;font-size:11px;cursor:pointer;white-space:nowrap;
-  box-shadow:inset 0 -2px 0 rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.05)}
-.nav button.on{color:#141720;background:#cfd6e6;box-shadow:inset 0 2px 0 rgba(0,0,0,.25)}
+.nav button{appearance:none;border:0;border-radius:10px;padding:10px 0 9px;background:var(--bezel-lo);color:#b4bccd;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.06)}
+.nav button.on{color:#0b2124;background:var(--ink);box-shadow:0 0 14px rgba(140,255,210,.45), inset 0 2px 0 rgba(255,255,255,.35)}
 .screen{position:relative;background:var(--screen);border-radius:12px;padding:14px 12px 16px;overflow:hidden;min-height:420px;
   box-shadow:inset 0 0 0 2px #061214, inset 0 0 40px rgba(0,0,0,.65);
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
@@ -269,19 +290,17 @@ td.num.sorted{color:var(--amber)}
 </head>
 <body>
 <div class="device">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">BOX TERMINAL<small>v0.5</small></button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="hdr">
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.0</small></button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
-    <button data-go="card">포켓몬 카드</button>
+    <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="type">상성표</button>
     <button data-go="tier">티어리스트</button>
     <button data-go="home">일정</button>
   </nav>
+  </div>
   <div class="screen">
-    <div class="tabs subnav" id="subnav">
-      <button class="tab" data-go="raid">레이드</button>
-      <button class="tab" data-go="dmax">다이맥스</button>
-      <button class="tab" data-go="pvp">배틀리그</button>
-    </div>
+    <div class="subtabs" id="subnav"></div>
 
     <!-- ===== 홈 ===== -->
     <section class="view" id="v-home">
@@ -309,9 +328,12 @@ td.num.sorted{color:var(--amber)}
       <div id="cardOut"></div>
     </section>
 
+    <!-- ===== 도감 ===== -->
+    <section class="view" id="v-dex"></section>
+
     <!-- ===== 티어 보드 3종 ===== -->
-    <section class="view" id="v-raid"><div class="tabs modesw" data-for="raid"><button class="tab" data-mode="tier">타입별 티어</button><button class="tab" data-mode="boss">상대 포켓몬 공략</button></div><div id="p-raid"></div><div id="b-raid"></div></section>
-    <section class="view" id="v-dmax"><div class="tabs modesw" data-for="dmax"><button class="tab" data-mode="tier">타입별 티어</button><button class="tab" data-mode="boss">상대 포켓몬 공략</button></div><div id="p-dmax"></div><div id="b-dmax"></div></section>
+    <section class="view" id="v-raid"><div id="p-raid"></div></section>
+    <section class="view" id="v-dmax"><div id="p-dmax"></div></section>
     <section class="view" id="v-pvp"><div id="p-pvp"></div></section>
     <section class="view" id="v-type"></section>
 
@@ -387,19 +409,21 @@ const LEAGUE_ICON={
 const lgSvg=(k,c)=>`<svg viewBox="0 0 24 24" style="color:${c}" aria-hidden="true">${LEAGUE_ICON[k]}</svg>`;
 
 // ===== 라우팅 =====
-const VIEWS=["home","card","type","raid","dmax","pvp"], TIER_VIEWS=["raid","dmax","pvp"];
-let LAST_TIER="raid";
+const VIEWS=["home","card","dex","type","raid","dmax","pvp"];
+// 최상위 탭 → 하위 탭 묶음 (하위 탭이 있는 탭은 마지막으로 본 하위 탭을 기억)
+const GROUPS={ pokemon:{subs:[["card","포켓몬 검색"],["dex","도감"]],last:"card"},
+               tier:{subs:[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀리그"]],last:"raid"} };
+const groupOf=v=>Object.keys(GROUPS).find(g=>GROUPS[g].subs.some(([k])=>k===v));
 function show(){
-  let v=location.hash.slice(1); if(v==="tier") v=LAST_TIER; if(!VIEWS.includes(v)) v="card";
-  if(TIER_VIEWS.includes(v)) LAST_TIER=v;
+  let v=location.hash.slice(1); if(GROUPS[v]) v=GROUPS[v].last; if(!VIEWS.includes(v)) v="card";
+  const g=groupOf(v); if(g) GROUPS[g].last=v;
   VIEWS.forEach(x=>$("#v-"+x).classList.toggle("on",x===v));
-  const isTier=TIER_VIEWS.includes(v);
-  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.go===v||(isTier&&b.dataset.go==="tier")));
-  $("#subnav").style.display=isTier?"":"none";
-  document.querySelectorAll("#subnav .tab").forEach(b=>b.classList.toggle("on",b.dataset.go===v));
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.go===v||b.dataset.go===g));
+  $("#subnav").innerHTML=g?GROUPS[g].subs.map(([k,l])=>`<button data-go="${k}" class="${k===v?"on":""}">${l}</button>`).join(""):"";
+  if(v==="dex") renderDex();
   window.scrollTo(0,0);
 }
-function go(v){ if(v==="tier") v=LAST_TIER; if(location.hash.slice(1)===v) show(); else location.hash=v; }
+function go(v){ if(GROUPS[v]) v=GROUPS[v].last; if(location.hash.slice(1)===v) show(); else location.hash=v; }
 document.addEventListener("click",e=>{
   const g=e.target.closest("[data-go]"); if(g){ go(g.dataset.go); return; }
   const p=e.target.closest("[data-poke]"); if(p){ openCard(p.dataset.poke); go("card"); }
@@ -655,8 +679,8 @@ function renderBoard(id){
       <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
     root.querySelector(".sels").addEventListener("click",e=>{const b=e.target.closest("[data-s]"); if(b){st.sel=b.dataset.s; save(); renderBoard(id);}});
     root.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{st.tab=b.dataset.tab; save(); renderBoard(id);});
-    root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ if(st.role!==b.dataset.role){ st.role=b.dataset.role; st.sel=null; save(); renderBoard(id); renderBoss("dmax");} });
-    root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{st.gauge=b.dataset.g==="1"; save(); renderBoard(id); renderBoss("dmax");});
+    root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ if(st.role!==b.dataset.role){ st.role=b.dataset.role; st.sel=null; save(); renderBoard(id); renderType();} });
+    root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{st.gauge=b.dataset.g==="1"; save(); renderBoard(id); renderType();});
     root.querySelectorAll("th button").forEach(b=>b.onclick=()=>{st.sort=b.dataset.k; save(); renderBoard(id);});
     root.dataset.ready=key;
   }
@@ -714,75 +738,9 @@ const CHART={
 };
 const eff=(atk,defTypes)=>defTypes.reduce((m,d)=>m*(CHART[atk].s.includes(d)?1.6:CHART[atk].n.includes(d)?0.625:CHART[atk].i.includes(d)?0.390625:1),1);
 const fmtX=x=>x>=2.5?"2.56":x>=1.5?"1.6":x>=0.99?"1":x>=0.6?"0.63":x>=0.39?"0.39":"0.24";
-let OPP=[], TMODE="raid";
-const TIER_CACHE={};
-function tieredList(mode,type){ // 보드 "전체" 탭과 같은 티어
-  const k=mode+type; if(TIER_CACHE[k]) return TIER_CACHE[k];
-  const src=mode==="raid"?DEX.raid[type]:DEX.dmax[type], m=mode==="raid"?"er":"score";
-  return TIER_CACHE[k]=assignTiers((src||[]).map(r=>({...r})).sort((a,b)=>b[m]-a[m]),m);
-}
-function openBoard(mode,type){ setMode(mode,"tier"); const B=BOARDS[mode]; if(mode==="dmax") B.st.role="deal"; B.st.sel=type; B.st.tab="all"; save(); renderBoard(mode); go(mode); }
-function renderType(){
-  const root=$("#v-type");
-  const sels=TYPES.map(([k,n,c])=>{ const i=OPP.indexOf(k); return `<button class="sbtn${i>=0?" pick":""}" style="--c:${c}" data-t="${k}">${i>=0?`<span class="ord">${i+1}</span>`:""}${svg(k)}<span>${n}</span></button>`; }).join("");
-  let body="";
-  if(!OPP.length) body=`<div class="empty">위에서 상대 포켓몬의 타입을 골라 주세요.<br>타입이 두 개면 두 개 모두 눌러요.</div>`;
-  else if(!DEX) body=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`;
-  else{
-    const atk=TYPES.map(([k])=>({k,x:eff(k,OPP)})).sort((a,b)=>b.x-a.x);
-    const strong=atk.filter(a=>a.x>=1.5);
-    const chip=k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`;
-    const group=(label,list)=>`<div class="mrow"><span class="ml">${label}</span><span class="mc">${list.length?list.map(a=>chip(a.k)).join(""):'<span class="none">없음</span>'}</span></div>`;
-    const tags=r=>(r.tg.includes("m")?'<span class="tag m">M</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G</span>':"")+(r.tg.includes("p")?'<span class="tag p">+</span>':"");
-    // 딜러: 약점 타입별 상위 공격자
-    const recs=strong.map(({k})=>{
-      const rows=tieredList(TMODE,k).filter(r=>r._t).slice(0,6);
-      const li=rows.length?rows.map(r=>`<li>${TB(r._t)}${SPRITE(r.id,"sm")}<a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags(r)}</li>`).join(""):`<li style="color:var(--dim)">순위권 포켓몬 없음</li>`;
-      return `<div class="rec" style="--c:${TC[k]}"><div class="rh">${chip(k)}<button class="go" data-board="${k}">전체 보기 ›</button></div><ol>${li}</ol></div>`;
-    }).join("");
-    // 탱커: 상대 타입 기술을 모두 반감 이하로 받는 포켓몬을 "이 상대 기준 TDO" 순으로
-    //  TDO(상대 기준) = 레이드 TDO × (내 기술의 상대 상성 ÷ 1.6) ÷ (상대 기술이 나에게 주는 배율)
-    const best={};
-    for(const [t,rows] of Object.entries(DEX.raid)) for(const r of rows){
-      const c=CARDS[r.id]; if(!c) continue;
-      const worst=Math.max(...OPP.map(o=>eff(o,c.types))); if(worst>0.63) continue;
-      const tdo=r.tdo*eff(t,OPP)/1.6/worst, key=r.id+r.tg.join()+r.n;
-      if(!best[key]||tdo>best[key].tdo) best[key]={r,c,tdo};
-    }
-    const tanks=Object.values(best).sort((a,b)=>b.tdo-a.tdo).slice(0,8);
-    const resistTypes=TYPES.map(([k])=>({k,x:Math.max(...OPP.map(o=>eff(o,[k])))})).filter(t=>t.x<0.99).sort((a,b)=>a.x-b.x);
-    body=`
-      <div class="mgrid">
-        ${group("이중약점",atk.filter(a=>a.x>=2.5))}
-        ${group("약점",atk.filter(a=>a.x>=1.5&&a.x<2.5))}
-        ${group("반감",atk.filter(a=>a.x>=0.6&&a.x<0.99))}
-        ${group("이중반감",atk.filter(a=>a.x<0.6))}
-      </div>
-      <div class="seg"><button data-m="raid" class="${TMODE==="raid"?"on":""}">레이드</button><button data-m="dmax" class="${TMODE==="dmax"?"on":""}">다이맥스</button></div>
-      <div class="sec">딜러 추천 · 약점을 찌르는 타입</div>
-      <div class="recs">${recs}</div>
-      <div class="sec">탱커 추천 · 버티면서 딜하는 포켓몬</div>
-      <div class="mgrid">${group("버티는 타입",resistTypes)}</div>
-      <div class="rec" style="--c:#6fb39a"><ol>${tanks.map(t=>`<li>${SPRITE(t.r.id,"sm")}<a data-poke="${esc(t.r.id)}">${esc(t.r.n)}</a>${tags(t.r)}<small>TDO ${Math.round(t.tdo)}</small></li>`).join("")||'<li style="color:var(--dim)">양쪽 타입을 모두 반감하는 포켓몬이 없어요</li>'}</ol></div>
-      <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
-  }
-  root.innerHTML=`<div class="label">&gt; 상성표 · 상대 타입 선택 (최대 2개)</div><div class="sels">${sels}</div>
-    <div class="opp">상대: ${OPP.length?OPP.map(k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`).join(" + "):"<span style='color:var(--dim)'>선택 안 함</span>"}<button class="clr" id="oppClr">초기화</button></div>${body}`;
-  root.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{
-    const k=b.dataset.t, i=OPP.indexOf(k);
-    if(i>=0) OPP.splice(i,1); else { OPP.push(k); if(OPP.length>2) OPP.shift(); }
-    saveType(); renderType();
-  });
-  root.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{TMODE=b.dataset.m; saveType(); renderType();});
-  root.querySelectorAll("[data-board]").forEach(b=>b.onclick=()=>openBoard(TMODE,b.dataset.board));
-  const clr=$("#oppClr"); if(clr) clr.onclick=()=>{OPP=[]; saveType(); renderType();};
-}
-function saveType(){ try{ localStorage.setItem("pyo-type",JSON.stringify({OPP,TMODE})); }catch(e){} }
-try{ const t=JSON.parse(localStorage.getItem("pyo-type")||"null"); if(t){ TMODE=t.TMODE||TMODE; } }catch(e){}
-
-// ===== 상대 포켓몬 공략 (레이드·다이맥스) =====
 // 상대 포켓몬 = 검색한 포켓몬(타입 자동) 또는 직접 고른 타입(최대 2). 상대는 자기 타입 기술을 쓴다고 가정.
-const BOSS={id:null,opp:[],q:""}, MODE={raid:"tier",dmax:"tier"};
+const BOSS={id:null,opp:[],q:""};
+let TMODE="raid";
 function bossRaidRows(opp){ // ER × (내 기술 상성 ÷ 1.6) × (1 ÷ 상대 기술이 나에게 주는 배율)^¼
   const best={};
   for(const [t,rows] of Object.entries(DEX.raid)){ const e=eff(t,opp);
@@ -805,55 +763,80 @@ function bossDmaxRows(opp,role,gauge){
     return {id:e.id,n:(onlyG?"거다이맥스 ":"")+e.n,tg:onlyG?["g"]:[],mv:`${lab} · ${e.fast}`,v,tr:Math.sqrt(v)};
   });
 }
-function setMode(view,m){ MODE[view]=m;
-  document.querySelectorAll(`.modesw[data-for="${view}"] .tab`).forEach(b=>b.classList.toggle("on",b.dataset.mode===m));
-  $("#p-"+view).style.display=m==="tier"?"":"none"; $("#b-"+view).style.display=m==="boss"?"":"none";
-  if(m==="boss") renderBoss(view);
-}
-document.querySelectorAll(".modesw").forEach(sw=>sw.addEventListener("click",e=>{const b=e.target.closest("[data-mode]"); if(b) setMode(sw.dataset.for,b.dataset.mode);}));
-function renderBoss(view){
-  const root=$("#b-"+view); if(!root) return;
-  if(!DEX){ root.innerHTML=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`; return; }
+function renderType(){
+  const root=$("#v-type"); if(!root) return;
   const st=BOARDS.dmax.st, opp=BOSS.opp, bc=BOSS.id&&CARDS[BOSS.id];
+  const chip=k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`;
   const sels=TYPES.map(([k,n,c])=>{ const i=opp.indexOf(k); return `<button class="sbtn${i>=0?" pick":""}" style="--c:${c}" data-bt="${k}">${i>=0?`<span class="ord">${i+1}</span>`:""}${svg(k)}<span>${n}</span></button>`; }).join("");
-  const chips=opp.map(k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`).join(" + ");
   let body="";
-  if(!opp.length) body=`<div class="empty">상대 포켓몬 이름을 검색하거나, 아래에서 상대 포켓몬의 타입을 골라 주세요.<br>타입이 두 개면 두 개 모두 눌러요.</div>`;
+  if(!opp.length) body=`<div class="empty">상대 포켓몬 이름을 검색하거나, 위에서 상대 포켓몬의 타입을 골라 주세요.<br>타입이 두 개면 두 개 모두 눌러요.</div>`;
+  else if(!DEX) body=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`;
   else{
-    const role=view==="dmax"?st.role:"deal";
-    const rows=view==="raid"?bossRaidRows(opp):bossDmaxRows(opp,role,st.gauge);
-    const tk=view==="raid"?"v":"tr";
-    rows.sort((a,b)=>b[tk]-a[tk]); assignTiers(rows,tk);
-    rows.sort((a,b)=>b.v-a.v);
+    const atk=TYPES.map(([k])=>({k,x:eff(k,opp)}));
+    const group=(label,list)=>`<div class="mrow"><span class="ml">${label}</span><span class="mc">${list.length?list.map(a=>chip(a.k)).join(""):'<span class="none">없음</span>'}</span></div>`;
+    const role=TMODE==="dmax"?st.role:"deal";
+    const rows=TMODE==="raid"?bossRaidRows(opp):bossDmaxRows(opp,role,st.gauge);
+    const tk=TMODE==="raid"?"v":"tr";
+    rows.sort((a,b)=>b[tk]-a[tk]); assignTiers(rows,tk); rows.sort((a,b)=>b.v-a.v);
     const top=rows[0]?.v||1, list=rows.slice(0,30);
-    const label=view==="raid"?"추천 딜러":role==="tank"?"추천 탱커":"추천 딜러", col=view==="raid"?"점수":role==="tank"?(st.gauge?"점수":"내구"):"점수";
-    body=`${view==="dmax"&&role==="tank"?`<div class="seg gopt"><button data-g="0" class="${st.gauge?"":"on"}">내구만</button><button data-g="1" class="${st.gauge?"on":""}">게이지 반영</button></div>`:""}
-      <div class="sec">${label} · 상위 ${list.length}</div>
+    const col=TMODE==="raid"?"점수":role==="tank"?(st.gauge?"점수":"내구"):"점수";
+    body=`<div class="mgrid">
+        ${group("이중약점",atk.filter(a=>a.x>=2.5))}
+        ${group("약점",atk.filter(a=>a.x>=1.5&&a.x<2.5))}
+        ${group("반감",atk.filter(a=>a.x>=0.6&&a.x<0.99))}
+        ${group("이중반감",atk.filter(a=>a.x<0.6))}
+      </div>
+      <div class="seg modeSeg"><button data-m="raid" class="${TMODE==="raid"?"on":""}">레이드 추천</button><button data-m="dmax" class="${TMODE==="dmax"?"on":""}">다이맥스 추천</button></div>
+      ${TMODE==="dmax"?roleSwitch(st.role):""}
+      ${TMODE==="dmax"&&role==="tank"?`<div class="seg gopt"><button data-g="0" class="${st.gauge?"":"on"}">내구만</button><button data-g="1" class="${st.gauge?"on":""}">게이지 반영</button></div>`:""}
       <table><thead><tr><th>#</th><th>포켓몬 / 기술</th><th class="num">${col}</th><th style="text-align:center">티어</th></tr></thead><tbody>${list.map((r,i)=>{
         const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?'<span class="tag p">+기술</span>':"");
         return `<tr style="--tc:${r.mt?TC[r.mt]:"#5aa8ff"}"><td class="rank">${i+1}</td><td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></div></div></td>
-          <td class="num sorted">${(+r.v).toFixed(view==="dmax"&&role==="tank"&&!st.gauge?0:1)}<span class="p">${(r.v/top*100).toFixed(0)}%</span></td><td class="tier">${TB(r._t)}</td></tr>`;}).join("")}</tbody></table>`;
+          <td class="num sorted">${(+r.v).toFixed(TMODE==="dmax"&&role==="tank"&&!st.gauge?0:1)}<span class="p">${(r.v/top*100).toFixed(0)}%</span></td><td class="tier">${TB(r._t)}</td></tr>`;}).join("")}</tbody></table>
+      <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
   }
   root.innerHTML=`<div class="label">&gt; 상대 포켓몬 검색 또는 타입 선택</div>
     <form class="search bsearch"><input placeholder="상대 포켓몬 이름 (예: 테오키스)" autocomplete="off" value="${esc(BOSS.q)}"><button>검색</button></form>
     <div class="sugg bsugg"></div>
-    <div class="bossCard">${bc?`${SPRITE(bc.id)}<b>${esc(bc.ko)}</b>`:"<span style='color:var(--dim)'>상대 포켓몬</span>"} ${chips||"<span style='color:var(--dim)'>선택 안 함</span>"}<button class="clr">초기화</button></div>
+    <div class="bossCard">${bc?`${SPRITE(bc.id)}<b>${esc(bc.ko)}</b>`:"<span style='color:var(--dim)'>상대 포켓몬</span>"} ${opp.map(chip).join(" + ")||"<span style='color:var(--dim)'>선택 안 함</span>"}<button class="clr">초기화</button></div>
     <div class="sels">${sels}</div>
-    ${view==="dmax"?roleSwitch(st.role):""}
-    ${body}
-    <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
+    ${body}`;
   const inp=root.querySelector("input"), sg=root.querySelector(".bsugg");
-  const choose=(id,q)=>{ const c=CARDS[id]; if(!c) return; BOSS.id=id; BOSS.q=q??c.ko; BOSS.opp=c.types.slice(0,2); ["raid","dmax"].forEach(renderBoss); };
-  inp.oninput=()=>{ BOSS.q=inp.value; const q=inp.value.trim(); sg.innerHTML=q?findIds(q).slice(0,8).map(i=>`<button class="chip" data-bid="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):""; };
+  const choose=(id,q)=>{ const c=CARDS[id]; if(!c) return; BOSS.id=id; BOSS.q=q??c.ko; BOSS.opp=c.types.slice(0,2); renderType(); };
+  inp.oninput=()=>{ BOSS.q=inp.value; const q=inp.value.trim(); sg.innerHTML=q&&DEX?findIds(q).slice(0,8).map(i=>`<button class="chip" data-bid="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):""; };
   sg.onclick=e=>{const b=e.target.closest("[data-bid]"); if(b) choose(b.dataset.bid);};
-  root.querySelector("form").onsubmit=e=>{e.preventDefault(); const id=findIds(inp.value)[0]; if(id) choose(id,inp.value);};
+  root.querySelector("form").onsubmit=e=>{e.preventDefault(); if(!DEX) return; const id=findIds(inp.value)[0]; if(id) choose(id,inp.value);};
   root.querySelectorAll("[data-bt]").forEach(b=>b.onclick=()=>{ const k=b.dataset.bt, i=BOSS.opp.indexOf(k); BOSS.id=null;
-    if(i>=0) BOSS.opp.splice(i,1); else { BOSS.opp.push(k); if(BOSS.opp.length>2) BOSS.opp.shift(); } ["raid","dmax"].forEach(renderBoss); });
-  root.querySelector(".clr").onclick=()=>{ BOSS.id=null; BOSS.opp=[]; BOSS.q=""; ["raid","dmax"].forEach(renderBoss); };
-  root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ st.role=b.dataset.role; save(); renderBoss(view); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
-  root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ st.gauge=b.dataset.g==="1"; save(); renderBoss(view); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
+    if(i>=0) BOSS.opp.splice(i,1); else { BOSS.opp.push(k); if(BOSS.opp.length>2) BOSS.opp.shift(); } renderType(); });
+  root.querySelector(".clr").onclick=()=>{ BOSS.id=null; BOSS.opp=[]; BOSS.q=""; renderType(); };
+  root.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{ TMODE=b.dataset.m; saveType(); renderType(); });
+  root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ st.role=b.dataset.role; save(); renderType(); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
+  root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ st.gauge=b.dataset.g==="1"; save(); renderType(); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
 }
-["raid","dmax"].forEach(v=>setMode(v,"tier"));
+function saveType(){ try{ localStorage.setItem("pyo-type",JSON.stringify({TMODE})); }catch(e){} }
+try{ const t=JSON.parse(localStorage.getItem("pyo-type")||"null"); if(t&&t.TMODE) TMODE=t.TMODE; }catch(e){}
+
+// ===== 도감 (지방별, 도감번호 순) =====
+const REGIONS=[["관동",1,151],["성도",152,251],["호연",252,386],["신오",387,493],["하나",494,649],["칼로스",650,721],["알로라",722,809],["가라르",810,905],["팔데아",906,1025]];
+let DEX_REGION=0, DEX_LIST=null;
+function dexList(){ // 도감번호마다 기본 모습 한 마리
+  if(DEX_LIST) return DEX_LIST;
+  const by={};
+  for(const c of Object.values(CARDS)){ const cur=by[c.dex]; const plain=!/\(/.test(c.en);
+    if(!cur||(plain&&/\(/.test(cur.en))) by[c.dex]=c; }
+  return DEX_LIST=Object.values(by).sort((a,b)=>a.dex-b.dex);
+}
+function renderDex(){
+  const root=$("#v-dex"); if(!root) return;
+  if(!DEX){ root.innerHTML=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`; return; }
+  const all=dexList(), [rn,lo,hi]=REGIONS[DEX_REGION];
+  const cnt=REGIONS.map(([,a,b])=>all.filter(c=>c.dex>=a&&c.dex<=b).length);
+  const items=all.filter(c=>c.dex>=lo&&c.dex<=hi);
+  root.innerHTML=`<div class="regions">${REGIONS.map(([n],i)=>`<button data-r="${i}" class="${i===DEX_REGION?"on":""}">${n}<small>${cnt[i]}</small></button>`).join("")}</div>
+    <div class="dexgrid">${items.map(c=>`<button class="dexcell" data-poke="${esc(c.id)}"><img src="${SPR_URL(c.dex)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"><span class="no">No.${String(c.dex).padStart(4,"0")}</span><span class="nm2">${esc(c.ko.replace(/\(.+\)$/,""))}</span></button>`).join("")}</div>
+    <div class="note">${rn} 지방 · ${items.length}마리 · 누르면 포켓몬 카드로 이동해요.</div>`;
+  root.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{ DEX_REGION=+b.dataset.r; renderDex(); window.scrollTo(0,0); });
+}
 
 // ===== 시작 =====
 renderHome(); show();
@@ -864,7 +847,7 @@ fetch("data/pokedex.json").then(r=>{ if(!r.ok) throw new Error(r.status); return
   for(const c of d.cards){ CARDS[c.id]=c; SEARCH.push({id:c.id,ko:c.ko,en:c.en}); if(!NAME2ID[c.ko]) NAME2ID[c.ko]=c.id; }
   suggest(""); openCard(CARDS.pikachu?"pikachu":d.cards[0].id);
   ["raid","dmax","pvp"].forEach(id=>{ $("#p-"+id).dataset.ready=""; renderBoard(id); });
-  ["raid","dmax"].forEach(renderBoss);
+  if(location.hash.slice(1)==="dex") renderDex();
   renderType();
   renderHome();
 }).catch(err=>{
