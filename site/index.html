@@ -25,7 +25,7 @@
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png">
 <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&family=Pacifico&family=VT323&display=swap" rel="stylesheet">
 <style>
 :root{
   --bezel:#2b3140; --bezel-hi:#3c4458; --bezel-lo:#1a1e28;
@@ -130,6 +130,22 @@ button{font:inherit;color:inherit}
 .evmore{appearance:none;width:100%;margin-top:6px;border:1px dashed var(--faint);background:none;color:var(--dim);border-radius:8px;padding:6px;font-size:12px;cursor:pointer}
 .ev.cmp{padding:6px 9px}
 .ev.cmp .s{display:none}
+/* ---- 카드 이미지 저장 ---- */
+.savebtn{display:block;margin:10px auto 0;appearance:none;border:1px solid var(--ink);background:rgba(0,0,0,.3);color:var(--ink);border-radius:999px;padding:7px 18px;font-size:13px;font-weight:700;cursor:pointer}
+.savebtn:disabled{opacity:.6}
+.shot{position:fixed;left:-10000px;top:0;padding:12px 14px 16px;background:#0b1416;
+  background-image:linear-gradient(rgba(140,255,210,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(140,255,210,.05) 1px,transparent 1px);background-size:18px 18px}
+.shot .tcard{max-width:none}
+.shot-by{font-family:Pacifico,"Brush Script MT",cursive;font-size:26px;line-height:1.5;text-align:center;color:var(--ink);margin:0 0 8px;
+  text-shadow:0 0 10px rgba(140,255,210,.55),0 0 2px rgba(140,255,210,.9)}
+.shotmodal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:16px}
+.shotbox{background:#11191c;border:1px solid var(--faint);border-radius:14px;padding:12px;max-width:min(460px,100%);max-height:100%;overflow:auto;text-align:center;color:var(--ink)}
+.shotbox img{width:100%;border-radius:10px;display:block}
+.shotbox p{font-size:12.5px;margin:8px 0}
+.shot-tip{color:var(--dim)}
+.shotbtns{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.shotbtns button,.shotbtns a{appearance:none;border:1px solid var(--ink);background:none;color:var(--ink);border-radius:999px;padding:6px 14px;font-size:12.5px;cursor:pointer;text-decoration:none}
+.shotbtns [data-share]{background:var(--ink);color:#0b2124;font-weight:700}
 /* ---- 도감 ---- */
 .regions{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;margin:0 0 12px;padding-bottom:2px}
 .regions::-webkit-scrollbar{display:none}
@@ -372,7 +388,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.5</small></button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.6</small></button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="match">상성표</button>
@@ -741,6 +757,41 @@ function s2HTML(x){
   const one=b=>`<span class="tchip sm" style="--tc:${TC[b.t]}">${svg(b.t,"#fff")}${TN[b.t]}</span> <span class="${b.ec?"elite":""}">${esc(b.c)}</span>`;
   return `<div class="skill s2"><span class="s2l">2번째<br>스페셜어택</span><div class="sk-main"><div>${one(m)}</div>${x.e&&x.n?`<div class="alt">또는 ${one(x.n)}</div>`:""}</div></div>`;
 }
+
+// ===== 포켓몬 카드 → 이미지(PNG) 저장 =====
+// html-to-image(site/lib, MIT)를 누를 때만 불러옴. 화면 밖에 "by. PYOkemongo" 머리글 + 카드 복사본을 만들어 그림으로 바꿈
+let H2I=null;
+const loadH2I=()=>H2I||(H2I=new Promise((ok,no)=>{ if(window.htmlToImage) return ok(window.htmlToImage);
+  const sc=document.createElement("script"); sc.src="lib/html-to-image.js"; sc.onload=()=>ok(window.htmlToImage); sc.onerror=()=>{H2I=null; no(new Error("load"));}; document.head.appendChild(sc); }));
+async function saveCardImage(c,sh){
+  const btn=$("#saveBtn"), card=$("#cardOut .tcard"); if(!card) return;
+  btn.disabled=true; btn.textContent="이미지 만드는 중…";
+  const wrap=document.createElement("div"); wrap.className="shot";
+  wrap.style.width=Math.max(card.offsetWidth,340)+28+"px";
+  wrap.innerHTML=`<div class="shot-by">by. PYOkemongo</div>`;
+  const clone=card.cloneNode(true); clone.querySelectorAll("img").forEach(i=>i.removeAttribute("loading"));
+  wrap.appendChild(clone); document.body.appendChild(wrap);
+  const skip=n=>!(n.classList&&(n.classList.contains("shbtn")||n.classList.contains("skgo")));
+  try{
+    const lib=await loadH2I(); try{ await document.fonts.load('26px Pacifico'); await document.fonts.ready; }catch(e){}
+    const opt={pixelRatio:2,filter:skip,style:{position:"static",left:"0",top:"0"},cacheBust:false,backgroundColor:"#0b1416",imagePlaceholder:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="};
+    let url; try{ url=await lib.toPng(wrap,opt); }catch(e){ url=await lib.toPng(wrap,{...opt,skipFonts:true}); }
+    showShot(url,`PYOkemongo_${sh?"그림자_":""}${c.ko}.png`);
+  }catch(e){ alertBox("이미지를 만들지 못했어요. 잠시 후 다시 눌러 주세요."); }
+  finally{ wrap.remove(); btn.disabled=false; btn.textContent="📷 이미지로 저장"; }
+}
+function alertBox(msg){ const m=document.createElement("div"); m.className="shotmodal"; m.innerHTML=`<div class="shotbox"><p>${esc(msg)}</p><div class="shotbtns"><button data-x>닫기</button></div></div>`; document.body.appendChild(m); m.onclick=e=>{ if(e.target===m||e.target.closest("[data-x]")) m.remove(); }; }
+// 미리보기 창: 공유(사진에 저장·카톡) / 내려받기. 공유는 버튼을 누를 때 실행해야 태블릿에서 막히지 않음
+function showShot(url,name){
+  const m=document.createElement("div"); m.className="shotmodal";
+  m.innerHTML=`<div class="shotbox"><img src="${url}" alt="포켓몬 카드 이미지"><p class="shot-tip">이미지를 길게 눌러도 사진에 저장할 수 있어요.</p>
+    <div class="shotbtns"><button data-share>공유 · 사진에 저장</button><a data-dl download="${esc(name)}" href="${url}">내려받기</a><button data-x>닫기</button></div></div>`;
+  document.body.appendChild(m);
+  const blob=()=>fetch(url).then(r=>r.blob()).then(b=>new File([b],name,{type:"image/png"}));
+  const sb=m.querySelector("[data-share]");
+  sb.onclick=async()=>{ try{ const f=await blob(); if(navigator.canShare&&navigator.canShare({files:[f]})) await navigator.share({files:[f],title:name}); else m.querySelector("[data-dl]").click(); }catch(e){} };
+  m.onclick=e=>{ if(e.target===m||e.target.closest("[data-x]")) m.remove(); };
+}
 // 100% (15/15/15) CP
 const CPM={15:0.51739395,20:0.59740001,25:0.667934,30:0.7317,35:0.76156384,40:0.79030001,50:0.84029999,51:0.84529999};
 const cpOf=(st,lv)=>Math.max(10,Math.floor((st[0]+15)*Math.sqrt(st[1]+15)*Math.sqrt(st[2]+15)*CPM[lv]**2/10));
@@ -782,6 +833,8 @@ function openCard(id, keepShadow){
   </div></article>
   <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
   $("#cardOut").querySelectorAll("[data-n2]").forEach(b=>b.onclick=()=>openCard(b.dataset.n2,true));
+  $("#cardOut").insertAdjacentHTML("beforeend",`<button class="savebtn" id="saveBtn">📷 이미지로 저장</button>`);
+  $("#saveBtn").onclick=()=>saveCardImage(c,sh);
   const sb=$("#shBtn"); if(sb) sb.onclick=()=>{ SHADOW=!SHADOW; openCard(id,true); };
 }
 
