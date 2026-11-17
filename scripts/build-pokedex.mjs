@@ -110,6 +110,19 @@ async function main() {
       for (const k of Object.keys(ps)) if (/bread|dmax|dynamax|gmax|giganta/i.test(k)) breadKeys.add(k);
     }
   }
+  // 다이맥스 관련 템플릿 탐색 (필드 이름 확인용)
+  const dm = pm.filter(t => /BREAD|SOURDOUGH|DYNAMAX|GIGANTAMAX|DMAX|GMAX|MAX_BATTLE/i.test(t.templateId));
+  // GO 내부 이름과 PvPoke 이름이 다른 기술 보정
+  if (pve.FUTURESIGHT && !pve.FUTURE_SIGHT) pve.FUTURE_SIGHT = pve.FUTURESIGHT;
+  if (pve.HIDDEN_POWER) for (const t of TYPES) pve["HIDDEN_POWER_" + t.toUpperCase()] ||= { ...pve.HIDDEN_POWER, type: t };
+  for (const [k, v] of Object.entries(pve)) { const m = k.match(/^TECHNO_BLAST_(\w+)$/); if (m) pve["TECHNO_BLAST_" + m[1]] = v; }
+  report.probe.techno = Object.keys(pve).filter(k => /TECHNO|PYRO|HIDDEN/.test(k));
+  report.probe.dmaxTemplates = dm.slice(0, 60).map(t => t.templateId);
+  report.probe.dmaxTemplateCount = dm.length;
+  report.probe.dmaxSamples = dm.slice(0, 6).map(t => JSON.stringify(t.data).slice(0, 700));
+  const dataKeys = new Set(); pm.forEach(t => Object.keys(t.data || {}).forEach(k => dataKeys.add(k)));
+  report.probe.dataKeys = [...dataKeys].filter(k => /bread|sourdough|max|dough/i.test(k));
+  report.probe.pvpokeTags = [...new Set((gm.pokemon || []).flatMap(p => p.tags || []))];
   report.probe.pveMoves = Object.keys(pve).length;
   report.probe.dynamaxKeys = [...breadKeys];
   report.probe.samplePokemonKeys = Object.keys(pmPokemon["charizard"] || {});
