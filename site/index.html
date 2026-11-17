@@ -56,6 +56,41 @@ button{font:inherit;color:inherit}
 .subtabs button{appearance:none;flex:1;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;
   color:var(--dim);font-size:13px;padding:8px 4px 7px;cursor:pointer}
 .subtabs button.on{color:var(--amber);border-bottom-color:var(--amber);font-weight:700}
+.bgos{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.bgo{appearance:none;border:1px solid var(--bc);background:transparent;color:var(--bc);border-radius:999px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer}
+.bgo:active{background:var(--bc);color:#111}
+/* ---- 카드: 진화 방법 · 100% CP ---- */
+.how{margin-top:6px;display:flex;flex-direction:column;gap:3px}
+.how div{font-size:11.5px;color:var(--dim);line-height:1.45}
+.how b{color:var(--ink);font-weight:700}
+.how .cdy{color:var(--amber)}
+.cpgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.cpc{border:1px solid var(--faint);border-radius:8px;padding:4px 2px 5px;text-align:center;background:rgba(0,0,0,.25)}
+.cpc .l{font-size:10px;color:var(--dim);line-height:1.3}
+.cpc .v{font-family:VT323,monospace;font-size:19px;color:var(--amber);line-height:1.05}
+.cpc .lv{font-family:VT323,monospace;font-size:12px;color:var(--dim)}
+/* ---- 배틀 팀 짜기 ---- */
+.tclr{appearance:none;border:1px solid var(--faint);background:none;color:var(--dim);border-radius:7px;padding:4px 10px;font-size:12px;cursor:pointer}
+.tslots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 10px}
+.tslot{position:relative;border:1px dashed var(--faint);border-radius:10px;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 4px;background:rgba(0,0,0,.25);text-align:center}
+.tslot.full{border-style:solid}
+.tslot .nm2{font-size:12px;font-weight:700;line-height:1.25}
+.tslot .tt{display:flex;gap:2px;justify-content:center}
+.tslot .tt i{width:9px;height:9px;border-radius:50%;background:var(--tc)}
+.tslot .x{position:absolute;top:2px;right:4px;appearance:none;border:0;background:none;color:var(--dim);font-size:15px;cursor:pointer}
+.tslot .emp{font-size:11.5px;color:var(--dim)}
+.tslot .tier .tb{transform:scale(.8)}
+.dtab{width:100%;border-collapse:collapse;font-size:12px}
+.dtab th,.dtab td{padding:4px 3px;border-bottom:1px solid rgba(255,255,255,.05);text-align:center}
+.dtab th{font-weight:400;color:var(--dim);font-size:11px}
+.dtab td:first-child{text-align:left;white-space:nowrap}
+.mk{display:inline-block;min-width:34px;border-radius:5px;padding:1px 3px;font-size:10.5px;font-weight:700}
+.mk.w{background:#ff5d6c;color:#fff}.mk.ww{background:#b0122a;color:#fff}.mk.r{background:#2f9e6a;color:#fff}.mk.rr{background:#156b45;color:#fff}
+.tw{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 2px}
+.recrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.recrow .info{flex:1;min-width:0}
+.recrow .why{font-size:11px;color:var(--dim)}
+.recrow .add{appearance:none;border:1px solid var(--ink);background:none;color:var(--ink);border-radius:999px;padding:3px 10px;font-size:11.5px;cursor:pointer}
 /* ---- 도감 ---- */
 .regions{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;margin:0 0 12px;padding-bottom:2px}
 .regions::-webkit-scrollbar{display:none}
@@ -291,10 +326,10 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.0</small></button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.1</small></button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
-    <button data-go="type">상성표</button>
+    <button data-go="match">상성표</button>
     <button data-go="tier">티어리스트</button>
     <button data-go="home">일정</button>
   </nav>
@@ -336,6 +371,7 @@ td.num.sorted{color:var(--amber)}
     <section class="view" id="v-dmax"><div id="p-dmax"></div></section>
     <section class="view" id="v-pvp"><div id="p-pvp"></div></section>
     <section class="view" id="v-type"></section>
+    <section class="view" id="v-team"></section>
 
   </div>
 </div>
@@ -409,9 +445,10 @@ const LEAGUE_ICON={
 const lgSvg=(k,c)=>`<svg viewBox="0 0 24 24" style="color:${c}" aria-hidden="true">${LEAGUE_ICON[k]}</svg>`;
 
 // ===== 라우팅 =====
-const VIEWS=["home","card","dex","type","raid","dmax","pvp"];
+const VIEWS=["home","card","dex","type","team","raid","dmax","pvp"];
 // 최상위 탭 → 하위 탭 묶음 (하위 탭이 있는 탭은 마지막으로 본 하위 탭을 기억)
 const GROUPS={ pokemon:{subs:[["card","포켓몬 검색"],["dex","도감"]],last:"card"},
+               match:{subs:[["type","상대 포켓몬 공략"],["team","배틀 팀 짜기"]],last:"type"},
                tier:{subs:[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀리그"]],last:"raid"} };
 const groupOf=v=>Object.keys(GROUPS).find(g=>GROUPS[g].subs.some(([k])=>k===v));
 function show(){
@@ -421,11 +458,13 @@ function show(){
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.go===v||b.dataset.go===g));
   $("#subnav").innerHTML=g?GROUPS[g].subs.map(([k,l])=>`<button data-go="${k}" class="${k===v?"on":""}">${l}</button>`).join(""):"";
   if(v==="dex") renderDex();
+  if(v==="team") renderTeam();
   window.scrollTo(0,0);
 }
 function go(v){ if(GROUPS[v]) v=GROUPS[v].last; if(location.hash.slice(1)===v) show(); else location.hash=v; }
 document.addEventListener("click",e=>{
   const g=e.target.closest("[data-go]"); if(g){ go(g.dataset.go); return; }
+  const bo=e.target.closest("[data-boss]"); if(bo){ openBoss(bo.dataset.boss,bo.dataset.bm); return; }
   const p=e.target.closest("[data-poke]"); if(p){ openCard(p.dataset.poke); go("card"); }
 });
 window.addEventListener("hashchange",show);
@@ -492,15 +531,19 @@ function renderHome(){
   const slot=(key,label,color)=>{
     const e=live.filter(x=>x[0]===key && !/아워|데이|먼데이/.test(x[1]))[0];
     if(!e) return `<div class="boss none" style="--bc:${color}"><div class="k">${label}</div><div class="n">—</div><div class="d">진행 중인 포켓몬 없음</div></div>`;
-    const name=e[1].replace(/^[^:]+:\s*/,""), links=pokeLinks(e[5]);
-    return `<div class="boss" style="--bc:${color}"><div class="k">${label}</div><div class="n">${links||esc(name)}</div><div class="d">~${fmtD(kst(P(e[3])))} ${esc(e[4]||"")}</div></div>`;
+    const name=e[1].replace(/^[^:]+:\s*/,""), links=pokeLinks(e[5]), ids=e[5].filter(n2id).map(n2id);
+    const bm=key==="max"?"dmax":"raid";
+    const go=ids.length===1?`<button class="bgo" data-boss="${esc(ids[0])}" data-bm="${bm}">공략 ›</button>`
+      :ids.slice(0,3).map(i=>`<button class="bgo" data-boss="${esc(i)}" data-bm="${bm}">${esc(CARDS[i].ko)} 공략 ›</button>`).join("");
+    return `<div class="boss" style="--bc:${color}"><div class="k">${label}</div><div class="n">${links||esc(name)}</div><div class="d">~${fmtD(kst(P(e[3])))} ${esc(e[4]||"")}</div>${go?`<div class="bgos">${go}</div>`:""}</div>`;
   };
   $("#bosses").innerHTML=slot("raid","5성 레이드",CAT.raid[1])+slot("mega","메가 레이드",CAT.mega[1])+slot("max","맥스배틀",CAT.max[1])+slot("shadow","그림자 레이드",CAT.shadow[1]);
   $("#feedNote").innerHTML=`갱신 <b>${FEED_UPDATED}</b> · 출처: ${esc(FEED_SOURCE)}`;
 }
 
 // 일정 속 포켓몬 이름 → 카드 링크
-const pokeLinks=arr=>arr.filter(n=>NAME2ID[n]).map(n=>`<a data-poke="${esc(NAME2ID[n])}">${esc(n)}</a>`).join(" · ");
+const n2id=n=>NAME2ID[n]||NAME2ID[String(n).replace(/\s/g,"")];
+const pokeLinks=arr=>arr.filter(n2id).map(n=>`<a data-poke="${esc(n2id(n))}">${esc(n)}</a>`).join(" · ");
 
 
 
@@ -564,6 +607,9 @@ function skillHTML(c){
     <div class="skill"><span class="tchip" style="--tc:${TC[r.t]}">${svg(r.t,"#fff")}${TN[r.t]}</span>
       <div class="sk-main"><div>${combo(main)}${plus?`<span class="plusbox">${plus}</span>`:""}</div>${alt}</div></div>`;
 }
+// 100% (15/15/15) CP
+const CPM={15:0.51739395,20:0.59740001,25:0.667934,30:0.7317,35:0.76156384,40:0.79030001,50:0.84029999,51:0.84529999};
+const cpOf=(st,lv)=>Math.max(10,Math.floor((st[0]+15)*Math.sqrt(st[1]+15)*Math.sqrt(st[2]+15)*CPM[lv]**2/10));
 function openCard(id, keepShadow){
   const c=CARDS[id]; if(!c) return;
   if(!keepShadow) SHADOW=false; CUR_ID=id;
@@ -574,6 +620,10 @@ function openCard(id, keepShadow){
   const evo=c.evo.map((stage,i)=>(i?'<span class="arw">›</span>':"")+`<div class="stage">${stage.map(s=>`<button class="${s===id?"cur":""}" data-n2="${esc(s)}">${esc(CARDS[s]?.ko||s)}</button>`).join("")}${stage.length>1?'<span class="branch">분기 진화</span>':""}</div>`).join("");
   const detail=(label,res)=>`<div class="drow"><div class="k">${label}</div><div class="forms">${res.via?`<div class="via">최종 진화 ${esc(res.via.join(" · "))} 기준</div>`:""}${res.list.length?res.list.map(formLine).join(""):`<div class="form">${TB(null)}<span>순위권 밖</span></div>`}</div></div>`;
   const s=c.stats;
+  const tree=c.evo.flat(), how=tree.flatMap(t=>(CARDS[t]?.how||[]).filter(h=>tree.includes(h.from)).map(h=>({...h,to:t})));
+  const howHTML=how.length?`<div class="how">${how.map(h=>`<div><b>${esc(CARDS[h.from]?.ko||h.from)} → ${esc(CARDS[h.to].ko)}</b>${h.c?` · <span class="cdy">사탕 ${h.c}</span>`:""}${h.x.length?" · "+h.x.map(esc).join(" · "):""}</div>`).join("")}</div>`:"";
+  const CPL=[["리서치",15],["레이드·알",20],["날씨 부스트",25],["최대",40],["최대",50]];
+  const cpHTML=`<div class="cpgrid">${CPL.map(([l,lv])=>`<div class="cpc"><div class="l">${l}</div><div class="v">${cpOf(s,lv)}</div><div class="lv">Lv${lv}</div></div>`).join("")}</div>`;
   $("#cardOut").innerHTML=`
   <article class="tcard${sh?" shadow":""}" style="--c:${color}"><div class="tcard-in">
     <div class="ctop">
@@ -587,7 +637,9 @@ function openCard(id, keepShadow){
     </div>
     <div class="cbody">
       <div class="sec">EVOLUTION</div>
-      <div class="evo">${evo}</div>
+      <div class="evo">${evo}</div>${howHTML}
+      <div class="sec">100% CP</div>
+      ${cpHTML}
       <div class="sec">TIER DETAIL</div>
       ${MODES.map(([m,l])=>detail(l,R[m])).join("")}
       ${skillHTML(c)}
@@ -815,9 +867,72 @@ function renderType(){
   root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ st.role=b.dataset.role; save(); renderType(); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
   root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ st.gauge=b.dataset.g==="1"; save(); renderType(); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
 }
+function openBoss(id,mode){ const c=CARDS[id]; if(!c) return;
+  BOSS.id=id; BOSS.q=c.ko; BOSS.opp=c.types.slice(0,2); if(mode) TMODE=mode; renderType(); go("type"); }
 function saveType(){ try{ localStorage.setItem("pyo-type",JSON.stringify({TMODE})); }catch(e){} }
 try{ const t=JSON.parse(localStorage.getItem("pyo-type")||"null"); if(t&&t.TMODE) TMODE=t.TMODE; }catch(e){}
 
+
+// ===== 배틀 팀 짜기 =====
+const TEAM={lg:"great",ids:[],q:""};
+try{ const t=JSON.parse(localStorage.getItem("pyo-team")||"null"); if(t){ if(LN[t.lg]) TEAM.lg=t.lg; if(Array.isArray(t.ids)) TEAM.ids=t.ids.slice(0,3); } }catch(e){}
+const saveTeam=()=>{ try{ localStorage.setItem("pyo-team",JSON.stringify({lg:TEAM.lg,ids:TEAM.ids})); }catch(e){} };
+const pvpRowOf=(lg,id)=>(DEX.pvp[lg]||[]).filter(r=>r.id===id).sort((a,b)=>b.score-a.score)[0];
+const mkOf=x=>x>2.5?'<span class="mk ww">×2.56</span>':x>1.5?'<span class="mk w">약점</span>':x<0.5?'<span class="mk rr">이중반감</span>':x<0.9?'<span class="mk r">반감</span>':"";
+function renderTeam(){
+  const root=$("#v-team"); if(!root) return;
+  if(!DEX){ root.innerHTML=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`; return; }
+  TEAM.ids=TEAM.ids.filter(id=>CARDS[id]);
+  const lg=TEAM.lg, mem=TEAM.ids.map(id=>CARDS[id]);
+  const slot=i=>{ const c=mem[i]; if(!c) return `<div class="tslot"><span class="emp">${i+1}번 자리<br>아래에서 추가</span></div>`;
+    const r=pvpRowOf(lg,c.id);
+    return `<div class="tslot full"><button class="x" data-rm="${i}" aria-label="빼기">×</button>${SPRITE(c.id)}<a class="nm2" data-poke="${esc(c.id)}">${esc(c.ko)}</a>
+      <span class="tt">${c.types.map(t=>`<i style="--tc:${TC[t]}" title="${TN[t]}"></i>`).join("")}</span><span class="tier">${r?TB(r.t):'<span style="font-size:10.5px;color:var(--dim)">순위권 밖</span>'}</span></div>`; };
+  let body="";
+  if(!mem.length) body=`<div class="empty">포켓몬을 최대 3마리까지 추가하면<br>팀의 약점과 보완할 포켓몬을 알려 줘요.</div>`;
+  else{
+    const rows=TYPES.map(([k])=>{ const xs=mem.map(c=>eff(k,c.types)); return {k,xs,w:xs.filter(x=>x>1.5).length,r:xs.filter(x=>x<0.9).length}; });
+    const hole=rows.filter(r=>r.w>=2&&r.r===0).sort((a,b)=>b.w-a.w), thin=rows.filter(r=>r.w===1&&r.r===0&&mem.length>1);
+    const shown=rows.filter(r=>r.w||r.r).sort((a,b)=>(b.w-b.r)-(a.w-a.r));
+    const chip=k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`;
+    // 공격 범위 (자속 타입 기준): 어느 팀원 타입으로도 효과 굉장이 안 나는 타입
+    const noSE=TYPES.map(([k])=>k).filter(d=>!mem.some(c=>c.types.some(t=>eff(t,[d])>1.5)));
+    // 보완 추천: 리그 순위권에서 팀의 약점 타입을 반감하는 포켓몬
+    const need=[...hole,...thin].map(r=>r.k);
+    let rec=[];
+    if(need.length&&mem.length<3){
+      const seen=new Set(TEAM.ids);
+      rec=(DEX.pvp[lg]||[]).filter(r=>!r.tg.includes("s")&&!seen.has(r.id)&&CARDS[r.id]&&(seen.add(r.id),true)).map(r=>{ const c=CARDS[r.id];
+        const cov=need.filter(k=>eff(k,c.types)<0.9), bad=need.filter(k=>eff(k,c.types)>1.5);
+        return {r,c,cov,sc:cov.length-bad.length}; }).filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc||b.r.score-a.r.score).slice(0,6);
+    }
+    body=`<div class="head"><span>팀 약점 분석</span><span style="color:var(--dim);font-size:11px">상대 공격 타입 → 팀원이 받는 피해</span></div>
+      ${hole.length?`<div class="label">&gt; 팀 공통 약점 (2마리 이상 약점 · 막아줄 팀원 없음)</div><div class="tw">${hole.map(r=>chip(r.k)).join("")}</div>`:mem.length>1?`<div class="label">&gt; 팀 공통 약점 없음 👍</div>`:""}
+      ${thin.length?`<div class="label">&gt; 막아줄 팀원이 없는 약점</div><div class="tw">${thin.map(r=>chip(r.k)).join("")}</div>`:""}
+      <table class="dtab"><thead><tr><th>상대 공격</th>${mem.map(c=>`<th>${esc(c.ko)}</th>`).join("")}</tr></thead><tbody>
+        ${shown.map(r=>`<tr><td>${chip(r.k)}</td>${r.xs.map(x=>`<td>${mkOf(x)}</td>`).join("")}</tr>`).join("")}</tbody></table>
+      <div class="label" style="margin-top:12px">&gt; 효과 굉장을 못 내는 타입 (팀원 자속 타입 기준)</div>
+      <div class="tw">${noSE.length?noSE.map(chip).join(""):'<span style="color:var(--dim);font-size:12px">없음 — 모든 타입에 효과 굉장 가능</span>'}</div>
+      ${rec.length?`<div class="head" style="margin-top:14px"><span>보완 추천 · ${LN[lg]} 순위권</span></div>
+        ${rec.map(x=>`<div class="recrow">${SPRITE(x.c.id)}<div class="info"><div><a data-poke="${esc(x.c.id)}">${esc(x.c.ko)}</a> ${TB(x.r.t)}</div><div class="why">막아줌: ${x.cov.map(k=>TN[k]).join(" · ")}</div></div><button class="add" data-add="${esc(x.c.id)}">추가</button></div>`).join("")}`:""}
+      <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
+  }
+  root.innerHTML=`<div class="seg lgseg">${LEAGUES.map(([k,n])=>`<button data-lg="${k}" class="${k===lg?"on":""}">${n}</button>`).join("")}</div>
+    <div class="tslots" style="margin-top:10px">${[0,1,2].map(slot).join("")}</div>
+    ${mem.length<3?`<form class="search tsearch"><input placeholder="팀에 넣을 포켓몬 이름" autocomplete="off" value="${esc(TEAM.q)}"><button>추가</button></form><div class="sugg tsugg"></div>`:`<button class="clr tclr" style="margin:0 0 10px">팀 비우기</button>`}
+    ${body}`;
+  const add=id=>{ if(!CARDS[id]||TEAM.ids.includes(id)||TEAM.ids.length>=3) return; TEAM.ids.push(id); TEAM.q=""; saveTeam(); renderTeam(); };
+  root.querySelectorAll("[data-lg]").forEach(b=>b.onclick=()=>{ TEAM.lg=b.dataset.lg; saveTeam(); renderTeam(); });
+  root.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{ TEAM.ids.splice(+b.dataset.rm,1); saveTeam(); renderTeam(); });
+  root.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>add(b.dataset.add));
+  const clr=root.querySelector(".tclr"); if(clr) clr.onclick=()=>{ TEAM.ids=[]; saveTeam(); renderTeam(); };
+  const inp=root.querySelector(".tsearch input"), sg=root.querySelector(".tsugg");
+  if(inp){
+    inp.oninput=()=>{ TEAM.q=inp.value; const q=inp.value.trim(); sg.innerHTML=q?findIds(q).slice(0,8).map(i=>`<button class="chip" data-tid="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):""; };
+    sg.onclick=e=>{ const b=e.target.closest("[data-tid]"); if(b) add(b.dataset.tid); };
+    root.querySelector("form").onsubmit=e=>{ e.preventDefault(); const id=findIds(inp.value)[0]; if(id) add(id); };
+  }
+}
 // ===== 도감 (지방별, 도감번호 순) =====
 const REGIONS=[["관동",1,151],["성도",152,251],["호연",252,386],["신오",387,493],["하나",494,649],["칼로스",650,721],["알로라",722,809],["가라르",810,905],["팔데아",906,1025]];
 let DEX_REGION=0, DEX_LIST=null;
@@ -846,10 +961,11 @@ renderHome(); show();
 $("#cardOut").innerHTML='<div class="empty">도감 데이터를 불러오는 중이에요…</div>';
 fetch("data/pokedex.json").then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }).then(d=>{
   DEX=d; TANK_POOL=null; if(d.tierRule) TIER_RULE=d.tierRule;
-  for(const c of d.cards){ CARDS[c.id]=c; SEARCH.push({id:c.id,ko:c.ko,en:c.en}); if(!NAME2ID[c.ko]) NAME2ID[c.ko]=c.id; }
+  for(const c of d.cards){ CARDS[c.id]=c; SEARCH.push({id:c.id,ko:c.ko,en:c.en}); if(!NAME2ID[c.ko]) NAME2ID[c.ko]=c.id; const k2=c.ko.replace(/\s/g,""); if(!NAME2ID[k2]) NAME2ID[k2]=c.id; }
   suggest(""); openCard(CARDS.pikachu?"pikachu":d.cards[0].id);
   ["raid","dmax","pvp"].forEach(id=>{ $("#p-"+id).dataset.ready=""; renderBoard(id); });
   if(location.hash.slice(1)==="dex") renderDex();
+  if(location.hash.slice(1)==="team") renderTeam();
   renderType();
   renderHome();
 }).catch(err=>{

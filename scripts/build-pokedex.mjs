@@ -245,6 +245,57 @@ async function main() {
     c.evo = stages.some(s => s.includes(c.id)) ? stages : [[c.id]];
   }
 
+  // ---- 진화 방법 (PokeMiners pokemonSettings.evolutionBranch) ----
+  // 결과: 진화 후 카드에 how = [{from, c(사탕), x:[조건...]}]
+  try {
+    const ITEM_KO = { ITEM_SUN_STONE: "태양의돌", ITEM_KINGS_ROCK: "왕의징표석", ITEM_METAL_COAT: "금속코트", ITEM_DRAGON_SCALE: "용의비늘",
+      ITEM_UP_GRADE: "업그레이드", ITEM_GEN4_EVOLUTION_STONE: "신오의돌", ITEM_GEN5_EVOLUTION_STONE: "하나의돌",
+      ITEM_OTHER_EVOLUTION_STONE_A: "진화의돌", ITEM_TROY_DISK_GLACIAL: "빙하 루어", ITEM_TROY_DISK_MOSSY: "이끼 루어",
+      ITEM_TROY_DISK_MAGNETIC: "마그넷 루어", ITEM_TROY_DISK_RAINY: "레이니 루어", ITEM_TROY_DISK_SPARKLY: "반짝반짝 루어" };
+    const REGION_KW = c => (c.id.match(/_(alolan|galarian|hisuian|paldean)/) || [])[1] || "";
+    const nameDex = {};
+    for (const t of pm) { const m = t.templateId.match(/^V(\d{4})_POKEMON_/); const ps = t.data?.pokemonSettings; if (m && ps?.pokemonId) nameDex[ps.pokemonId] = +m[1]; }
+    const byDex = {}; for (const c of Object.values(cards)) (byDex[c.dex] ||= []).push(c);
+    // 게임 데이터 (포켓몬, 폼) → 카드
+    const cardOf = (pid, form) => {
+      const list = byDex[nameDex[pid]] || []; if (!list.length) return null;
+      const suf = String(form || "").replace(pid, "").replace(/^_/, "").toLowerCase();
+      if (suf && suf !== "normal") {
+        const kw = suf.slice(0, 5), hit = list.filter(c => c.id.includes(kw));
+        if (hit.length) return hit.sort((a, b) => a.id.length - b.id.length)[0];
+        if (/alola|galar|hisui|palde/.test(kw)) return null; // 지역폼인데 카드가 없음
+      }
+      const plain = list.filter(c => !REGION_KW(c)).sort((a, b) => a.id.length - b.id.length);
+      return plain[0] || null;
+    };
+    const unknownItems = new Set(); let edges = 0, miss = 0; const seen = new Set();
+    for (const t of pm) {
+      const ps = t.data?.pokemonSettings; if (!ps?.evolutionBranch || !/^V\d{4}_POKEMON_/.test(t.templateId)) continue;
+      const from = cardOf(ps.pokemonId, ps.form); if (!from) continue;
+      for (const br of ps.evolutionBranch) {
+        if (!br.evolution || br.temporaryEvolution) continue;
+        const to = br.form ? cardOf(br.evolution, br.form)
+          : (REGION_KW(from) && cardOf(br.evolution, br.evolution + "_" + String(ps.form).split("_").pop())) || cardOf(br.evolution, "");
+        if (!to) { miss++; continue; }
+        const key = from.id + ">" + to.id; if (seen.has(key)) continue; seen.add(key);
+        const x = [];
+        for (const k of ["evolutionItemRequirement", "lureItemRequirement"]) if (br[k]) { if (!ITEM_KO[br[k]]) unknownItems.add(br[k]); x.push(ITEM_KO[br[k]] || br[k].replace(/^ITEM_/, "").toLowerCase()); }
+        if (br.genderRequirement) x.push(/FEMALE/.test(br.genderRequirement) ? "암컷만" : "수컷만");
+        if (br.onlyDaytime) x.push("낮에만");
+        if (br.onlyNighttime) x.push("밤에만");
+        if (br.kmBuddyDistanceRequirement) x.push(`파트너로 ${br.kmBuddyDistanceRequirement}km`);
+        else if (br.mustBeBuddy) x.push("파트너일 때");
+        if (br.onlyUpsideDown) x.push("기기를 뒤집어서");
+        if (br.questDisplay?.length) x.push("특별 미션");
+        if (br.noCandyCostViaTrade) x.push("교환하면 사탕 0");
+        (to.how ||= []).push({ from: from.id, c: br.candyCost || 0, x });
+        edges++;
+      }
+    }
+    report.evolution = { edges, missingTarget: miss, unknownItems: [...unknownItems] };
+    if (!edges) warn("진화 방법 데이터를 하나도 찾지 못함");
+  } catch (e) { warn("진화 방법 처리 실패: " + e.message); }
+
   // ---- 레이드 ----
   const stab = (t, p) => types(p).includes(t) ? 1.2 : 1;
   const hit = (power, atk, mt, p) => Math.floor(0.5 * power * atk / BOSS_DEF * stab(mt, p) * SE) + 1;
