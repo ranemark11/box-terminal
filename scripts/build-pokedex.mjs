@@ -10,7 +10,7 @@
 //
 // 실행: node scripts/build-pokedex.mjs   (Node 20+, 외부 패키지 없음)
 
-import { writeFile, mkdir } from "node:fs/promises";
+import { writeFile, mkdir, readFile } from "node:fs/promises";
 
 const URLS = {
   pvpokeGM: "https://raw.githubusercontent.com/pvpoke/pvpoke/master/src/data/gamemaster.json",
@@ -116,6 +116,8 @@ async function main() {
   if (pve.FUTURESIGHT && !pve.FUTURE_SIGHT) pve.FUTURE_SIGHT = pve.FUTURESIGHT;
   if (pve.HIDDEN_POWER) for (const t of TYPES) pve["HIDDEN_POWER_" + t.toUpperCase()] ||= { ...pve.HIDDEN_POWER, type: t };
   for (const [k, v] of Object.entries(pve)) { const m = k.match(/^TECHNO_BLAST_(\w+)$/); if (m) pve["TECHNO_BLAST_" + m[1]] = v; }
+  if (pve.PYROBALL) pve.PYRO_BALL ||= pve.PYROBALL;
+  if (pve.TECHNO_BLAST_WATER) pve.TECHNO_BLAST_DOUSE ||= pve.TECHNO_BLAST_WATER;
   report.probe.techno = Object.keys(pve).filter(k => /TECHNO|PYRO|HIDDEN/.test(k));
   report.probe.dmaxTemplates = dm.slice(0, 60).map(t => t.templateId);
   report.probe.dmaxTemplateCount = dm.length;
@@ -225,15 +227,24 @@ async function main() {
   // ---- 다이맥스 ----
   const dmax = Object.fromEntries(TYPES.map(t => [t, []]));
   let dmaxCount = 0;
-  for (const p of mons) {
-    if (isShadow(p) || isMega(p)) continue;
-    const ps = pmPokemon[p.speciesId] || pmPokemon[p.speciesId.split("_")[0]];
-    const s = JSON.stringify(Object.fromEntries([...breadKeys].map(k => [k, ps?.[k]])));
-    if (!ps || s === "{}" || !/BREAD|true|\{/.test(s)) continue;
-    const canG = /DOUGH|GIGANTAMAX|GMAX/i.test(s);
-    dmaxCount++;
+  // 출시 목록(scripts/dynamax.json)과 PvPoke 엔트리 연결
+  const dmList = JSON.parse(await readFile(new URL("./dynamax.json", import.meta.url), "utf8"));
+  const pick = ([dex, kw]) => {
+    const c = mons.filter(p => p.dex === dex && !isShadow(p) && !isMega(p));
+    if (kw) return c.find(p => p.speciesName.toLowerCase().includes(kw.toLowerCase()));
+    return c.find(p => !p.speciesName.includes("(")) || c.find(p => /\((Normal|Standard|Altered|Incarnate)/i.test(p.speciesName)) || c[0];
+  };
+  const dmSet = new Map(), unmatched = [];
+  for (const [kind, arr] of [["d", dmList.dynamax], ["g", dmList.gigantamax]]) for (const e of arr) {
+    const key = Array.isArray(e) ? e : [e]; const p = pick(key);
+    if (!p) { unmatched.push(kind + ":" + key.join(" ")); continue; }
+    const cur = dmSet.get(p.speciesId) || { p, d: false, g: false }; cur[kind] = true; dmSet.set(p.speciesId, cur);
+  }
+  if (unmatched.length) warn("다이맥스 목록 중 매칭 실패: " + unmatched.join(", "));
+  for (const { p, d, g: gOK } of dmSet.values()) {
+    const canG = gOK, onlyG = gOK && !d;
     const atk = (p.baseStats.atk + 15) * CPM40, def = (p.baseStats.def + 15) * CPM40, hp = Math.floor((p.baseStats.hp + 15) * CPM40);
-    for (const g of canG ? [false, true] : [false]) for (const f of p.fastMoves || []) {
+    for (const g of onlyG ? [true] : canG ? [false, true] : [false]) for (const f of p.fastMoves || []) {
       const F = pve[f]; if (!F) continue;
       const FD = hit(F.power, atk, F.type, p), fdps = FD / F.dur;
       const max = hit(g ? GMAX_POWER : MAX_POWER, atk, F.type, p);
@@ -245,7 +256,7 @@ async function main() {
       if (!dup) list.push(row); else if (row.score > dup.score) Object.assign(dup, row);
     }
   }
-  report.counts.dynamaxPokemon = dmaxCount;
+  dmaxCount = dmSet.size; report.counts.dynamaxPokemon = dmaxCount;
   if (!dmaxCount) warn("다이맥스 가능 포켓몬을 찾지 못함 — probe.dynamaxKeys 확인 필요");
 
   // ---- 배틀 (PvPoke 랭킹 점수) ----
