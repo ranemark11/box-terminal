@@ -42,6 +42,7 @@
 - `site/robots.txt`, `site/sitemap.xml`. 탭 제목(`<title>`) = "표켓몬고 티어리스트(PYOkemongo) - 포켓몬고 정보 사이트".
 - 네이버 서치어드바이저 소유 확인 메타 태그(`naver-site-verification`)가 `<head>`에 있음 — 지우지 말 것.
 - 카카오톡은 미리보기를 캐시함 → 바꾼 뒤 예전 모습이면 카카오 개발자 사이트의 OG 캐시 초기화 도구 사용.
+- 방문 통계: Cloudflare Web Analytics 스크립트가 `</body>` 앞에 있음 (토큰 포함) — 지우지 말 것. 통계는 Cloudflare 대시보드 → Web Analytics.
 
 ## 데이터 출처
 - PvPoke gamemaster·rankings: 포켓몬 목록, 종족값, 타입, 기술, 진화 가족, 출시 여부, PvP 점수
