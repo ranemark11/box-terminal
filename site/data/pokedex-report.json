@@ -976,6 +976,7 @@
   "missingTarget": 21,
   "unknownItems": []
  },
+ "dynamaxNotListed": [],
  "tierCounts": {
   "raid": {
    "normal": "3/1/2/3/18",
@@ -1249,5 +1250,5 @@
    }
   ]
  },
- "bytes": 540325
+ "bytes": 541605
 }
