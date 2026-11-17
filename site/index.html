@@ -194,6 +194,14 @@ td.num.sorted{color:var(--amber)}
 .seg{display:flex;border:1px solid var(--faint);border-radius:9px;overflow:hidden;margin:4px 0 10px}
 .seg button{flex:1;appearance:none;border:0;background:transparent;color:var(--dim);padding:7px 6px;font-size:12.5px;cursor:pointer}
 .seg button.on{background:var(--ink);color:#0b2124;font-weight:700}
+.monrow{display:flex;align-items:center;gap:6px;min-width:0}
+.spr{flex:none;width:34px;height:34px;image-rendering:pixelated;object-fit:contain;margin:-4px -2px -4px -4px}
+.spr.sm{width:26px;height:26px;margin:-4px -2px}
+.mgrid{display:flex;flex-direction:column;gap:5px;margin:10px 2px}
+.mrow{display:grid;grid-template-columns:72px 1fr;align-items:center;gap:6px}
+.mrow .ml{font-size:12px;color:var(--dim);white-space:nowrap}
+.mrow .mc{display:flex;flex-wrap:wrap;gap:4px}
+.mrow .none{font-size:11.5px;color:var(--faint)}
 @media (max-width:440px){
   body{padding:8px 6px 20px}
   .device{padding:10px 8px 12px;border-radius:18px}
@@ -201,6 +209,7 @@ td.num.sorted{color:var(--amber)}
   .sels{gap:4px}
   .sbtn{font-size:10.5px;padding:5px 0 4px}
   .nm{font-size:12px}.mv{font-size:9.5px}
+  .spr{width:28px;height:28px}
   td.num{font-size:16px} td.num .p{font-size:10.5px}
   th button{font-size:10.5px;padding:2px 3px}
   .ctop{grid-template-columns:96px 1fr;gap:9px;padding:9px}
@@ -430,13 +439,15 @@ function findIds(q){
 }
 function suggest(q){
   q=q.trim();
-  const ids = q ? findIds(q).slice(0,12) : ["pupitar","charizard","eevee","kirlia","azumarill","magikarp"].filter(i=>CARDS[i]);
+  const ids = q ? findIds(q).slice(0,12) : ["pikachu","pupitar","charizard","eevee","kirlia","magikarp"].filter(i=>CARDS[i]);
   $("#sugg").innerHTML=(q?"":'<span style="font-size:11.5px;color:var(--dim);align-self:center">예시 ›</span>')+ids.map(i=>`<button class="chip" data-id="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join("");
 }
 $("#sugg").addEventListener("click",e=>{const b=e.target.closest("[data-id]"); if(b) openCard(b.dataset.id);});
 $("#q").addEventListener("input",e=>DEX&&suggest(e.target.value));
 $("#sform").addEventListener("submit",e=>{e.preventDefault(); if(!DEX) return; const id=findIds($("#q").value)[0]; if(id) openCard(id); else $("#cardOut").innerHTML=`<div class="empty">"${esc($("#q").value)}"을(를) 찾지 못했어요.<br>한글 또는 영어 이름으로 검색해 보세요.</div>`;});
 
+const SPR_URL=dex=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${dex}.png`;
+const SPRITE=(id,cls="")=>{ const c=CARDS[id]; return c?`<img class="spr ${cls}" src="${SPR_URL(c.dex)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`:`<span class="spr ${cls}"></span>`; };
 const ART=dex=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${dex}.png`;
 let SHADOW=false, CUR_ID=null;
 const MODES=[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀"]];
@@ -552,7 +563,7 @@ function renderBoard(id){
   tb.innerHTML=rows.map((r,i)=>{
     const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"");
     return `<tr style="--tc:${c}"><td class="rank">${i+1}</td>
-      <td><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></td>
+      <td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></div></div></td>
       ${B.cols.map(([k,,d])=>r[k]==null?`<td class="num">—</td>`:`<td class="num${st.sort===k?" sorted":""}">${(+r[k]).toFixed(d)}<span class="p">${(r[k]/top[k]*100).toFixed(0)}%</span></td>`).join("")}
       <td class="tier">${TB(r._t)}</td></tr>`;
   }).join("");
@@ -600,31 +611,42 @@ function renderType(){
   else if(!DEX) body=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`;
   else{
     const atk=TYPES.map(([k])=>({k,x:eff(k,OPP)})).sort((a,b)=>b.x-a.x);
-    const strong=atk.filter(a=>a.x>=1.5), weak=atk.filter(a=>a.x<0.99);
-    const chip=(k,x,cls="")=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span><span class="mult ${cls}">×${fmtX(x)}</span>`;
+    const strong=atk.filter(a=>a.x>=1.5);
+    const chip=k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`;
+    const group=(label,list)=>`<div class="mrow"><span class="ml">${label}</span><span class="mc">${list.length?list.map(a=>chip(a.k)).join(""):'<span class="none">없음</span>'}</span></div>`;
+    const tags=r=>(r.tg.includes("m")?'<span class="tag m">M</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G</span>':"");
     // 딜러: 약점 타입별 상위 공격자
-    const recs=strong.map(({k,x})=>{
+    const recs=strong.map(({k})=>{
       const rows=tieredList(TMODE,k).filter(r=>r._t).slice(0,6);
-      const li=rows.length?rows.map(r=>`<li>${TB(r._t)}<a data-poke="${esc(r.id)}">${esc(r.n)}</a>${r.tg.includes("m")?'<span class="tag m">M</span>':""}${r.tg.includes("s")?'<span class="tag s">그림자</span>':""}${r.tg.includes("g")?'<span class="tag g">G</span>':""}</li>`).join(""):`<li style="color:var(--dim)">순위권 포켓몬 없음</li>`;
-      return `<div class="rec" style="--c:${TC[k]}"><div class="rh">${chip(k,x,x>=2.5?"x2":"")}<button class="go" data-board="${k}">전체 보기 ›</button></div><ol>${li}</ol></div>`;
+      const li=rows.length?rows.map(r=>`<li>${TB(r._t)}${SPRITE(r.id,"sm")}<a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags(r)}</li>`).join(""):`<li style="color:var(--dim)">순위권 포켓몬 없음</li>`;
+      return `<div class="rec" style="--c:${TC[k]}"><div class="rh">${chip(k)}<button class="go" data-board="${k}">전체 보기 ›</button></div><ol>${li}</ol></div>`;
     }).join("");
-    // 탱커: 상대 타입 기술(자속 가정)을 덜 아프게 맞는 포켓몬, 내구 순
-    const tanks=Object.values(CARDS).filter(c=>c.final).map(c=>{
-      const worst=Math.max(...OPP.map(o=>eff(o,c.types)));
-      return {c,worst,bulk:(c.stats[1]+15)*(c.stats[2]+15)/worst};
-    }).filter(t=>t.worst<=0.63).sort((a,b)=>b.bulk-a.bulk).slice(0,8);
+    // 탱커: 상대 타입 기술을 모두 반감 이하로 받는 포켓몬을 "이 상대 기준 TDO" 순으로
+    //  TDO(상대 기준) = 레이드 TDO × (내 기술의 상대 상성 ÷ 1.6) ÷ (상대 기술이 나에게 주는 배율)
+    const best={};
+    for(const [t,rows] of Object.entries(DEX.raid)) for(const r of rows){
+      const c=CARDS[r.id]; if(!c) continue;
+      const worst=Math.max(...OPP.map(o=>eff(o,c.types))); if(worst>0.63) continue;
+      const tdo=r.tdo*eff(t,OPP)/1.6/worst, key=r.id+r.tg.join()+r.n;
+      if(!best[key]||tdo>best[key].tdo) best[key]={r,c,tdo};
+    }
+    const tanks=Object.values(best).sort((a,b)=>b.tdo-a.tdo).slice(0,8);
     const resistTypes=TYPES.map(([k])=>({k,x:Math.max(...OPP.map(o=>eff(o,[k])))})).filter(t=>t.x<0.99).sort((a,b)=>a.x-b.x);
     body=`
-      <div class="mline">약점 ${strong.map(a=>chip(a.k,a.x,a.x>=2.5?"x2":"")).join("")||"없음"}</div>
-      <div class="mline">반감 ${weak.map(a=>chip(a.k,a.x,"r")).join("")||"없음"}</div>
+      <div class="mgrid">
+        ${group("이중약점",atk.filter(a=>a.x>=2.5))}
+        ${group("약점",atk.filter(a=>a.x>=1.5&&a.x<2.5))}
+        ${group("반감",atk.filter(a=>a.x>=0.6&&a.x<0.99))}
+        ${group("이중반감",atk.filter(a=>a.x<0.6))}
+      </div>
       <div class="seg"><button data-m="raid" class="${TMODE==="raid"?"on":""}">레이드</button><button data-m="dmax" class="${TMODE==="dmax"?"on":""}">다이맥스</button></div>
       <div class="sec">딜러 추천 · 약점을 찌르는 타입</div>
       <div class="recs">${recs}</div>
-      <div class="sec">탱커 추천 · 버티기 좋은 포켓몬</div>
-      <div class="mline">잘 버티는 타입 ${resistTypes.map(t=>chip(t.k,t.x,"r")).join("")||"없음"}</div>
-      <div class="rec" style="--c:#6fb39a"><ol>${tanks.map(t=>`<li><a data-poke="${esc(t.c.id)}">${esc(t.c.ko)}</a>${t.c.types.map(x=>`<span class="tchip" style="--tc:${TC[x]}">${TN[x]}</span>`).join("")}<small>받는 피해 ×${fmtX(t.worst)}</small></li>`).join("")||'<li style="color:var(--dim)">양쪽 타입을 모두 반감하는 포켓몬이 없어요</li>'}</ol></div>
+      <div class="sec">탱커 추천 · 버티면서 딜하는 포켓몬</div>
+      <div class="mgrid">${group("버티는 타입",resistTypes)}</div>
+      <div class="rec" style="--c:#6fb39a"><ol>${tanks.map(t=>`<li>${SPRITE(t.r.id,"sm")}<a data-poke="${esc(t.r.id)}">${esc(t.r.n)}</a>${tags(t.r)}<small>TDO ${Math.round(t.tdo)}</small></li>`).join("")||'<li style="color:var(--dim)">양쪽 타입을 모두 반감하는 포켓몬이 없어요</li>'}</ol></div>
       <div class="note">딜러 목록은 ${TMODE==="raid"?"레이드":"다이맥스"} 티어리스트의 각 타입 상위 6마리예요(메가·그림자 포함). "전체 보기"를 누르면 그 타입 티어리스트로 이동해요.<br>
-      탱커는 상대가 <b>자기 타입 기술</b>을 쓴다고 가정하고, 그 기술을 모두 반감 이하로 받는 최종진화 포켓몬을 내구(방어×체력) 순으로 골랐어요. 상대가 다른 타입 기술을 쓰면 달라질 수 있어요.</div>`;
+      탱커는 상대가 <b>자기 타입 기술</b>을 쓴다고 가정하고, 그 기술을 모두 반감 이하로 받는 포켓몬을 <b>이 상대 기준 TDO</b> 순으로 골랐어요. TDO = 레이드 TDO × (내 기술이 상대에게 들어가는 상성 ÷ 효과굉장) ÷ (상대 기술이 나에게 들어오는 배율). 상대가 다른 타입 기술을 쓰면 달라질 수 있어요.</div>`;
   }
   root.innerHTML=`<div class="label">&gt; 상성표 · 상대 타입 선택 (최대 2개)</div><div class="sels">${sels}</div>
     <div class="opp">상대: ${OPP.length?OPP.map(k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`).join(" + "):"<span style='color:var(--dim)'>선택 안 함</span>"}<button class="clr" id="oppClr">초기화</button></div>${body}`;
@@ -647,7 +669,7 @@ $("#cardOut").innerHTML='<div class="empty">도감 데이터를 불러오는 중
 fetch("data/pokedex.json").then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }).then(d=>{
   DEX=d; if(d.tierRule) TIER_RULE=d.tierRule;
   for(const c of d.cards){ CARDS[c.id]=c; SEARCH.push({id:c.id,ko:c.ko,en:c.en}); if(!NAME2ID[c.ko]) NAME2ID[c.ko]=c.id; }
-  suggest(""); openCard(CARDS.tyranitar?"tyranitar":d.cards[0].id);
+  suggest(""); openCard(CARDS.pikachu?"pikachu":d.cards[0].id);
   ["raid","dmax","pvp"].forEach(id=>{ $("#v-"+id).dataset.ready=""; renderBoard(id); });
   renderType();
   renderHome();
