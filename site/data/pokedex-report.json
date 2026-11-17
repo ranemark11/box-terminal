@@ -972,14 +972,9 @@
   }
  },
  "evolution": {
-  "edges": 498,
+  "edges": 497,
   "missingTarget": 21,
-  "unknownItems": [
-   "ITEM_BEANS",
-   "ITEM_OTHER_EVOLUTION_STONE_MAPLE_A",
-   "ITEM_OTHER_EVOLUTION_STONE_MAPLE_B",
-   "ITEM_OTHER_EVOLUTION_STONE_MAPLE_C"
-  ]
+  "unknownItems": []
  },
  "tierCounts": {
   "raid": {
@@ -1254,5 +1249,5 @@
    }
   ]
  },
- "bytes": 540505
+ "bytes": 540325
 }
