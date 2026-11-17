@@ -25,7 +25,8 @@ button{font:inherit;color:inherit}
 .brand small{color:#8a93a8;font-size:16px;margin-left:6px}
 .vents{margin-left:auto;display:flex;gap:4px}
 .vents i{width:18px;height:4px;border-radius:2px;background:var(--bezel-lo);box-shadow:inset 0 1px 1px rgba(0,0,0,.6)}
-.nav{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:0 2px 10px}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:0 2px 10px}
+.subnav{margin:0 0 12px}
 .nav button{appearance:none;border:0;border-radius:8px;padding:7px 0 6px;background:var(--bezel-lo);color:#8a93a8;font-size:11px;cursor:pointer;white-space:nowrap;
   box-shadow:inset 0 -2px 0 rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.05)}
 .nav button.on{color:#141720;background:#cfd6e6;box-shadow:inset 0 2px 0 rgba(0,0,0,.25)}
@@ -77,9 +78,6 @@ button{font:inherit;color:inherit}
 .ev .s{font-size:11.5px;color:var(--dim);margin-top:2px;line-height:1.5}
 .ev .s a{color:var(--ink);text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
 .ev .left{font-family:VT323,monospace;font-size:14px;color:var(--amber);margin-left:4px}
-.quick{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px}
-.quick button{appearance:none;border:1px solid var(--faint);background:rgba(0,0,0,.3);border-radius:10px;padding:9px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px}
-.quick svg{width:22px;height:22px;color:var(--amber)}
 
 /* ---- 카드 검색 ---- */
 .search{display:flex;gap:6px}
@@ -224,16 +222,19 @@ td.num.sorted{color:var(--amber)}
 </head>
 <body>
 <div class="device">
-  <div class="top"><div class="led"></div><button class="brand" data-go="home">BOX TERMINAL<small>v0.5</small></button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">BOX TERMINAL<small>v0.5</small></button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
-    <button data-go="home">홈</button>
-    <button data-go="card">카드</button>
+    <button data-go="card">포켓몬 카드</button>
     <button data-go="type">상성표</button>
-    <button data-go="raid">레이드</button>
-    <button data-go="dmax">다이맥스</button>
-    <button data-go="pvp">배틀리그</button>
+    <button data-go="tier">티어리스트</button>
+    <button data-go="home">일정</button>
   </nav>
   <div class="screen">
+    <div class="tabs subnav" id="subnav">
+      <button class="tab" data-go="raid">레이드</button>
+      <button class="tab" data-go="dmax">다이맥스</button>
+      <button class="tab" data-go="pvp">배틀리그</button>
+    </div>
 
     <!-- ===== 홈 ===== -->
     <section class="view" id="v-home">
@@ -251,7 +252,6 @@ td.num.sorted{color:var(--amber)}
         <h3>다가오는 일정 <span style="font-weight:400;color:var(--dim);font-size:11px">· 30일 이내</span></h3>
         <div class="evlist" id="evNext"></div>
       </div>
-      <div class="quick" id="quick"></div>
       <div class="note" id="feedNote"></div>
     </section>
 
@@ -340,14 +340,19 @@ const LEAGUE_ICON={
 const lgSvg=(k,c)=>`<svg viewBox="0 0 24 24" style="color:${c}" aria-hidden="true">${LEAGUE_ICON[k]}</svg>`;
 
 // ===== 라우팅 =====
-const VIEWS=["home","card","type","raid","dmax","pvp"];
+const VIEWS=["home","card","type","raid","dmax","pvp"], TIER_VIEWS=["raid","dmax","pvp"];
+let LAST_TIER="raid";
 function show(){
-  let v=location.hash.slice(1); if(!VIEWS.includes(v)) v="home";
+  let v=location.hash.slice(1); if(v==="tier") v=LAST_TIER; if(!VIEWS.includes(v)) v="card";
+  if(TIER_VIEWS.includes(v)) LAST_TIER=v;
   VIEWS.forEach(x=>$("#v-"+x).classList.toggle("on",x===v));
-  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.go===v));
+  const isTier=TIER_VIEWS.includes(v);
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.go===v||(isTier&&b.dataset.go==="tier")));
+  $("#subnav").style.display=isTier?"":"none";
+  document.querySelectorAll("#subnav .tab").forEach(b=>b.classList.toggle("on",b.dataset.go===v));
   window.scrollTo(0,0);
 }
-function go(v){ if(location.hash.slice(1)===v) show(); else location.hash=v; }
+function go(v){ if(v==="tier") v=LAST_TIER; if(location.hash.slice(1)===v) show(); else location.hash=v; }
 document.addEventListener("click",e=>{
   const g=e.target.closest("[data-go]"); if(g){ go(g.dataset.go); return; }
   const p=e.target.closest("[data-poke]"); if(p){ openCard(p.dataset.poke); go("card"); }
@@ -426,11 +431,7 @@ function renderHome(){
 // 일정 속 포켓몬 이름 → 카드 링크
 const pokeLinks=arr=>arr.filter(n=>NAME2ID[n]).map(n=>`<a data-poke="${esc(NAME2ID[n])}">${esc(n)}</a>`).join(" · ");
 
-$("#quick").innerHTML=[["card","카드 검색",'<rect x="4" y="3" width="16" height="18" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="7" y="6" width="5" height="6" rx="1" fill="currentColor"/><path d="M14 7h3M14 10h3M7 15h10M7 18h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'],
- ["type","상성표",'<rect x="3" y="3" width="8" height="8" rx="1.5" fill="currentColor"/><rect x="13" y="13" width="8" height="8" rx="1.5" fill="currentColor"/><path d="M13 7h8M3 17h8" stroke="currentColor" stroke-width="2"/>'],
- ["raid","레이드",'<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/>'],
- ["dmax","다이맥스",'<path d="M12 3l7 8h-4v10H9V11H5z" fill="currentColor"/>'],
- ["pvp","배틀리그",LEAGUE_ICON.master]].map(([k,t,ic])=>`<button data-go="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${ic}</svg>${t}</button>`).join("");
+
 
 // ===== 카드 검색 =====
 const norm=s=>s.toLowerCase().replace(/\s+/g,"");
@@ -529,15 +530,15 @@ const NOTE_PVP=`티어는 리그별 <b>순위 개수 상한</b>으로만 정해�
  <b>점수</b> = PvPoke 종합 점수 (모든 상대·실드 상황 대전 시뮬레이션 결과) · <b>스탯곱</b> = 공격×방어×체력 ÷ 1000 (내구 지표) · <b>레이팅</b> = PvPoke 대전 레이팅<br>
  기술은 PvPoke 추천 조합이에요. 리그별 상위 40위까지 표시해요.`;
 const BOARDS={
- raid:{ title:"레이드 티어리스트 · 공격 타입", sels:()=>typeSels(k=>DEX.raid[k]?.length), tabs:[["all","메가·그림자 포함"],["base","기본만"]],
+ raid:{ title:"공격 타입 선택", sels:()=>typeSels(k=>DEX.raid[k]?.length), tabs:[["all","메가·그림자 포함"],["base","기본만"]],
    cols:[["er","ER",1],["dps","DPS",1],["tdo","TDO",0]], tierCol:"er",
    pick:"위에서 포켓몬 타입을 골라 주세요.", rows:(s,t)=>(DEX.raid[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>`${TN[s]} 타입 공격자`,
    st:{sel:null,tab:"all",sort:"er"}, note:NOTE_RAID },
- dmax:{ title:"다이맥스 티어리스트 · 맥스기 타입", sels:()=>typeSels(k=>DEX.dmax[k]?.length), tabs:[["all","거다이맥스 포함"],["base","다이맥스만"]],
+ dmax:{ title:"맥스기 타입 선택", sels:()=>typeSels(k=>DEX.dmax[k]?.length), tabs:[["all","거다이맥스 포함"],["base","다이맥스만"]],
    cols:[["score","점수",1],["max","맥스딜",0],["fdps","게이지",1],["bulk","내구",0]], tierCol:"score",
    pick:"위에서 포켓몬 타입(맥스기 타입)을 골라 주세요.", rows:(s,t)=>(DEX.dmax[s]||[]).filter(r=>t!=="base"||!r.tg.includes("g")), head:s=>`맥스${TN[s]} 공격자`,
    st:{sel:null,tab:"all",sort:"score"}, note:NOTE_DMAX },
- pvp:{ title:"배틀리그 티어리스트 · 리그", sels:()=>LEAGUES.map(([k,n,c])=>({k,n,c,icon:lgSvg(k,c)})), tabs:[["all","그림자 포함"],["base","기본만"]],
+ pvp:{ title:"리그 선택", sels:()=>LEAGUES.map(([k,n,c])=>({k,n,c,icon:lgSvg(k,c)})), tabs:[["all","그림자 포함"],["base","기본만"]],
    cols:[["score","점수",1],["sp","스탯곱",0],["rating","레이팅",0]], tierCol:"score",
    pick:"위에서 리그를 골라 주세요.", rows:(s,t)=>(DEX.pvp[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>`${LN[s]} 순위`,
    st:{sel:null,tab:"all",sort:"score"}, note:NOTE_PVP, noPct:true }
