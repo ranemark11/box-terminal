@@ -179,7 +179,7 @@ tr td:last-child{border-radius:0 9px 9px 0}
 .nm a{color:inherit;text-decoration:none;cursor:pointer}
 .mv{font-size:10.5px;color:var(--dim);margin-top:2px}
 .tag{display:inline-block;font-size:9.5px;padding:1px 4px;border-radius:4px;margin-left:3px;vertical-align:1px;font-weight:700}
-.tag.m{background:#7a5cff;color:#fff}.tag.s{background:#3a1650;color:#e2a8ff;border:1px solid #9a4dd0}.tag.g{background:#c2185b;color:#fff}
+.tag.m{background:#7a5cff;color:#fff}.tag.p{background:#ffd36b;color:#1b1500}.tag.s{background:#3a1650;color:#e2a8ff;border:1px solid #9a4dd0}.tag.g{background:#c2185b;color:#fff}
 td.num{text-align:right;font-family:VT323,monospace;font-size:19px;white-space:nowrap}
 td.num .p{display:block;font-size:12px;color:var(--dim);line-height:1}
 td.num.sorted{color:var(--amber)}
@@ -638,7 +638,7 @@ function renderBoard(id){
   const top={}; C.cols.forEach(([k])=>top[k]=Math.max(...rows.map(r=>r[k]??0)));
   rows.sort((a,b)=>(b[st.sort]??-1)-(a[st.sort]??-1));
   tb.innerHTML=rows.map((r,i)=>{
-    const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"");
+    const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?'<span class="tag p">+기술</span>':"");
     return `<tr style="--tc:${c}"><td class="rank">${i+1}</td>
       <td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></div></div></td>
       ${C.cols.map(([k,,d])=>r[k]==null?`<td class="num">—</td>`:`<td class="num${st.sort===k?" sorted":""}">${(+r[k]).toFixed(d)}<span class="p">${(r[k]/top[k]*100).toFixed(0)}%</span></td>`).join("")}
@@ -691,7 +691,7 @@ function renderType(){
     const strong=atk.filter(a=>a.x>=1.5);
     const chip=k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`;
     const group=(label,list)=>`<div class="mrow"><span class="ml">${label}</span><span class="mc">${list.length?list.map(a=>chip(a.k)).join(""):'<span class="none">없음</span>'}</span></div>`;
-    const tags=r=>(r.tg.includes("m")?'<span class="tag m">M</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G</span>':"");
+    const tags=r=>(r.tg.includes("m")?'<span class="tag m">M</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G</span>':"")+(r.tg.includes("p")?'<span class="tag p">+</span>':"");
     // 딜러: 약점 타입별 상위 공격자
     const recs=strong.map(({k})=>{
       const rows=tieredList(TMODE,k).filter(r=>r._t).slice(0,6);
@@ -788,7 +788,7 @@ function renderBoss(view){
     body=`${view==="dmax"&&role==="tank"?`<div class="seg gopt"><button data-g="0" class="${st.gauge?"":"on"}">내구만</button><button data-g="1" class="${st.gauge?"on":""}">게이지 반영</button></div>`:""}
       <div class="sec">${label} · 상위 ${list.length}</div>
       <table><thead><tr><th>#</th><th>포켓몬 / 기술</th><th class="num">${col}</th><th style="text-align:center">티어</th></tr></thead><tbody>${list.map((r,i)=>{
-        const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"");
+        const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?'<span class="tag p">+기술</span>':"");
         return `<tr style="--tc:${r.mt?TC[r.mt]:"#5aa8ff"}"><td class="rank">${i+1}</td><td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></div></div></td>
           <td class="num sorted">${(+r.v).toFixed(view==="dmax"&&role==="tank"&&!st.gauge?0:1)}<span class="p">${(r.v/top*100).toFixed(0)}%</span></td><td class="tier">${TB(r._t)}</td></tr>`;}).join("")}</tbody></table>`;
   }

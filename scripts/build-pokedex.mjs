@@ -109,8 +109,17 @@ async function main() {
   const pve = {};      // moveId(PvPoke 형식) -> {type, power, energy, dur}
   const pmPokemon = {}; // 폼 키 -> pokemonSettings
   const breadKeys = new Set();
+  const plusPve = {}; // 메가 speciesId -> 플러스 기술 레이드 수치
   for (const t of pm) {
     const d = t.data || {};
+    const vm = t.templateId.match(/^VM_MOVE_TEMP_EVOLUTION_MEGA(?:_([XY]))?_V\d+_POKEMON_(\w+)$/);
+    if (vm && d.moveSettings) {
+      const ms = d.moveSettings;
+      plusPve[vm[2].toLowerCase() + "_mega" + (vm[1] ? "_" + vm[1].toLowerCase() : "")] = {
+        type: (ms.pokemonType || "").replace("POKEMON_TYPE_", "").toLowerCase(),
+        power: ms.power || 0, energy: Math.abs(ms.energyDelta || 0), dur: (ms.durationMs || 1000) / 1000 };
+      continue;
+    }
     if (d.moveSettings) {
       const ms = d.moveSettings;
       let id = typeof ms.movementId === "string" ? ms.movementId : t.templateId.replace(/^V\d+_MOVE_/, "");
@@ -176,6 +185,7 @@ async function main() {
   // ---- PvP 기술 (PvPoke) ----
   const pvpMove = Object.fromEntries((gm.moves || []).map(m => [m.moveId, m]));
   const moveKo = id => {
+    if (/_PLUS$/.test(id)) return moveKo(id.replace(/_PLUS$/, "")) + "+";
     const m = pvpMove[id];
     const base = id.replace(/^(HIDDEN_POWER|WEATHER_BALL|TECHNO_BLAST|AURA_WHEEL|REVELATION_DANCE|MULTI_ATTACK)_.*/, "$1");
     const ident = base.toLowerCase().replace(/_/g, "-").replace("futuresight", "future-sight").replace("vice-grip", "vise-grip");
@@ -252,21 +262,34 @@ async function main() {
   const mvName = (p, id) => moveKo(id) + (elite(p).has(id) ? "*" : "");
   const raid = Object.fromEntries(TYPES.map(t => [t, []]));
   let missingPve = new Set();
+  const plusUsed = {};
   for (const p of mons) {
     const shadow = isShadow(p);
     const card = cards[baseIdOf(p)]; if (!card) continue;
+    // 메가 전용 플러스 기술 (PvPoke extraChargedMoves + 게임 데이터 레이드 수치가 둘 다 있을 때만)
+    const plusId = isMega(p) && (p.extraChargedMoves || []).find(m => /_PLUS$/.test(m) && plusPve[p.speciesId]);
+    if (plusId) { pve[plusId] = plusPve[p.speciesId]; plusUsed[p.speciesId] = plusId; }
     for (const t of TYPES) {
       const fs = (p.fastMoves || []).filter(m => moveType(m) === t);
-      const cs = (p.chargedMoves || []).filter(m => moveType(m) === t);
-      let best = null;
-      for (const f of fs) for (const c of cs) {
-        if (!pve[f]) missingPve.add(f); if (!pve[c]) missingPve.add(c);
-        const r = raidCalc(p, f, c, shadow); if (r && (!best || r.er > best.er)) best = { ...r, f, c };
-      }
-      if (best) raid[t].push({ id: card.id, n: isMega(p) ? koName(p) : card.ko, tg: [isMega(p) ? "m" : "", shadow ? "s" : ""].filter(Boolean),
+      const pick = cs => { let best = null;
+        for (const f of fs) for (const c of cs) {
+          if (!pve[f]) missingPve.add(f); if (!pve[c]) missingPve.add(c);
+          const r = raidCalc(p, f, c, shadow); if (r && (!best || r.er > best.er)) best = { ...r, f, c };
+        } return best; };
+      const row = (best, plus) => ({ id: card.id, n: isMega(p) ? koName(p) : card.ko,
+        tg: [isMega(p) ? "m" : "", shadow ? "s" : "", plus ? "p" : ""].filter(Boolean),
         mv: `${mvName(p, best.f)} · ${mvName(p, best.c)}`, er: +best.er.toFixed(2), dps: +best.dps.toFixed(2), tdo: +best.tdo.toFixed(1) });
+      const cs = (p.chargedMoves || []).filter(m => moveType(m) === t);
+      const best = pick(cs);
+      if (best) raid[t].push(row(best, false));
+      if (plusId && plusPve[p.speciesId].type === t) {
+        const bp = pick([...cs, plusId]);
+        if (bp && bp.c === plusId) raid[t].push(row(bp, true));
+      }
     }
   }
+  report.counts.plusMoves = plusUsed;
+  report.counts.plusMissingRaidData = (gm.pokemon || []).filter(p => isMega(p) && (p.extraChargedMoves || []).some(m => /_PLUS$/.test(m)) && !plusPve[p.speciesId]).map(p => p.speciesId);
   if (missingPve.size) warn(`PvE 수치 없는 기술 ${missingPve.size}개: ${[...missingPve].slice(0, 30).join(", ")}`);
 
   // ---- 다이맥스 ----
@@ -349,7 +372,7 @@ async function main() {
       if (!ex) arr.push(e); else if (ORDER[e.t] < ORDER[ex.t] || (e.t === ex.t && e.p > ex.p)) Object.assign(ex, e);
     });
   }
-  attach("raid", raid, k => TYPE_KO[k], r => r.tg.includes("m") ? r.n : r.tg.includes("s") ? "그림자" : "일반");
+  attach("raid", raid, k => TYPE_KO[k], r => r.tg.includes("m") ? r.n + (r.tg.includes("p") ? " (플러스 기술)" : "") : r.tg.includes("s") ? "그림자" : "일반");
   attach("dmax", dmax, k => TYPE_KO[k], r => r.tg.includes("g") ? "거다이맥스" : "다이맥스");
   attach("pvp", pvp, k => LEAGUES.find(l => l[0] === k)[2], (r, k) => LEAGUES.find(l => l[0] === k)[2]);
   for (const c of Object.values(cards)) for (const m in c.tiers) for (const side in c.tiers[m])
