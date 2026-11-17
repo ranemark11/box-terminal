@@ -27,6 +27,8 @@ button{font:inherit;color:inherit}
 .vents i{width:18px;height:4px;border-radius:2px;background:var(--bezel-lo);box-shadow:inset 0 1px 1px rgba(0,0,0,.6)}
 .nav{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:0 2px 10px}
 .subnav{margin:0 0 12px}
+.roles{margin:0 0 10px}
+.gopt{margin:-2px 0 10px}
 .nav button{appearance:none;border:0;border-radius:8px;padding:7px 0 6px;background:var(--bezel-lo);color:#8a93a8;font-size:11px;cursor:pointer;white-space:nowrap;
   box-shadow:inset 0 -2px 0 rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.05)}
 .nav button.on{color:#141720;background:#cfd6e6;box-shadow:inset 0 2px 0 rgba(0,0,0,.25)}
@@ -529,15 +531,45 @@ const NOTE_DMAX=`맥스기 타입은 <b>노말기 타입</b>을 따라가요. �
 const NOTE_PVP=`티어는 리그별 <b>순위 개수 상한</b>으로만 정해요 (PvPoke 점수는 상위권이 촘촘해서 % 조건을 쓰지 않아요).<br>
  <b>점수</b> = PvPoke 종합 점수 (모든 상대·실드 상황 대전 시뮬레이션 결과) · <b>스탯곱</b> = 공격×방어×체력 ÷ 1000 (내구 지표) · <b>레이팅</b> = PvPoke 대전 레이팅<br>
  기술은 PvPoke 추천 조합이에요. 리그별 상위 40위까지 표시해요.`;
+// 다이맥스 탱커: 다이맥스 가능 포켓몬(최종진화) 한 줄씩, 내구 = 체력×방어/100, 게이지 = 가장 빠른 노말기 DPS
+let TANK_POOL=null;
+function dmaxTankPool(){
+  if(TANK_POOL) return TANK_POOL;
+  const m={};
+  for(const rows of Object.values(DEX.dmax)) for(const r of rows){
+    const e=(m[r.id]||={id:r.id,n:CARDS[r.id]?.ko||r.n,d:false,g:false,bulk:r.bulk,fdps:0,fast:""});
+    if(r.tg.includes("g")) e.g=true; else e.d=true;
+    if(r.fdps>e.fdps){ e.fdps=r.fdps; e.fast=r.mv.split(" → ")[0]; }
+  }
+  return TANK_POOL=Object.values(m);
+}
+// 상대 공격 타입 T를 맞을 때: 반감이면 내구에 1/배율 가중치 (GO 배율 그대로)
+function dmaxTankRows(T,tab,gauge){
+  return dmaxTankPool().filter(e=>tab!=="base"||e.d).map(e=>{
+    const x=eff(T,CARDS[e.id]?.types||[]), eb=Math.round(e.bulk/x);
+    const lab=x<0.6?"이중반감":x<0.99?"반감":x>2.5?"이중약점":x>1.5?"약점":"보통";
+    const onlyG=e.g&&!e.d;
+    const score=gauge?+Math.pow(eb**3*e.fdps,0.25).toFixed(2):eb;
+    // 티어 판정용(tr): 내구는 곱셈값이라 격차가 커서 제곱근으로 완화 (순위는 그대로)
+    return {id:e.id, n:(onlyG?"거다이맥스 ":"")+e.n, tg:onlyG?["g"]:[], mv:`${lab} · ${e.fast}`, eb, fdps:e.fdps, score, tr:Math.sqrt(score)};
+  });
+}
 const BOARDS={
  raid:{ title:"공격 타입 선택", sels:()=>typeSels(k=>DEX.raid[k]?.length), tabs:[["all","메가·그림자 포함"],["base","기본만"]],
    cols:[["er","ER",1],["dps","DPS",1],["tdo","TDO",0]], tierCol:"er",
    pick:"위에서 포켓몬 타입을 골라 주세요.", rows:(s,t)=>(DEX.raid[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>`${TN[s]} 타입 공격자`,
    st:{sel:null,tab:"all",sort:"er"}, note:NOTE_RAID },
- dmax:{ title:"맥스기 타입 선택", sels:()=>typeSels(k=>DEX.dmax[k]?.length), tabs:[["all","거다이맥스 포함"],["base","다이맥스만"]],
-   cols:[["score","점수",1],["max","맥스딜",0],["fdps","게이지",1],["bulk","내구",0]], tierCol:"score",
-   pick:"위에서 포켓몬 타입(맥스기 타입)을 골라 주세요.", rows:(s,t)=>(DEX.dmax[s]||[]).filter(r=>t!=="base"||!r.tg.includes("g")), head:s=>`맥스${TN[s]} 공격자`,
-   st:{sel:null,tab:"all",sort:"score"}, note:NOTE_DMAX },
+ dmax:{ roles:[["tank","다이맥스 탱커"],["deal","다이맥스 딜러"]],
+   st:{role:"tank",gauge:false,sel:null,tab:"all",sort:"eb"}, note:NOTE_DMAX,
+   cfg:st=>st.role==="deal"?{
+     title:"맥스기 타입 선택", sels:()=>typeSels(k=>DEX.dmax[k]?.length), tabs:[["all","거다이맥스 포함"],["base","다이맥스만"]],
+     cols:[["score","점수",1],["max","맥스딜",0],["fdps","게이지",1],["bulk","내구",0]], tierCol:"score",
+     pick:"위에서 포켓몬 타입(맥스기 타입)을 골라 주세요.", rows:(s,t)=>(DEX.dmax[s]||[]).filter(r=>t!=="base"||!r.tg.includes("g")), head:s=>`맥스${TN[s]} 딜러`
+   }:{
+     title:"상대 공격 타입 선택", sels:()=>typeSels(), tabs:[["all","거다이맥스 포함"],["base","다이맥스만"]],
+     cols:st.gauge?[["score","점수",1],["eb","내구",0],["fdps","게이지",1]]:[["eb","내구",0],["fdps","게이지",1]], tierCol:st.gauge?"score":"eb", tierKey:"tr",
+     pick:"위에서 상대가 쓰는 공격 타입을 골라 주세요.", rows:(s,t)=>dmaxTankRows(s,t,st.gauge), head:s=>`${TN[s]} 공격을 버티는 탱커`, gaugeOpt:true
+   } },
  pvp:{ title:"리그 선택", sels:()=>LEAGUES.map(([k,n,c])=>({k,n,c,icon:lgSvg(k,c)})), tabs:[["all","그림자 포함"],["base","기본만"]],
    cols:[["score","점수",1],["sp","스탯곱",0],["rating","레이팅",0]], tierCol:"score",
    pick:"위에서 리그를 골라 주세요.", rows:(s,t)=>(DEX.pvp[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>`${LN[s]} 순위`,
@@ -546,46 +578,56 @@ const BOARDS={
 function renderBoard(id){
   const B=BOARDS[id], st=B.st, root=$("#v-"+id);
   if(!DEX){ root.innerHTML=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`; return; }
-  if(!root.dataset.ready){
-    const sels=B.sels();
-    root.innerHTML=`<div class="label">&gt; ${B.title}</div><div class="sels${sels.length===3?" three":""}"></div>
-      <div class="pickMsg empty">${B.pick}</div>
+  const C=B.cfg?B.cfg(st):B;
+  if(!C.cols.some(c=>c[0]===st.sort)) st.sort=C.tierCol;
+  const key=id+":"+(st.role||"")+":"+(st.gauge?1:0);
+  if(root.dataset.ready!==key){
+    const sels=C.sels();
+    root.innerHTML=`${B.roles?`<div class="tabs roles">${B.roles.map(([k,l])=>`<button class="tab" data-role="${k}">${l}</button>`).join("")}</div>`:""}
+      <div class="label">&gt; ${C.title}</div><div class="sels${sels.length===3?" three":""}"></div>
+      <div class="pickMsg empty">${C.pick}</div>
       <div class="boardBody"><div class="head"></div>
-      ${B.tabs?`<div class="tabs">${B.tabs.map(([k,l])=>`<button class="tab" data-tab="${k}">${l}</button>`).join("")}</div>`:""}
-      <table><thead><tr><th>#</th><th>포켓몬 / 기술</th>${B.cols.map(([k,l])=>`<th class="num"><button data-k="${k}">${l}</button></th>`).join("")}<th style="text-align:center">티어</th></tr></thead><tbody></tbody></table>
+      ${C.tabs?`<div class="tabs">${C.tabs.map(([k,l])=>`<button class="tab" data-tab="${k}">${l}</button>`).join("")}</div>`:""}
+      ${C.gaugeOpt?`<div class="seg gopt"><button data-g="0">내구만</button><button data-g="1">게이지 반영</button></div>`:""}
+      <table><thead><tr><th>#</th><th>포켓몬 / 기술</th>${C.cols.map(([k,l])=>`<th class="num"><button data-k="${k}">${l}</button></th>`).join("")}<th style="text-align:center">티어</th></tr></thead><tbody></tbody></table>
       <div class="emptyBox"></div></div>
       <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
     root.querySelector(".sels").addEventListener("click",e=>{const b=e.target.closest("[data-s]"); if(b){st.sel=b.dataset.s; save(); renderBoard(id);}});
-    root.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{st.tab=b.dataset.tab; save(); renderBoard(id);});
+    root.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{st.tab=b.dataset.tab; save(); renderBoard(id);});
+    root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ if(st.role!==b.dataset.role){ st.role=b.dataset.role; st.sel=null; save(); renderBoard(id);} });
+    root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{st.gauge=b.dataset.g==="1"; save(); renderBoard(id);});
     root.querySelectorAll("th button").forEach(b=>b.onclick=()=>{st.sort=b.dataset.k; save(); renderBoard(id);});
-    root.dataset.ready=1;
+    root.dataset.ready=key;
   }
-  const sels=B.sels(), sel=sels.find(s=>s.k===st.sel);
+  root.querySelectorAll("[data-role]").forEach(b=>b.classList.toggle("on",b.dataset.role===st.role));
+  root.querySelectorAll("[data-g]").forEach(b=>b.classList.toggle("on",(b.dataset.g==="1")===!!st.gauge));
+  const sels=C.sels(), sel=sels.find(s=>s.k===st.sel);
   root.querySelector(".sels").innerHTML=sels.map(s=>`<button class="sbtn${s.k===st.sel?" on":""}${s.off?" off":""}" style="--c:${s.c}" data-s="${s.k}">${s.icon}<span>${s.n}</span></button>`).join("");
   root.querySelector(".pickMsg").style.display=sel?"none":"";
   root.querySelector(".boardBody").style.display=sel?"":"none";
   if(!sel) return;
   const c=sel.c;
-  const rows=assignTiers(B.rows(st.sel,st.tab).map(r=>({...r})).sort((a,b)=>b[B.tierCol]-a[B.tierCol]),B.tierCol,!B.noPct);
+  const tk=C.tierKey||C.tierCol;
+  const rows=assignTiers(C.rows(st.sel,st.tab).map(r=>({...r})).sort((a,b)=>b[tk]-a[tk]),tk,!C.noPct);
   const head=root.querySelector(".head"); head.style.setProperty("--c",c);
-  head.innerHTML=`<div class="ico">${sel.icon}</div><h2>${B.head(st.sel)}</h2><div class="cnt">${rows.length} 마리</div>`;
-  root.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===st.tab));
-  root.querySelectorAll("th button").forEach(b=>{const on=b.dataset.k===st.sort; b.classList.toggle("on",on); b.textContent=B.cols.find(x=>x[0]===b.dataset.k)[1]+(on?" ▼":"");});
+  head.innerHTML=`<div class="ico">${sel.icon}</div><h2>${C.head(st.sel)}</h2><div class="cnt">${rows.length} 마리</div>`;
+  root.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("on",b.dataset.tab===st.tab));
+  root.querySelectorAll("th button").forEach(b=>{const on=b.dataset.k===st.sort; b.classList.toggle("on",on); b.textContent=C.cols.find(x=>x[0]===b.dataset.k)[1]+(on?" ▼":"");});
   const tb=root.querySelector("tbody"), eb=root.querySelector(".emptyBox");
   if(!rows.length){ tb.innerHTML=""; eb.innerHTML=`<div class="empty">이 타입은 아직 해당 포켓몬이 없어요.</div>`; return; }
   eb.innerHTML="";
-  const top={}; B.cols.forEach(([k])=>top[k]=Math.max(...rows.map(r=>r[k]??0)));
+  const top={}; C.cols.forEach(([k])=>top[k]=Math.max(...rows.map(r=>r[k]??0)));
   rows.sort((a,b)=>(b[st.sort]??-1)-(a[st.sort]??-1));
   tb.innerHTML=rows.map((r,i)=>{
     const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"");
     return `<tr style="--tc:${c}"><td class="rank">${i+1}</td>
       <td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></div></div></td>
-      ${B.cols.map(([k,,d])=>r[k]==null?`<td class="num">—</td>`:`<td class="num${st.sort===k?" sorted":""}">${(+r[k]).toFixed(d)}<span class="p">${(r[k]/top[k]*100).toFixed(0)}%</span></td>`).join("")}
+      ${C.cols.map(([k,,d])=>r[k]==null?`<td class="num">—</td>`:`<td class="num${st.sort===k?" sorted":""}">${(+r[k]).toFixed(d)}<span class="p">${(r[k]/top[k]*100).toFixed(0)}%</span></td>`).join("")}
       <td class="tier">${TB(r._t)}</td></tr>`;
   }).join("");
 }
-function save(){ try{ const o={}; for(const k of ["raid","dmax","pvp"]){ const {tab,sort}=BOARDS[k].st; o[k]={tab,sort}; } localStorage.setItem("boxterm4",JSON.stringify(o)); }catch(e){} }
-try{ const s=JSON.parse(localStorage.getItem("boxterm4")||"null"); if(s) for(const k in s){ const {tab,sort}=s[k]||{}; if(tab) BOARDS[k].st.tab=tab; if(sort) BOARDS[k].st.sort=sort; } }catch(e){}
+function save(){ try{ const o={}; for(const k of ["raid","dmax","pvp"]){ const {tab,sort,role,gauge}=BOARDS[k].st; o[k]={tab,sort,role,gauge}; } localStorage.setItem("boxterm4",JSON.stringify(o)); }catch(e){} }
+try{ const s=JSON.parse(localStorage.getItem("boxterm4")||"null"); if(s) for(const k in s){ const {tab,sort,role,gauge}=s[k]||{}; const st=BOARDS[k].st; if(tab) st.tab=tab; if(sort) st.sort=sort; if(role&&k==="dmax") st.role=role; if(gauge!=null&&k==="dmax") st.gauge=!!gauge; } }catch(e){}
 
 // ===== 상성표 =====
 // 포켓몬고 상성 배율: 효과굉장 1.6 / 별로 0.625 / 효과없음 0.390625
@@ -618,7 +660,7 @@ function tieredList(mode,type){ // 보드 "전체" 탭과 같은 티어
   const src=mode==="raid"?DEX.raid[type]:DEX.dmax[type], m=mode==="raid"?"er":"score";
   return TIER_CACHE[k]=assignTiers((src||[]).map(r=>({...r})).sort((a,b)=>b[m]-a[m]),m);
 }
-function openBoard(mode,type){ const B=BOARDS[mode]; B.st.sel=type; B.st.tab="all"; save(); renderBoard(mode); go(mode); }
+function openBoard(mode,type){ const B=BOARDS[mode]; if(mode==="dmax") B.st.role="deal"; B.st.sel=type; B.st.tab="all"; save(); renderBoard(mode); go(mode); }
 function renderType(){
   const root=$("#v-type");
   const sels=TYPES.map(([k,n,c])=>{ const i=OPP.indexOf(k); return `<button class="sbtn${i>=0?" pick":""}" style="--c:${c}" data-t="${k}">${i>=0?`<span class="ord">${i+1}</span>`:""}${svg(k)}<span>${n}</span></button>`; }).join("");
@@ -682,7 +724,7 @@ renderHome(); show();
 ["raid","dmax","pvp"].forEach(renderBoard); renderType();
 $("#cardOut").innerHTML='<div class="empty">도감 데이터를 불러오는 중이에요…</div>';
 fetch("data/pokedex.json").then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }).then(d=>{
-  DEX=d; if(d.tierRule) TIER_RULE=d.tierRule;
+  DEX=d; TANK_POOL=null; if(d.tierRule) TIER_RULE=d.tierRule;
   for(const c of d.cards){ CARDS[c.id]=c; SEARCH.push({id:c.id,ko:c.ko,en:c.en}); if(!NAME2ID[c.ko]) NAME2ID[c.ko]=c.id; }
   suggest(""); openCard(CARDS.pikachu?"pikachu":d.cards[0].id);
   ["raid","dmax","pvp"].forEach(id=>{ $("#v-"+id).dataset.ready=""; renderBoard(id); });
