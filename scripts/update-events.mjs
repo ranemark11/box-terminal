@@ -102,6 +102,13 @@ function fixCat(cat, name) {
 }
 
 // ---------- Gemini (규칙으로 못 바꾼 일정만) ----------
+// 일정 제목에 들어 있는 포켓몬의 공식 한국어 이름을 함께 넘겨 오역 방지
+function glossary(items) {
+  const text = items.map(i => [i.name, ...(i.bosses || [])].join(" ")).join(" ").toLowerCase();
+  const g = {};
+  for (const [en, ko] of Object.entries(EN2KO)) if (en.length > 2 && new RegExp(`\\b${en.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(text)) g[en] = ko;
+  return g;
+}
 async function translate(items) {
   const key = process.env.GEMINI_API_KEY;
   if (!items.length) return {};
@@ -114,7 +121,9 @@ async function translate(items) {
 - title: 짧은 한국어 제목 (고유한 이벤트 이름은 자연스럽게 번역하거나 원문 유지)
 - desc: 핵심 내용 한 줄 (없으면 빈 문자열)
 - pokemon: 일정의 주요 포켓몬 한국어 기본 이름 배열 (메가/그림자 접두어 없이)
+- 아래 "이름표"에 있는 포켓몬은 반드시 이름표의 한국어 이름을 그대로 사용
 - 출력은 JSON 배열만: [{"id":..., "title":..., "desc":..., "pokemon":[...]}]
+이름표: ${JSON.stringify(glossary(items))}
 입력:
 ${JSON.stringify(items)}`;
   const attempts = models.flatMap(m => [m, m]);
