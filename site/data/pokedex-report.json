@@ -1,9 +1,7 @@
 {
- "warnings": [
-  "다이맥스 목록 중 매칭 실패: d:849 Low Key, d:849 Amped, g:849 Low Key, g:849 Amped"
- ],
+ "warnings": [],
  "counts": {
-  "dynamaxPokemon": 158,
+  "dynamaxPokemon": 159,
   "cards": 1075,
   "raidRows": 2330,
   "pvpRows": {
@@ -315,7 +313,7 @@
    },
    {
     "id": "darmanitan_standard",
-    "n": "불비달마(Standard)",
+    "n": "불비달마(노말모드)",
     "tg": [],
     "mv": "불꽃엄니 → 맥스불꽃",
     "score": 182.56,
@@ -356,5 +354,5 @@
    }
   ]
  },
- "bytes": 619802
+ "bytes": 620131
 }
