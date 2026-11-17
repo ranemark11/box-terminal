@@ -368,6 +368,18 @@ async function main() {
     dmSet.set(p.speciesId, { p, d: true, g: false, fixed: { type: mt, name: mname } });
   }
   if (unmatched.length) warn("다이맥스 목록 중 매칭 실패: " + unmatched.join(", "));
+  // 카드에 다이맥스 가능 표시 (진화 전 포함) → 사이트에서 "어떤 포켓몬을 잡아야 하는지" 안내
+  for (const { p } of dmSet.values()) if (cards[p.speciesId]) cards[p.speciesId].dmx = 1;
+  // 일정의 맥스배틀 포켓몬인데 다이맥스 목록에 없는 것 → 경고 (dynamax.json 갱신 필요)
+  try {
+    const ev = JSON.parse(await readFile("site/data/events.json", "utf8"));
+    const list = Array.isArray(ev) ? ev : ev.events || [];
+    const koId = {}; for (const c of Object.values(cards)) { koId[c.ko] ??= c.id; koId[c.ko.replace(/\(.+\)$/, "")] ??= c.id; }
+    const miss = new Set();
+    for (const e of list) if (e[0] === "max") for (const n of e[5] || []) { const id = koId[n] || koId[String(n).replace(/\s/g, "")]; if (id && !cards[id].dmx) miss.add(n); }
+    report.dynamaxNotListed = [...miss];
+    if (miss.size) warn("일정의 맥스배틀 포켓몬 중 다이맥스 목록(dynamax.json)에 없는 것: " + [...miss].join(", "));
+  } catch (e) { warn("일정 확인 생략: " + e.message); }
   for (const { p, d, g: gOK, fixed } of dmSet.values()) {
     const canG = gOK, onlyG = gOK && !d;
     const atk = (p.baseStats.atk + 15) * CPM40, def = (p.baseStats.def + 15) * CPM40, hp = Math.floor((p.baseStats.hp + 15) * CPM40);
