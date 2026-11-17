@@ -35,6 +35,12 @@
 - 사이트 확인: `cd site && python3 -m http.server` + Playwright 스크린샷 (외부 이미지·폰트는 안 뜰 수 있음).
 - JS 문법 확인: `node --check scripts/*.mjs`, index.html은 `<script>` 부분을 `new Function`으로 검사.
 
+## 검색·링크 미리보기
+- index.html `<head>`: description, Open Graph(카카오톡 등 미리보기), twitter 카드, 아이콘.
+  미리보기 제목 "표켓몬고 티어리스트(PYOkemongo)"(표 맞음), 설명 "포켓몬고 정보 사이트", 이미지 = PokeAPI 피카츄 공식 아트워크.
+- `site/robots.txt`, `site/sitemap.xml`. 탭 제목(`<title>`)은 PYOkemongo 유지.
+- 카카오톡은 미리보기를 캐시함 → 바꾼 뒤 예전 모습이면 카카오 개발자 사이트의 OG 캐시 초기화 도구 사용.
+
 ## 데이터 출처
 - PvPoke gamemaster·rankings: 포켓몬 목록, 종족값, 타입, 기술, 진화 가족, 출시 여부, PvP 점수
 - PokeMiners game master: 레이드(PvE) 기술 수치 (`FUTURESIGHT`, `PYROBALL` 등 이름 보정 있음)
