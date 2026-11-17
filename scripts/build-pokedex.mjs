@@ -364,10 +364,11 @@ async function main() {
     const cur = dmSet.get(p.speciesId) || { p, d: false, g: false }; cur[kind] = true; dmSet.set(p.speciesId, cur);
   }
   // 다이맥스는 못 하지만 맥스배틀에 쓰는 포켓몬: 맥스기 타입·이름 고정 (검왕 자시안, 방패왕 자마젠타, 무한다이노)
-  for (const [dex, kw, mt, mname] of dmList.special || []) {
+  // 5번째 값 = 맥스기 위력(최대 레벨). 없으면 일반 맥스기(350). 다이맥스포는 거다이맥스급(450)
+  for (const [dex, kw, mt, mname, power] of dmList.special || []) {
     const p = pick(kw ? [dex, kw] : [dex]);
     if (!p) { unmatched.push("s:" + dex + " " + (kw || "")); continue; }
-    dmSet.set(p.speciesId, { p, d: true, g: false, fixed: { type: mt, name: mname } });
+    dmSet.set(p.speciesId, { p, d: true, g: false, fixed: { type: mt, name: mname, power: power || MAX_POWER } });
   }
   if (unmatched.length) warn("다이맥스 목록 중 매칭 실패: " + unmatched.join(", "));
   // 카드에 다이맥스 가능 표시 (진화 전 포함) → 사이트에서 "어떤 포켓몬을 잡아야 하는지" 안내
@@ -389,7 +390,7 @@ async function main() {
       const F = pve[f]; if (!F) continue;
       const FD = hit(F.power, atk, F.type, p), fdps = FD / F.dur;
       const mType = fixed ? fixed.type : F.type;
-      const max = hit(g ? GMAX_POWER : MAX_POWER, atk, mType, p);
+      const max = hit(g ? GMAX_POWER : fixed ? fixed.power : MAX_POWER, atk, mType, p);
       const row = { id: p.speciesId, n: (g ? "거다이맥스 " : "") + cards[p.speciesId]?.ko, tg: g ? ["g"] : [],
         mv: `${mvName(p, f)} → ${fixed ? fixed.name : "맥스" + (TYPE_KO[F.type] || "")}`, score: max, // 딜러 티어 = 맥스기 한 방 데미지
         max, fdps: +fdps.toFixed(2), bulk: Math.round(hp * def / 100) };
