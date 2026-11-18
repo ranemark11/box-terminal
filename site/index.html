@@ -253,6 +253,13 @@ details[open].mecard summary{margin-bottom:8px}
 .adrow small{color:var(--dim);font-size:11px}
 .adrow span:last-child{white-space:nowrap}
 .tmppw{font-family:VT323,monospace;font-size:34px;letter-spacing:3px;color:var(--amber);background:rgba(0,0,0,.35);border:1px dashed var(--amber);border-radius:10px;padding:6px 10px;margin:6px 0;user-select:all}
+.ulbox{width:min(460px,100%);box-sizing:border-box}
+.ulq{display:block;width:100%;box-sizing:border-box;background:rgba(0,0,0,.3);border:1px solid var(--faint);color:var(--ink);border-radius:10px;padding:9px 11px;font-size:14px;font-family:inherit;margin:0 0 6px}
+button.ulrow{appearance:none;width:100%;background:none;border:0;border-top:1px solid rgba(255,255,255,.06);color:var(--ink);font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.ulrow .ed{color:var(--dim)}
+.ulpg{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:8px 0 4px;font-size:12px;color:var(--dim)}
+.ulpg button{appearance:none;border:1px solid var(--faint);background:none;color:var(--ink);border-radius:999px;padding:4px 11px;font-size:12px;cursor:pointer;font-family:inherit}
+.ulpg button:disabled{opacity:.35;cursor:default}
 .adlog{font-size:11.5px;color:var(--dim);padding:2px 0}
 .upbtn{appearance:none;margin-top:10px;border:0;background:var(--ink);color:#0b2124;font-weight:700;border-radius:999px;padding:8px 16px;font-size:13px;cursor:pointer}
 /* ---- 도감 ---- */
@@ -497,7 +504,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.25</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.26</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1408,10 +1415,9 @@ async function renderAdmin(){
   const ACT={create_user:"계정 추가",login:"로그인",login_fail:"로그인 실패",password_change:"비밀번호 변경",allow_add:"명단 추가",allow_remove:"명단 삭제",reset_password:"비밀번호 초기화",delete_user:"계정 삭제",put_box:"포켓몬 넣기",impersonate:"회원으로 들어가기"};
   const us=d.users.filter(u=>!u.is_admin);
   root.innerHTML=`<div class="mecard"><div class="mehd"><span class="adm">관리자</span> 계정 추가</div>
-      <div class="loginbox"><label>트레이너 코드 (12자리)<input id="alCode" inputmode="numeric" placeholder="1234 5678 9012"></label><div class="err" id="alErr"></div><button class="mebtn main" id="alAdd">계정 만들기</button>
-      <p class="sknote">바로 계정이 생기고 초대 코드가 한 번만 보여요. 복사해서 친구에게 보내면, 친구는 링크를 누르거나 코드를 붙여넣어 바로 시작해요.</p></div></div>
-    <div class="mecard"><div class="mehd">사용자 ${us.length}명</div>
-      ${us.map(u=>`<div class="adrow"><span><b>${fmtCode(u.code)}</b><br><small>${u.must_change?'<span style="color:var(--amber)">첫 로그인 대기</span>':"사용 중"} · 만든 날 ${fmtTime(u.created)} · 저장 ${fmtTime(u.updated)}${u.size?` · ${Math.round(u.size/1024)}KB`:""}</small></span><span><button class="mebtn sm" data-rst="${u.code}">비번 초기화</button> <button class="mebtn danger sm" data-udel="${u.code}">삭제</button></span></div>`).join("")||`<p class="sknote">아직 없어요.</p>`}</div>
+      <div class="loginbox"><label>트레이너 코드 (12자리)<input id="alCode" inputmode="numeric" placeholder="1234 5678 9012"></label><label>이름 (관리용 메모, 회원에게는 안 보여요)<input id="alName" maxlength="30" placeholder="예: 철수" autocomplete="off"></label><div class="err" id="alErr"></div><button class="mebtn main" id="alAdd">계정 만들기</button>
+      <p class="sknote">바로 계정이 생기고 초대 코드가 한 번만 보여요. 복사해서 친구에게 보내면, 친구는 링크를 누르거나 코드를 붙여넣어 바로 시작해요.</p>
+      <button class="mebtn" id="alList" style="margin-top:4px">사용자 리스트 (${us.length}명)</button></div></div>
     <div class="mecard"><div class="mehd"><span class="adm">관리자</span> 회원 포켓몬 넣기</div>
       <div class="loginbox"><label>트레이너 코드 (12자리)<input id="abCode" inputmode="numeric" placeholder="1234 5678 9012" autocomplete="off"></label>
       <div class="err" id="abErr"></div><label class="mebtn main" style="text-align:center">Calcy IV CSV 골라서 넣기<input type="file" accept=".csv,text/csv" id="abFile" hidden></label>
@@ -1433,9 +1439,38 @@ async function renderAdmin(){
       confirmBox(`${fmtCode(target)} 회원의 포켓몬 리스트를 이 파일(${bx.rows.length}마리)로 바꿀까요?${bx.miss.length?`<br><small>이름을 못 찾은 ${bx.miss.length}마리는 빠져요: ${esc(bx.miss.slice(0,8).join(", "))}</small>`:""}`,async()=>{
         try{ const j=await api("admin/box",{method:"PUT",body:JSON.stringify({code:target,box:{rows:bx.rows,miss:[],date:bx.date}})}); alertBox(`${fmtCode(target)} 회원에게 포켓몬 ${j.count}마리를 넣었어요.`); re(); }catch(e){ alertBox(e.message); } }); }); };
   root.querySelector("#alAdd").onclick=async()=>{ const code=root.querySelector("#alCode").value.replace(/\D/g,""), err=root.querySelector("#alErr"); if(code.length!==12){ err.textContent="트레이너 코드는 숫자 12자리예요."; return; }
-    try{ const j=await api("admin/create",{method:"POST",body:JSON.stringify({code})}); pwBox(`${fmtCode(code)} 계정을 만들었어요.`,code,j.temp); re(); }catch(e){ err.textContent=e.message; } };
-  root.querySelectorAll("[data-rst]").forEach(b=>b.onclick=()=>confirmBox(`${fmtCode(b.dataset.rst)}의 비밀번호를 초기화할까요?`,async()=>{ try{ const j=await api("admin/reset",{method:"POST",body:JSON.stringify({code:b.dataset.rst})}); pwBox(`${fmtCode(b.dataset.rst)} 비밀번호를 초기화했어요.`,b.dataset.rst,j.temp); re(); }catch(e){ alertBox(e.message); } }));
-  root.querySelectorAll("[data-udel]").forEach(b=>b.onclick=()=>confirmBox(`${fmtCode(b.dataset.udel)} 계정과 저장된 데이터를 모두 지울까요?`,async()=>{ await api("admin/user",{method:"DELETE",body:JSON.stringify({code:b.dataset.udel})}).catch(e=>alertBox(e.message)); re(); }));
+    const name=root.querySelector("#alName").value.trim();
+    try{ const j=await api("admin/create",{method:"POST",body:JSON.stringify({code,name})}); pwBox(`${fmtCode(code)}${name?` (${esc(name)})`:""} 계정을 만들었어요.`,code,j.temp); re(); }catch(e){ err.textContent=e.message; } };
+  root.querySelector("#alList").onclick=()=>userListModal(us,re);
+}
+// 관리자: 사용자 리스트 창 (20명씩, 트레이너 코드·이름 검색) → 누르면 정보 고치기 창
+const ULST={q:"",page:0};
+function userListModal(us,re){
+  const m=document.createElement("div"); m.className="shotmodal"; document.body.appendChild(m);
+  const draw=()=>{ const q=ULST.q.trim().toLowerCase(), qd=/^[\d\s-]+$/.test(q)?q.replace(/\D/g,""):""; // 숫자로만 쓰면 트레이너 코드 검색
+    const list=us.filter(u=>!q||(u.name||"").toLowerCase().includes(q)||(qd&&u.code.includes(qd)));
+    const pages=Math.max(1,Math.ceil(list.length/20)); if(ULST.page>=pages) ULST.page=pages-1;
+    const rows=list.slice(ULST.page*20,ULST.page*20+20);
+    m.querySelector("#ulBody").innerHTML=(rows.map(u=>`<button class="adrow ulrow" data-uc="${u.code}"><span><b>${fmtCode(u.code)}</b>${u.name?` · ${esc(u.name)}`:' · <span style="color:var(--dim)">이름 없음</span>'}<br><small>${u.must_change?'<span style="color:var(--amber)">첫 로그인 대기</span>':"사용 중"} · 만든 날 ${fmtTime(u.created)} · 저장 ${fmtTime(u.updated)}${u.size?` · ${Math.round(u.size/1024)}KB`:""}</small></span><span class="ed">✎</span></button>`).join("")||`<p class="sknote">${q?"찾는 사용자가 없어요.":"아직 없어요."}</p>`)
+      +`<div class="ulpg"><button data-pg="-1" ${ULST.page?"":"disabled"}>‹ 이전</button><span>${ULST.page+1} / ${pages} · ${list.length}명</span><button data-pg="1" ${ULST.page<pages-1?"":"disabled"}>다음 ›</button></div>`; };
+  m.innerHTML=`<div class="shotbox ulbox"><p><b>사용자 리스트</b></p><input id="ulQ" class="ulq" placeholder="트레이너 코드 또는 이름 검색" autocomplete="off" value="${esc(ULST.q)}"><div id="ulBody"></div><div class="shotbtns"><button data-x>닫기</button></div></div>`;
+  draw();
+  const q=m.querySelector("#ulQ"); q.oninput=()=>{ ULST.q=q.value; ULST.page=0; draw(); };
+  m.onclick=e=>{ if(e.target===m||e.target.closest("[data-x]")){ m.remove(); return; }
+    const pg=e.target.closest("[data-pg]"); if(pg&&!pg.disabled){ ULST.page+=+pg.dataset.pg; draw(); return; }
+    const r=e.target.closest("[data-uc]"); if(r) userEditModal(us.find(u=>u.code===r.dataset.uc),()=>{ m.remove(); re(); }); };
+}
+function userEditModal(u,done){ if(!u) return;
+  const m=document.createElement("div"); m.className="shotmodal"; document.body.appendChild(m);
+  m.innerHTML=`<div class="shotbox ulbox"><p><b>${fmtCode(u.code)}</b></p>
+    <div class="loginbox" style="text-align:left"><label>이름 (관리용 메모, 회원에게는 안 보여요)<input id="ueName" maxlength="30" value="${esc(u.name||"")}" autocomplete="off"></label><div class="err" id="ueErr"></div></div>
+    <p class="sknote" style="text-align:left">${u.must_change?"첫 로그인 대기":"사용 중"} · 만든 날 ${fmtTime(u.created)} · 저장 ${fmtTime(u.updated)}</p>
+    <div class="shotbtns"><button data-save>이름 저장</button><button data-rst>비번 초기화</button><button data-del>계정 삭제</button><button data-x>닫기</button></div></div>`;
+  m.onclick=async e=>{ if(e.target===m||e.target.closest("[data-x]")){ m.remove(); return; }
+    if(e.target.closest("[data-save]")){ const name=m.querySelector("#ueName").value.trim();
+      try{ await api("admin/note",{method:"PUT",body:JSON.stringify({code:u.code,name})}); m.remove(); done(); }catch(err){ m.querySelector("#ueErr").textContent=err.message; } return; }
+    if(e.target.closest("[data-rst]")) confirmBox(`${fmtCode(u.code)}의 비밀번호를 초기화할까요?`,async()=>{ try{ const j=await api("admin/reset",{method:"POST",body:JSON.stringify({code:u.code})}); m.remove(); done(); pwBox(`${fmtCode(u.code)} 비밀번호를 초기화했어요.`,u.code,j.temp); }catch(err){ alertBox(err.message); } });
+    if(e.target.closest("[data-del]")) confirmBox(`${fmtCode(u.code)}${u.name?` (${esc(u.name)})`:""} 계정과 저장된 데이터를 모두 지울까요?`,async()=>{ try{ await api("admin/user",{method:"DELETE",body:JSON.stringify({code:u.code})}); m.remove(); done(); }catch(err){ alertBox(err.message); } }); };
 }
 const INV0=(location.hash.match(/^#invite=(.+)$/)||[])[1]; if(INV0){ try{ history.replaceState(null,"","#me"); }catch(e){} }
 (INV0?useInvite(decodeURIComponent(INV0)).then(ok=>{ if(!ok) throw 0; }).catch(()=>api("me").then(j=>{ setMe(j); go("me"); alertBox("초대 코드가 맞지 않거나 이미 사용됐어요.\n이미 비밀번호를 정했다면 로그인해 주세요."); return syncDown(); })):api("me").then(j=>{ setMe(j); return syncDown(); })).then(()=>{ const v=location.hash.slice(1); if(v.startsWith("box")) renderBox(v); if(v==="me") renderMe(); if(v==="admin") renderAdmin(); if(v==="type") renderType(); if(v==="home") renderHome(); if(v==="intro") renderIntro(); }).catch(()=>{});

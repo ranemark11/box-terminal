@@ -26,6 +26,7 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS boxes (code TEXT PRIMARY KEY, data TEXT NOT NULL, updated INTEGER NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS ip_fails (ip TEXT PRIMARY KEY, count INTEGER NOT NULL, since INTEGER NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS imp_sessions (token_hash TEXT PRIMARY KEY, admin TEXT NOT NULL, expires INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS admin_notes (code TEXT PRIMARY KEY, name TEXT NOT NULL DEFAULT '')`, // 관리자만 보는 회원 이름 메모 (회원에게는 절대 안 보냄)
   `CREATE TABLE IF NOT EXISTS admin_log (ts INTEGER NOT NULL, admin TEXT NOT NULL, action TEXT NOT NULL, target TEXT NOT NULL DEFAULT '', ip TEXT NOT NULL DEFAULT '')`,
 ];
 let schemaReady = false;
@@ -215,7 +216,7 @@ async function api(req, env, path) {
   }
   if (path === "account" && method === "DELETE") { // 탈퇴: 계정·세션·데이터 모두 삭제 (관리자 계정은 탈퇴 불가)
     if (me.is_admin) return fail("관리자 계정은 지울 수 없어요.", 403);
-    for (const t of ["boxes", "sessions", "users"]) await db.prepare(`DELETE FROM ${t} WHERE code = ?`).bind(code).run();
+    for (const t of ["boxes", "sessions", "admin_notes", "users"]) await db.prepare(`DELETE FROM ${t} WHERE code = ?`).bind(code).run();
     return json({ ok: true }, 200, { "set-cookie": setCookie("", 0) });
   }
 
@@ -224,18 +225,20 @@ async function api(req, env, path) {
     if (!me.is_admin) return fail("없는 주소예요.", 404); // 관리자 기능이 있다는 것도 드러내지 않음
     const sub = path.slice(6);
     if (sub === "overview" && method === "GET") {
-      const users = (await db.prepare("SELECT u.code, u.created, u.is_admin, u.must_change, b.updated, length(b.data) AS size FROM users u LEFT JOIN boxes b ON b.code = u.code ORDER BY u.created DESC").all()).results;
+      const users = (await db.prepare("SELECT u.code, u.created, u.is_admin, u.must_change, b.updated, length(b.data) AS size, n.name FROM users u LEFT JOIN boxes b ON b.code = u.code LEFT JOIN admin_notes n ON n.code = u.code ORDER BY u.created DESC").all()).results;
       const logs = (await db.prepare("SELECT ts, action, target, ip FROM admin_log ORDER BY ts DESC LIMIT 30").all()).results;
       return json({ users, logs });
     }
     let b; try { b = await readJson(req); } catch { return fail("잘못된 요청이에요."); }
     const target = String(b.code || "").replace(/\D/g, "");
+    const noteName = String(b.name || "").replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 30);
     if (sub === "create" && method === "POST") { // 계정 바로 만들기: 무작위 첫 비밀번호, 첫 로그인 때 변경 필수
       if (!validCode(target)) return fail("트레이너 코드는 숫자 12자리예요.");
       if (await db.prepare("SELECT 1 FROM users WHERE code = ?").bind(target).first()) return fail("이미 있는 계정이에요.", 409);
       const salt = randBytes(16), temp = tempPw();
       await db.prepare("INSERT INTO users (code, pw_hash, salt, iter, created, must_change) VALUES (?, ?, ?, ?, ?, 1)")
         .bind(target, await pbkdf2(temp, salt, PBKDF2_ITER), b64(salt), PBKDF2_ITER, now()).run();
+      if (noteName) await db.prepare("INSERT OR REPLACE INTO admin_notes (code, name) VALUES (?, ?)").bind(target, noteName).run();
       await log(db, code, "create_user", target, ip);
       return json({ ok: true, temp });
     }
@@ -272,10 +275,17 @@ async function api(req, env, path) {
       const back = cookieOf(req);
       return json2({ code: target, admin: false, mustChange: false, imp: true }, [setCookie(token, IMP_MIN * 60), setCookie(back, ADMIN_SESSION_H * 3600, BACK_COOKIE)]);
     }
+    if (sub === "note" && method === "PUT") { // 관리자 메모(이름) 고치기
+      const u = await db.prepare("SELECT is_admin FROM users WHERE code = ?").bind(target).first();
+      if (!u || u.is_admin) return fail("고칠 수 없는 계정이에요.");
+      if (noteName) await db.prepare("INSERT OR REPLACE INTO admin_notes (code, name) VALUES (?, ?)").bind(target, noteName).run();
+      else await db.prepare("DELETE FROM admin_notes WHERE code = ?").bind(target).run();
+      return json({ ok: true, name: noteName });
+    }
     if (sub === "user" && method === "DELETE") {
       const u = await db.prepare("SELECT is_admin FROM users WHERE code = ?").bind(target).first();
       if (!u || u.is_admin) return fail("지울 수 없는 계정이에요.");
-      for (const t of ["boxes", "sessions", "users"]) await db.prepare(`DELETE FROM ${t} WHERE code = ?`).bind(target).run();
+      for (const t of ["boxes", "sessions", "admin_notes", "users"]) await db.prepare(`DELETE FROM ${t} WHERE code = ?`).bind(target).run();
       await log(db, code, "delete_user", target, ip);
       return json({ ok: true });
     }
