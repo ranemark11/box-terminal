@@ -214,8 +214,14 @@ button.lrow{appearance:none;width:100%;background:none;border:0;border-bottom:1p
 .demo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:54px;background:linear-gradient(rgba(11,20,22,0),#0b1416)}
 .demo::before{content:"예시 화면";display:block;text-align:right;font-size:10px;color:var(--dim);margin-bottom:-4px}
 .tsel{background:#11191c;border:1px solid var(--faint);color:var(--ink);border-radius:8px;padding:4px 6px;font-size:13px;font-family:inherit;margin:0 4px}
-.impbar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:8px;justify-content:space-between;background:#ffd36b;color:#2a1d00;font-size:12.5px;padding:7px 12px;font-weight:700}
-.impbar button{appearance:none;border:0;background:#2a1d00;color:#ffd36b;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.impback{appearance:none;border:1px solid var(--amber);background:none;color:var(--amber);border-radius:999px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.solo{border:1px solid var(--faint);border-radius:12px;padding:9px 11px;margin:10px 0 4px;background:rgba(0,0,0,.22)}
+.solo.ok{border-color:var(--ink)}
+.solo .st{font-size:14px;margin:7px 0 3px}
+.solo .st b{color:var(--amber);font-size:16px}
+.solo.ok .st b{color:var(--ink)}
+.solo small{color:var(--dim);font-size:11px}
+.solo .seg{margin:0}
 .bxsec{font-size:12px;font-weight:700;color:var(--amber);margin:12px 2px 4px}
 .bxopt{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);margin:2px 2px 8px}
 .bxopt input{accent-color:var(--ink)}
@@ -504,7 +510,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.26</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.27</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1168,11 +1174,12 @@ function renderType(){
     const mineBar=!member?"":mine?`<div class="minebar on"><span>내 포켓몬 기준</span><button data-mine="0">‹ 전체 포켓몬으로 보기</button></div>`:`<div class="minebar"><button data-mine="1">내 포켓몬으로 보기 ›</button></div>`;
     let mineHTML="";
     if(mine){ const lab=w=>w<0.6?"이중반감":w<0.99?"반감":w>2.5?"이중약점":w>1.5?"약점":"보통", dq=b=>b.m.dm==="?"&&!SPECIAL_DMAX.includes(b.m.id)?'<span class="q">다이맥스?</span>':"";
+      let soloH=""; if(TMODE==="raid"){ const bb=myRaidBest(opp); soloH=soloHTML(BOSS.id,opp,bb); }
       if(TMODE==="raid") mineHTML=myRaidBest(opp).slice(0,12).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}`,(b.v/top*100).toFixed(0)+"%","최상 대비")).join("");
       else{ const r=myDmaxBest(opp,BOXST.unk);
         mineHTML=role==="deal"?r.deal.slice(0,12).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}${dq(b)}`,Math.round(b.v),"맥스딜")).join("")
           :r.tank.slice(0,12).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>상대 공격 ${lab(b.w)}${dq(b)}`,Math.round(b.v),"내구")).join(""); }
-      mineHTML=`<div class="bxsec">내 포켓몬 상위 12마리</div>`+(mineHTML||`<div class="empty">맞는 포켓몬이 없어요.</div>`)
+      mineHTML=soloH+`<div class="bxsec">내 포켓몬 상위 12마리</div>`+(mineHTML||`<div class="empty">맞는 포켓몬이 없어요.</div>`)
         +(TMODE==="dmax"?`<label class="bxopt"><input type="checkbox" id="tyUnk" ${BOXST.unk?"checked":""}> 다이맥스 여부를 모르는 포켓몬(Calcy "?")도 넣기</label>`:""); }
     body=`<div class="mgrid">
         ${group("이중약점",atk.filter(a=>a.x>=2.5))}
@@ -1206,6 +1213,7 @@ function renderType(){
   root.querySelector(".clr").onclick=()=>{ BOSS.id=null; BOSS.opp=[]; BOSS.q=""; renderType(); };
   root.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{ TMODE=b.dataset.m; saveType(); renderType(); });
   root.querySelectorAll("[data-mine]").forEach(b=>b.onclick=()=>{ if(b.dataset.mine==="1"&&!hasBox()){ alertBox("내 포켓몬 데이터를 먼저 올려 주세요.\n올리기는 내 정보에서만 할 수 있어요."); go("me"); return; } BOSS.mine=b.dataset.mine==="1"; renderType(); });
+  bindSolo(root,renderType);
   const tu=root.querySelector("#tyUnk"); if(tu) tu.onchange=()=>{ BOSS_UNK(tu.checked); };
   root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ st.role=b.dataset.role; save(); renderType(); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
   root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ st.gauge=b.dataset.g==="1"; save(); renderType(); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
@@ -1262,9 +1270,9 @@ function importCalcy(text){
 let BOX=null; try{ BOX=JSON.parse(localStorage.getItem("pyo-box")||"null"); }catch(e){}
 const saveBox=()=>{ try{ localStorage.setItem("pyo-box",JSON.stringify(BOX)); }catch(e){} };
 const BOXST={lg:"great",opp:[],q:"",mode:"raid",dm:"deal3",unk:false,dust:"raid",to:40,minT:"B",cap:"raid"};
-try{ Object.assign(BOXST,JSON.parse(localStorage.getItem("pyo-boxst")||"{}"),{opp:[],q:""}); if("good" in BOXST){ if(BOXST.good===false) BOXST.minT=""; delete BOXST.good; } }catch(e){}
+try{ Object.assign(BOXST,JSON.parse(localStorage.getItem("pyo-boxst")||"{}"),{opp:[],q:"",bid:null}); if("good" in BOXST){ if(BOXST.good===false) BOXST.minT=""; delete BOXST.good; } }catch(e){}
 const TIER_MIN={SS:95,S:88,A:80,B:70,C:55};
-const saveBoxSt=()=>{ try{ const {opp,q,...o}=BOXST; localStorage.setItem("pyo-boxst",JSON.stringify(o)); }catch(e){} };
+const saveBoxSt=()=>{ try{ const {opp,q,bid,...o}=BOXST; localStorage.setItem("pyo-boxst",JSON.stringify(o)); }catch(e){} };
 // 내 포켓몬 능력치 비율 (lv·개체값 바꿔서 계산할 수 있게)
 const ratio=(m,lv=m.lv,a=m.a,d=m.d,h=m.h)=>{ const s=CARDS[m.id].stats, k=cpmAt(lv)/0.7903;
   return {A:(s[0]+a)/(s[0]+15)*k, D:(s[1]+d)/(s[1]+15)*k, H:(s[2]+h)/(s[2]+15)*k}; };
@@ -1304,11 +1312,12 @@ async function syncDown(){ if(!ME||ME.mustChange) return; const j=await api("box
 function setMe(j){ ME=j&&j.code?{code:j.code,admin:!!j.admin,mustChange:!!j.mustChange,imp:!!j.imp}:null; renderImpBar(); const b=$("#acctBtn"); if(b){ const mem=ME&&!ME.mustChange; b.textContent=mem?"회원기능 ▾":"로그인"; if(mem){ b.dataset.menu="member"; delete b.dataset.go; } else { b.dataset.go="me"; delete b.dataset.menu; } } }
 function confirmBox(msg,ok){ const m=document.createElement("div"); m.className="shotmodal"; m.innerHTML=`<div class="shotbox"><p>${msg}</p><div class="shotbtns"><button data-share data-ok>확인</button><button data-x>취소</button></div></div>`; document.body.appendChild(m); m.onclick=e=>{ if(e.target.closest("[data-ok]")){ m.remove(); ok(); } else if(e.target===m||e.target.closest("[data-x]")) m.remove(); }; }
 // 관리자가 회원으로 들어간 동안 화면 위에 띠 + "관리자로 돌아가기"
-function renderImpBar(){ let bar=document.getElementById("impBar");
-  if(!(ME&&ME.imp)){ if(bar) bar.remove(); return; }
-  if(!bar){ bar=document.createElement("div"); bar.id="impBar"; bar.className="impbar"; document.body.prepend(bar); }
-  bar.innerHTML=`<span>관리자로 <b>${fmtCode(ME.code)}</b> 회원 화면을 보는 중</span><button id="impBack">관리자로 돌아가기</button>`;
-  bar.querySelector("#impBack").onclick=async()=>{ try{ const j=await api("unimpersonate",{method:"POST",body:"{}"}); setMe(j); }catch(e){ setMe(null); alertBox(e.message); }
+function renderImpBar(){ const old=document.getElementById("impBar"); if(old) old.remove();
+  const top=document.querySelector(".hdr .top"), vents=top&&top.querySelector(".vents"); if(!top) return; let b=document.getElementById("impBack");
+  if(!(ME&&ME.imp)){ if(b) b.remove(); if(vents) vents.style.display=""; return; }
+  if(vents) vents.style.display="none";
+  if(!b){ b=document.createElement("button"); b.id="impBack"; b.className="impback"; b.textContent="돌아가기"; b.title="관리자 계정으로 돌아가기"; top.appendChild(b); }
+  b.onclick=async()=>{ try{ const j=await api("unimpersonate",{method:"POST",body:"{}"}); setMe(j); }catch(e){ setMe(null); alertBox(e.message); }
     BOX=null; CAPS=[]; try{ localStorage.removeItem("pyo-box"); localStorage.removeItem("pyo-caps"); }catch(e){} if(ME) await syncDown().catch(()=>{}); go(ME&&ME.admin?"admin":"me"); }; }
 const LOGIN_ST={mode:"login"};
 function renderMe(){
@@ -1422,7 +1431,7 @@ async function renderAdmin(){
       <div class="loginbox"><label>트레이너 코드 (12자리)<input id="abCode" inputmode="numeric" placeholder="1234 5678 9012" autocomplete="off"></label>
       <div class="err" id="abErr"></div><label class="mebtn main" style="text-align:center">Calcy IV CSV 골라서 넣기<input type="file" accept=".csv,text/csv" id="abFile" hidden></label>
       <button class="mebtn" id="abImp" style="margin-top:6px">이 회원으로 들어가기</button>
-      <p class="sknote">그 회원의 포켓몬 리스트가 이 파일로 통째로 바뀌어요 (은뚜껑 후보는 그대로). 회원은 내 정보에서 "서버에서 다시 불러오기"를 누르거나 다시 로그인하면 보여요.<br>"이 회원으로 들어가기"는 비밀번호 없이 그 회원 화면으로 60분 동안 들어가요 (비밀번호 바꾸기·탈퇴는 못 해요). 위쪽 띠의 "관리자로 돌아가기"로 돌아와요.</p></div></div>
+      <p class="sknote">그 회원의 포켓몬 리스트가 이 파일로 통째로 바뀌어요 (은뚜껑 후보는 그대로). 회원은 내 정보에서 "서버에서 다시 불러오기"를 누르거나 다시 로그인하면 보여요.<br>"이 회원으로 들어가기"는 비밀번호 없이 그 회원 화면으로 60분 동안 들어가요 (비밀번호 바꾸기·탈퇴는 못 해요). 맨 위 오른쪽 "돌아가기" 버튼으로 돌아와요.</p></div></div>
     <div class="mecard"><div class="mehd">관리 기록 (최근 30개)</div>${d.logs.map(l=>`<div class="adlog">${fmtTime(l.ts)} · ${ACT[l.action]||l.action}${l.target?" · "+fmtCode(l.target):""}${l.ip&&l.ip!=="local"?` · ${esc(l.ip)}`:""}</div>`).join("")||`<p class="sknote">없어요.</p>`}</div>`;
   const re=()=>renderAdmin();
   const abTarget=()=>{ const t=root.querySelector("#abCode").value.replace(/\D/g,""), err=root.querySelector("#abErr"); err.textContent="";
@@ -1492,6 +1501,24 @@ function myDmaxBest(opp,unk,rows=BOX.rows){ const deal=[],tank=[];
     let b=null; for(const x of myDmaxRows(m)){ const v=x.max*r.A*eff(x.t2,opp)/1.6; if(!b||v>b.v) b={...o,x,v}; } if(b) deal.push(b);
     const row=myDmaxRows(m)[0]; if(row){ const worst=Math.max(...opp.map(t=>eff(t,c.types))); tank.push({...o,x:row,v:row.bulk*r.D*r.H/worst,w:worst}); } });
   deal.sort((a,b)=>b.v-a.v); tank.sort((a,b)=>b.v-a.v); return {deal,tank}; }
+// 레이드 솔플 어림 계산: 내 딜러 6마리가 제한 시간 동안 넣는 딜 ÷ 상대 체력 (실수 보정 90%)
+//  실제 DPS = 표의 DPS(상대 방어 180·효과굉장 기준) × 내 공격 비율 × 180/상대 방어 × 상성/1.6
+//  버티는 시간 = 표의 TDO/DPS × 내 방어·체력 비율 ÷ (상대 공격/209 × 상대 기술 상성). 6마리가 다 쓰러지면 15초 뒤 다시 입장
+const RAID_T={1:{n:"1성",hp:600,cpm:0.5974,t:180},3:{n:"3성",hp:3600,cpm:0.73,t:180},5:{n:"5성",hp:15000,cpm:0.79,t:300}};
+const SOLO_EFF=0.9;
+const guessTier=c=>c.evo.length===1&&c.stats[0]+c.stats[1]+c.stats[2]>=600?5:3;
+function soloCalc(bid,opp,best,tk){ const c=CARDS[bid], R=RAID_T[tk], bDef=(c.stats[1]+15)*R.cpm, bAtk=(c.stats[0]+15)*R.cpm;
+  const team=best.slice(0,6).map(b=>{ const r=ratio(b.m), inc=Math.max(...opp.map(o=>eff(o,CARDS[b.m.id].types)));
+    return {dps:b.x.dps*r.A*180/bDef*eff(b.x.t2,opp)/1.6, life:Math.max(1,b.x.tdo/b.x.dps*r.D*r.H/(bAtk/209*inc))}; });
+  let t=0,dmg=0,clear=null; const need=R.hp/SOLO_EFF;
+  outer: while(t<R.t){ for(const m of team){ const dt=Math.min(m.life,R.t-t); if(clear==null&&dmg+m.dps*dt>=need) clear=t+(need-dmg)/m.dps; dmg+=m.dps*dt; t+=dt; if(t>=R.t) break outer; } t+=15; }
+  return {pct:dmg*SOLO_EFF/R.hp*100,clear,R}; }
+function soloHTML(bid,opp,best){ const c=bid&&CARDS[bid]; if(!c||!best.length) return "";
+  const tk=BOXST.rtFor===bid&&RAID_T[BOXST.rt]?BOXST.rt:guessTier(c), o=soloCalc(bid,opp,best,tk), ok=o.clear!=null;
+  return `<div class="solo${ok?" ok":""}"><div class="seg">${Object.entries(RAID_T).map(([k,r])=>`<button data-rt="${k}" data-rtb="${esc(bid)}" class="${+k===+tk?"on":""}">${r.n}</button>`).join("")}</div>
+    <div class="st">${ok?`<b>솔플 가능</b> · 약 ${Math.ceil(o.clear)}초 (제한 ${o.R.t}초)`:`혼자서 약 <b>${o.pct.toFixed(0)}%</b> · ${Math.ceil(100/Math.max(o.pct,1))}명 정도 필요`}</div>
+    <small>${esc(c.ko)} ${o.R.n} 레이드 · 내 딜러 6마리 · 실수 보정 ${SOLO_EFF*100}% 어림값 (날씨·친구 보너스 제외)</small></div>`; }
+function bindSolo(root,re){ root.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{ BOXST.rt=+b.dataset.rt; BOXST.rtFor=b.dataset.rtb; saveBoxSt(); re(); }); }
 const hasBox=()=>!!(ME&&!ME.mustChange&&BOX&&BOX.rows&&BOX.rows.length);
 function boxParty(){
   const st=BOXST, opp=st.opp;
@@ -1505,6 +1532,7 @@ function boxParty(){
     const best=myRaidBest(opp);
     const ideal=bossRaidRows(opp).sort((a,b)=>b.v-a.v)[0]?.v||1;
     res=`<div class="bxsec">레이드 딜러 6마리</div>`+(best.slice(0,6).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}`,(b.v/ideal*100).toFixed(0)+"%","최상 대비")).join("")||`<div class="empty">맞는 포켓몬이 없어요.</div>`);
+    res+=soloHTML(st.bid,opp,best);
     const mg=myMegaBest(opp)[0];
     res+=`<div class="bxsec">메가진화 1마리 (파티에 함께)</div>`+(mg?mRow("M",mg.m,`<b>${esc(mg.x.n)}</b>${mg.x.tg.includes("p")?PTAG:""} · ${ivTxt(mg.m)}<br>${chip(mg.x.t2)} ${esc(mg.x.mv)}`,(mg.v/ideal*100).toFixed(0)+"%","최상 대비"):`<div class="empty">메가진화할 수 있는 포켓몬이 없어요.</div>`);
   }else{
@@ -1654,7 +1682,8 @@ function boxCap(){
 function bindBox(v,root){
   if(v==="boxlist") bindBoxList(root);
   const st=BOXST, re=()=>{ saveBoxSt(); renderBox(v); };
-  root.querySelectorAll("[data-xt]").forEach(b=>b.onclick=()=>{ const k=b.dataset.xt,i=st.opp.indexOf(k); if(i>=0) st.opp.splice(i,1); else { st.opp.push(k); if(st.opp.length>2) st.opp.shift(); } re(); });
+  bindSolo(root,()=>renderBox(v));
+  root.querySelectorAll("[data-xt]").forEach(b=>b.onclick=()=>{ const k=b.dataset.xt,i=st.opp.indexOf(k); st.bid=null; if(i>=0) st.opp.splice(i,1); else { st.opp.push(k); if(st.opp.length>2) st.opp.shift(); } re(); });
   root.querySelectorAll("[data-xm]").forEach(b=>b.onclick=()=>{ st.mode=b.dataset.xm; re(); });
   root.querySelectorAll("[data-xg]").forEach(b=>b.onclick=()=>{ st.lg=b.dataset.xg; re(); });
   root.querySelectorAll("[data-dopen]").forEach(b=>b.onclick=()=>{ const k=b.dataset.dopen; DUST_OPEN.has(k)?DUST_OPEN.delete(k):DUST_OPEN.add(k); renderBox(v); });
@@ -1676,7 +1705,7 @@ function bindBox(v,root){
   const g=root.querySelector("#bxMinT"); if(g) g.onchange=()=>{ st.minT=g.value; re(); };
   const inp=root.querySelector(".xsearch input"), sg=root.querySelector(".xsugg");
   if(inp){ inp.oninput=()=>{ st.q=inp.value; const q=inp.value.trim(); sg.innerHTML=q?findIds(q).slice(0,8).map(i=>`<button class="chip" data-xid="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):""; };
-    const pick=(id,q)=>{ const c=CARDS[id]; if(!c) return; st.q=q??c.ko; st.opp=c.types.slice(0,2); renderBox(v); };
+    const pick=(id,q)=>{ const c=CARDS[id]; if(!c) return; st.q=q??c.ko; st.opp=c.types.slice(0,2); st.bid=id; renderBox(v); };
     sg.onclick=e=>{ const b=e.target.closest("[data-xid]"); if(b) pick(b.dataset.xid); };
     root.querySelector(".xsearch").onsubmit=e=>{ e.preventDefault(); const id=findIds(inp.value)[0]; if(id) pick(id,inp.value); }; }
 }
