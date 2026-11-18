@@ -232,6 +232,11 @@ button.lrow{appearance:none;width:100%;background:none;border:0;border-bottom:1p
 .bossBig .mgrid{margin:10px 0 6px}
 .myparty{display:flex;justify-content:flex-end;margin:6px 0 2px}
 .myparty button{appearance:none;border:1px solid var(--ink);background:none;color:var(--ink);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.kakaobar{position:fixed;left:0;right:0;bottom:0;z-index:70;box-shadow:0 -6px 18px rgba(0,0,0,.5);background:#ffd36b;color:#2a1d00;font-size:12.5px;line-height:1.55;padding:9px 12px}
+.kakaobar .kbtns{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 4px}
+.kakaobar button{appearance:none;border:1px solid #2a1d00;background:none;color:#2a1d00;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.kakaobar button[data-kopen]{background:#2a1d00;color:#ffd36b}
+.kakaobar small{font-size:11px;opacity:.85}
 .bxsec{font-size:12px;font-weight:700;color:var(--amber);margin:12px 2px 4px}
 .bxopt{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);margin:2px 2px 8px}
 .bxopt input{accent-color:var(--ink)}
@@ -520,7 +525,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.2</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.3</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -581,6 +586,12 @@ td.num.sorted{color:var(--amber)}
 </div>
 
 <script>
+// 카카오톡 안 브라우저면 기본 브라우저(크롬·삼성 인터넷 등)로 같은 주소(초대 링크 포함)를 다시 엶.
+// 카톡 브라우저는 로그인 정보가 따로 저장되고 파일 올리기도 막혀서. 안 넘어가면 아래 안내 띠(kakaoBar)로 직접 열게 함
+const IN_KAKAO=/KAKAOTALK/i.test(navigator.userAgent), ORIG_URL=location.href;
+const openExternal=()=>{ location.href="kakaotalk://web/openExternal?url="+encodeURIComponent(ORIG_URL); };
+if(IN_KAKAO) setTimeout(()=>{ try{ openExternal(); }catch(e){} },300); // 화면(안내 띠)을 먼저 그린 뒤 넘김
+
 // ===== 타입 =====
 const TYPES = [
  ["normal","노말","#a8a77a"],["fire","불꽃","#ff7f3f"],["water","물","#4f92ff"],["grass","풀","#5fc45a"],
@@ -1187,7 +1198,7 @@ function renderType(){
         ${group("이중반감",atk.filter(a=>a.x<0.6))}
       </div>
       <div class="seg modeSeg"><button data-m="raid" class="${TMODE==="raid"?"on":""}">레이드 추천</button><button data-m="dmax" class="${TMODE==="dmax"?"on":""}">다이맥스 추천</button></div>
-      <div class="myparty"><button data-myparty>내 추천 파티 보기 ›</button></div>
+      <div class="myparty"><button data-myparty>내 추천 파티 보기(회원전용)</button></div>
       ${TMODE==="dmax"?roleSwitch(st.role):""}
       ${TMODE==="dmax"&&role==="tank"?`<div class="seg gopt"><button data-g="0" class="${st.gauge?"":"on"}">내구만</button><button data-g="1" class="${st.gauge?"on":""}">게이지 반영</button></div>`:""}
       <table><thead><tr><th>#</th><th>포켓몬 / 기술</th><th class="num">${col}</th><th style="text-align:center">티어</th></tr></thead><tbody>${list.map((r,i)=>{
@@ -1452,6 +1463,16 @@ async function renderAdmin(){
     try{ const j=await api("admin/create",{method:"POST",body:JSON.stringify({code,name})}); pwBox(`${fmtCode(code)}${name?` (${esc(name)})`:""} 계정을 만들었어요.`,code,j.temp); re(); }catch(e){ err.textContent=e.message; } };
   root.querySelector("#alList").onclick=()=>userListModal(us,re);
 }
+// 카카오톡 안 브라우저 안내 띠: 다른 브라우저로 열기 / 링크 복사
+if(IN_KAKAO){ const bar=document.createElement("div"); bar.className="kakaobar";
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+  bar.innerHTML=`<b>카카오톡 안에서는 로그인·파일 올리기가 잘 안 돼요.</b><br>크롬·삼성 인터넷${ios?"·사파리":""} 같은 브라우저로 열어 주세요.
+    <div class="kbtns"><button data-kopen>다른 브라우저로 열기</button><button data-kcopy>링크 복사</button><button data-kx>닫기</button></div>
+    <small>안 열리면 ${ios?"아래 공유 버튼 → Safari로 열기":"오른쪽 아래 ⋮ → 다른 브라우저로 열기"}를 눌러 주세요.</small>`;
+  document.body.prepend(bar);
+  bar.onclick=async e=>{ if(e.target.closest("[data-kopen]")) openExternal();
+    if(e.target.closest("[data-kcopy]")){ const b=e.target.closest("[data-kcopy]"); try{ await navigator.clipboard.writeText(ORIG_URL); }catch(err){ const ta=document.createElement("textarea"); ta.value=ORIG_URL; bar.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); } b.textContent="복사했어요 ✓"; }
+    if(e.target.closest("[data-kx]")) bar.remove(); }; }
 // 관리자: 사용자 리스트 창 (20명씩, 트레이너 코드·이름 검색) → 누르면 정보 고치기 창
 const ULST={q:"",page:0};
 function userListModal(us,re){
@@ -1482,7 +1503,7 @@ function userEditModal(u,done){ if(!u) return;
     if(e.target.closest("[data-rst]")) confirmBox(`${fmtCode(u.code)}의 비밀번호를 초기화할까요?`,async()=>{ try{ const j=await api("admin/reset",{method:"POST",body:JSON.stringify({code:u.code})}); u.must_change=1; m.remove(); done(); pwBox(`${fmtCode(u.code)} 비밀번호를 초기화했어요.`,u.code,j.temp); }catch(err){ alertBox(err.message); } });
     if(e.target.closest("[data-del]")) confirmBox(`${fmtCode(u.code)}${u.name?` (${esc(u.name)})`:""} 계정과 저장된 데이터를 모두 지울까요?`,async()=>{ try{ await api("admin/user",{method:"DELETE",body:JSON.stringify({code:u.code})}); m.remove(); done("del"); }catch(err){ alertBox(err.message); } }); };
 }
-const INV0=(location.hash.match(/^#invite=(.+)$/)||[])[1]; if(INV0){ try{ history.replaceState(null,"","#me"); }catch(e){} }
+const INV0=IN_KAKAO?null:(location.hash.match(/^#invite=(.+)$/)||[])[1]; if(INV0){ try{ history.replaceState(null,"","#me"); }catch(e){} }
 (INV0?useInvite(decodeURIComponent(INV0)).then(ok=>{ if(!ok) throw 0; }).catch(()=>api("me").then(j=>{ setMe(j); go("me"); alertBox("초대 코드가 맞지 않거나 이미 사용됐어요.\n이미 비밀번호를 정했다면 로그인해 주세요."); return syncDown(); })):api("me").then(j=>{ setMe(j); return syncDown(); })).then(()=>{ const v=location.hash.slice(1); if(v.startsWith("box")) renderBox(v); if(v==="me") renderMe(); if(v==="admin") renderAdmin(); if(v==="type") renderType(); if(v==="home") renderHome(); if(v==="intro") renderIntro(); }).catch(()=>{});
 // ---------- 1) 파티 추천 ----------
 // 상대(opp) 기준 내 포켓몬 순위 — 파티 추천에서 씀
