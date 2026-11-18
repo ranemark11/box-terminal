@@ -261,7 +261,7 @@ details[open].mecard summary{margin-bottom:8px}
 .tmppw{font-family:VT323,monospace;font-size:34px;letter-spacing:3px;color:var(--amber);background:rgba(0,0,0,.35);border:1px dashed var(--amber);border-radius:10px;padding:6px 10px;margin:6px 0;user-select:all}
 .ulbox{width:min(460px,100%);box-sizing:border-box}
 .ulq{display:block;width:100%;box-sizing:border-box;background:rgba(0,0,0,.3);border:1px solid var(--faint);color:var(--ink);border-radius:10px;padding:9px 11px;font-size:14px;font-family:inherit;margin:0 0 6px}
-button.ulrow{appearance:none;width:100%;background:none;border:0;border-top:1px solid rgba(255,255,255,.06);color:var(--ink);font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.ulrow{text-align:left;cursor:pointer}
 .ulrow .ed{color:var(--dim)}
 .ulpg{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:8px 0 4px;font-size:12px;color:var(--dim)}
 .ulpg button{appearance:none;border:1px solid var(--faint);background:none;color:var(--ink);border-radius:999px;padding:4px 11px;font-size:12px;cursor:pointer;font-family:inherit}
@@ -510,7 +510,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.28</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.29</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1460,13 +1460,14 @@ function userListModal(us,re){
     const list=us.filter(u=>!q||(u.name||"").toLowerCase().includes(q)||(qd&&u.code.includes(qd)));
     const pages=Math.max(1,Math.ceil(list.length/20)); if(ULST.page>=pages) ULST.page=pages-1;
     const rows=list.slice(ULST.page*20,ULST.page*20+20);
-    m.querySelector("#ulBody").innerHTML=(rows.map(u=>`<button class="adrow ulrow" data-uc="${u.code}"><span><b>${fmtCode(u.code)}</b>${u.name?` · ${esc(u.name)}`:' · <span style="color:var(--dim)">이름 없음</span>'}<br><small>${u.must_change?'<span style="color:var(--amber)">첫 로그인 대기</span>':"사용 중"} · 만든 날 ${fmtTime(u.created)} · 저장 ${fmtTime(u.updated)}${u.size?` · ${Math.round(u.size/1024)}KB`:""}</small></span><span class="ed">✎</span></button>`).join("")||`<p class="sknote">${q?"찾는 사용자가 없어요.":"아직 없어요."}</p>`)
+    m.querySelector("#ulBody").innerHTML=(rows.map(u=>`<div class="adrow ulrow" data-uc="${u.code}"><span><b>${fmtCode(u.code)}</b>${u.name?` · ${esc(u.name)}`:' · <span style="color:var(--dim)">이름 없음</span>'}<br><small>${u.must_change?'<span style="color:var(--amber)">첫 로그인 대기</span>':"사용 중"} · 만든 날 ${fmtTime(u.created)} · 저장 ${fmtTime(u.updated)}${u.size?` · ${Math.round(u.size/1024)}KB`:""}</small></span><span><button class="mebtn sm" data-cp="${u.code}">코드 복사</button> <span class="ed">✎</span></span></div>`).join("")||`<p class="sknote">${q?"찾는 사용자가 없어요.":"아직 없어요."}</p>`)
       +`<div class="ulpg"><button data-pg="-1" ${ULST.page?"":"disabled"}>‹ 이전</button><span>${ULST.page+1} / ${pages} · ${list.length}명</span><button data-pg="1" ${ULST.page<pages-1?"":"disabled"}>다음 ›</button></div>`; };
   m.innerHTML=`<div class="shotbox ulbox"><p><b>사용자 리스트</b></p><input id="ulQ" class="ulq" placeholder="트레이너 코드 또는 이름 검색" autocomplete="off" value="${esc(ULST.q)}"><div id="ulBody"></div><div class="shotbtns"><button data-x>닫기</button></div></div>`;
   draw();
   const q=m.querySelector("#ulQ"); q.oninput=()=>{ ULST.q=q.value; ULST.page=0; draw(); };
   m.onclick=e=>{ if(e.target===m||e.target.closest("[data-x]")){ m.remove(); return; }
     const pg=e.target.closest("[data-pg]"); if(pg&&!pg.disabled){ ULST.page+=+pg.dataset.pg; draw(); return; }
+    const cp=e.target.closest("[data-cp]"); if(cp){ const t=cp.dataset.cp; (async()=>{ try{ await navigator.clipboard.writeText(t); }catch(err){ const ta=document.createElement("textarea"); ta.value=t; m.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); } cp.textContent="복사했어요 ✓"; setTimeout(()=>{ cp.textContent="코드 복사"; },1500); })(); return; }
     const r=e.target.closest("[data-uc]"); if(r) { const u=us.find(x=>x.code===r.dataset.uc); userEditModal(u,kind=>{ if(kind==="del"){ const i=us.indexOf(u); if(i>=0) us.splice(i,1); } draw(); re(); }); } };
 }
 function userEditModal(u,done){ if(!u) return;
