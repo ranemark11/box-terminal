@@ -494,7 +494,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.18</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.19</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1352,7 +1352,7 @@ function showHowto(){
       <li>플레이 스토어에서 <b>Calcy IV</b>를 설치하고 열어요. 묻는 권한은 모두 <b>허용</b>을 눌러요.</li>
       <li>Calcy IV에서 <b>자동 스캔(AutoScan)</b>을 켜요.</li>
       <li><b>게임으로 전환</b>을 눌러요. 포켓몬고가 열려요.</li>
-      <li>포켓몬 한 마리를 열고, 오른쪽 아래 <b>포켓몬 조사하기</b>를 눌러요.</li>
+      <li>포켓몬 한 마리를 열어요.</li>
       <li>그 상태에서 화면을 <b>옆으로 넘기기만</b> 해요. 넘길 때마다 한 마리씩 자동으로 저장돼요.</li></ol>
     <h4>2. 내보내기</h4><ol>
       <li>Calcy IV로 돌아가 <b>메뉴(☰) → 기록(History) → 우측상단 점 세개 → Export</b>를 눌러요.</li>
@@ -1415,6 +1415,13 @@ function myRaidBest(opp,rows=BOX.rows){ const best=[]; // 개체마다 가장 �
   rows.forEach((m,ix)=>{ if(!CARDS[m.id]) return; const r=ratio(m); const inc=Math.max(...opp.map(o=>eff(o,CARDS[m.id].types)));
     let b=null; for(const x of myRaidRows(m)){ const v=x.er*r.A*Math.pow(r.D*r.H,0.25)*eff(x.t2,opp)/1.6*Math.pow(1/inc,0.25); if(!b||v>b.v) b={m,ix,x,v}; } if(b) best.push(b); });
   return best.sort((a,b)=>b.v-a.v); }
+// 메가진화: 내 포켓몬(그림자 제외) 중 메가가 있는 것의 메가 행으로 계산 (개체값·레벨 비율은 기본 모습 기준으로 근사)
+function myMegaBest(opp,rows=BOX.rows){ const best=[];
+  rows.forEach((m,ix)=>{ const c=CARDS[m.id]; if(!c||m.sh) return; const r=ratio(m), inc=Math.max(...opp.map(o=>eff(o,c.types))); let b=null;
+    for(const [t,list] of Object.entries(DEX.raid)) for(const x of list){ if(x.id!==m.id||!x.tg.includes("m")) continue;
+      const v=x.er*r.A*Math.pow(r.D*r.H,0.25)*eff(t,opp)/1.6*Math.pow(1/inc,0.25); if(!b||v>b.v) b={m,ix,x:{...x,t2:t},v}; }
+    if(b) best.push(b); });
+  return best.sort((a,b)=>b.v-a.v); }
 function myDmaxBest(opp,unk,rows=BOX.rows){ const deal=[],tank=[];
   rows.forEach((m,ix)=>{ if(!CARDS[m.id]||!canDmax(m,unk)) return; const o={m,ix}, r=ratio(m), c=CARDS[m.id];
     let b=null; for(const x of myDmaxRows(m)){ const v=x.max*r.A*eff(x.t2,opp)/1.6; if(!b||v>b.v) b={...o,x,v}; } if(b) deal.push(b);
@@ -1432,7 +1439,9 @@ function boxParty(){
   else if(st.mode==="raid"){
     const best=myRaidBest(opp);
     const ideal=bossRaidRows(opp).sort((a,b)=>b.v-a.v)[0]?.v||1;
-    res=`<div class="bxsec">레이드 딜러 6마리</div>`+best.slice(0,6).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}`,(b.v/ideal*100).toFixed(0)+"%","최상 대비")).join("")||`<div class="empty">맞는 포켓몬이 없어요.</div>`;
+    res=`<div class="bxsec">레이드 딜러 6마리</div>`+(best.slice(0,6).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}`,(b.v/ideal*100).toFixed(0)+"%","최상 대비")).join("")||`<div class="empty">맞는 포켓몬이 없어요.</div>`);
+    const mg=myMegaBest(opp)[0];
+    res+=`<div class="bxsec">메가진화 1마리 (파티에 함께)</div>`+(mg?mRow("M",mg.m,`<b>${esc(mg.x.n)}</b>${mg.x.tg.includes("p")?PTAG:""} · ${ivTxt(mg.m)}<br>${chip(mg.x.t2)} ${esc(mg.x.mv)}`,(mg.v/ideal*100).toFixed(0)+"%","최상 대비"):`<div class="empty">메가진화할 수 있는 포켓몬이 없어요.</div>`);
   }else{
     const {deal,tank}=myDmaxBest(opp,st.unk);
     const lab=w=>w<0.6?"이중반감":w<0.99?"반감":w>2.5?"이중약점":w>1.5?"약점":"보통";
