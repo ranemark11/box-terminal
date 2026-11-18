@@ -510,7 +510,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.27</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.28</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1467,7 +1467,7 @@ function userListModal(us,re){
   const q=m.querySelector("#ulQ"); q.oninput=()=>{ ULST.q=q.value; ULST.page=0; draw(); };
   m.onclick=e=>{ if(e.target===m||e.target.closest("[data-x]")){ m.remove(); return; }
     const pg=e.target.closest("[data-pg]"); if(pg&&!pg.disabled){ ULST.page+=+pg.dataset.pg; draw(); return; }
-    const r=e.target.closest("[data-uc]"); if(r) userEditModal(us.find(u=>u.code===r.dataset.uc),()=>{ m.remove(); re(); }); };
+    const r=e.target.closest("[data-uc]"); if(r) { const u=us.find(x=>x.code===r.dataset.uc); userEditModal(u,kind=>{ if(kind==="del"){ const i=us.indexOf(u); if(i>=0) us.splice(i,1); } draw(); re(); }); } };
 }
 function userEditModal(u,done){ if(!u) return;
   const m=document.createElement("div"); m.className="shotmodal"; document.body.appendChild(m);
@@ -1477,9 +1477,9 @@ function userEditModal(u,done){ if(!u) return;
     <div class="shotbtns"><button data-save>이름 저장</button><button data-rst>비번 초기화</button><button data-del>계정 삭제</button><button data-x>닫기</button></div></div>`;
   m.onclick=async e=>{ if(e.target===m||e.target.closest("[data-x]")){ m.remove(); return; }
     if(e.target.closest("[data-save]")){ const name=m.querySelector("#ueName").value.trim();
-      try{ await api("admin/note",{method:"PUT",body:JSON.stringify({code:u.code,name})}); m.remove(); done(); }catch(err){ m.querySelector("#ueErr").textContent=err.message; } return; }
-    if(e.target.closest("[data-rst]")) confirmBox(`${fmtCode(u.code)}의 비밀번호를 초기화할까요?`,async()=>{ try{ const j=await api("admin/reset",{method:"POST",body:JSON.stringify({code:u.code})}); m.remove(); done(); pwBox(`${fmtCode(u.code)} 비밀번호를 초기화했어요.`,u.code,j.temp); }catch(err){ alertBox(err.message); } });
-    if(e.target.closest("[data-del]")) confirmBox(`${fmtCode(u.code)}${u.name?` (${esc(u.name)})`:""} 계정과 저장된 데이터를 모두 지울까요?`,async()=>{ try{ await api("admin/user",{method:"DELETE",body:JSON.stringify({code:u.code})}); m.remove(); done(); }catch(err){ alertBox(err.message); } }); };
+      try{ const j=await api("admin/note",{method:"PUT",body:JSON.stringify({code:u.code,name})}); u.name=j.name; m.remove(); done(); }catch(err){ m.querySelector("#ueErr").textContent=err.message; } return; }
+    if(e.target.closest("[data-rst]")) confirmBox(`${fmtCode(u.code)}의 비밀번호를 초기화할까요?`,async()=>{ try{ const j=await api("admin/reset",{method:"POST",body:JSON.stringify({code:u.code})}); u.must_change=1; m.remove(); done(); pwBox(`${fmtCode(u.code)} 비밀번호를 초기화했어요.`,u.code,j.temp); }catch(err){ alertBox(err.message); } });
+    if(e.target.closest("[data-del]")) confirmBox(`${fmtCode(u.code)}${u.name?` (${esc(u.name)})`:""} 계정과 저장된 데이터를 모두 지울까요?`,async()=>{ try{ await api("admin/user",{method:"DELETE",body:JSON.stringify({code:u.code})}); m.remove(); done("del"); }catch(err){ alertBox(err.message); } }); };
 }
 const INV0=(location.hash.match(/^#invite=(.+)$/)||[])[1]; if(INV0){ try{ history.replaceState(null,"","#me"); }catch(e){} }
 (INV0?useInvite(decodeURIComponent(INV0)).then(ok=>{ if(!ok) throw 0; }).catch(()=>api("me").then(j=>{ setMe(j); go("me"); alertBox("초대 코드가 맞지 않거나 이미 사용됐어요.\n이미 비밀번호를 정했다면 로그인해 주세요."); return syncDown(); })):api("me").then(j=>{ setMe(j); return syncDown(); })).then(()=>{ const v=location.hash.slice(1); if(v.startsWith("box")) renderBox(v); if(v==="me") renderMe(); if(v==="admin") renderAdmin(); if(v==="type") renderType(); if(v==="home") renderHome(); if(v==="intro") renderIntro(); }).catch(()=>{});
