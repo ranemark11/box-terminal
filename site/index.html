@@ -213,6 +213,7 @@ button.lrow{appearance:none;width:100%;background:none;border:0;border-bottom:1p
 .demo{position:relative;max-height:330px;overflow:hidden;border:1px solid var(--faint);border-radius:10px;padding:6px 10px 0;background:#0b1416;pointer-events:none;user-select:none}
 .demo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:54px;background:linear-gradient(rgba(11,20,22,0),#0b1416)}
 .demo::before{content:"예시 화면";display:block;text-align:right;font-size:10px;color:var(--dim);margin-bottom:-4px}
+.tsel{background:#11191c;border:1px solid var(--faint);color:var(--ink);border-radius:8px;padding:4px 6px;font-size:13px;font-family:inherit;margin:0 4px}
 .bxsec{font-size:12px;font-weight:700;color:var(--amber);margin:12px 2px 4px}
 .bxopt{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);margin:2px 2px 8px}
 .bxopt input{accent-color:var(--ink)}
@@ -494,7 +495,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.19</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.20</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1251,8 +1252,9 @@ function importCalcy(text){
 }
 let BOX=null; try{ BOX=JSON.parse(localStorage.getItem("pyo-box")||"null"); }catch(e){}
 const saveBox=()=>{ try{ localStorage.setItem("pyo-box",JSON.stringify(BOX)); }catch(e){} };
-const BOXST={lg:"great",opp:[],q:"",mode:"raid",dm:"deal3",unk:false,dust:"raid",to:40,good:true,cap:"raid"};
-try{ Object.assign(BOXST,JSON.parse(localStorage.getItem("pyo-boxst")||"{}"),{opp:[],q:""}); }catch(e){}
+const BOXST={lg:"great",opp:[],q:"",mode:"raid",dm:"deal3",unk:false,dust:"raid",to:40,minT:"B",cap:"raid"};
+try{ Object.assign(BOXST,JSON.parse(localStorage.getItem("pyo-boxst")||"{}"),{opp:[],q:""}); if("good" in BOXST){ if(BOXST.good===false) BOXST.minT=""; delete BOXST.good; } }catch(e){}
+const TIER_MIN={SS:95,S:88,A:80,B:70,C:55};
 const saveBoxSt=()=>{ try{ const {opp,q,...o}=BOXST; localStorage.setItem("pyo-boxst",JSON.stringify(o)); }catch(e){} };
 // 내 포켓몬 능력치 비율 (lv·개체값 바꿔서 계산할 수 있게)
 const ratio=(m,lv=m.lv,a=m.a,d=m.d,h=m.h)=>{ const s=CARDS[m.id].stats, k=cpmAt(lv)/0.7903;
@@ -1532,7 +1534,7 @@ function boxDust(){
   const list=[];
   BOX.rows.forEach(m=>{ if(m.lv>=to) return; if(mode!=="raid"&&!canDmax(m,true)) return;
     const now=useOf(m,m.lv,m.a,m.d,m.h,mode), aft=useOf(m,to,m.a,m.d,m.h,mode); if(!now||!aft) return;
-    if(st.good&&aft.p<70) return;
+    if(st.minT&&aft.p<TIER_MIN[st.minT]) return;
     const cost=powerCost(m.lv,to,m.sh,m.lucky,m.id); const gain=aft.p-now.p; list.push({m,now,aft,cost,gain,eff:gain/(cost.d/10000)}); });
   list.sort((a,b)=>b.eff-a.eff);
   // 같은 포켓몬(그림자 구분)은 가장 효율 좋은 한 마리만 보이고, ▸ 누르면 나머지(개체값 다른 것)를 펼침
@@ -1542,7 +1544,7 @@ function boxDust(){
     return line(g.items[0],i+1,false)+(more?`<button class="dmore" data-dopen="${esc(g.k)}">${open?"▾ 접기":`▸ 같은 포켓몬 ${more}마리 더`}</button>`+(open?g.items.slice(1).map(o=>line(o,0,true)).join(""):""):""); }).join("");
   return `<div class="seg"><button data-xu="raid" class="${mode==="raid"?"on":""}">레이드</button><button data-xu="deal" class="${mode==="deal"?"on":""}">다이맥스 딜러</button></div>
     <div class="seg"><button data-xl="40" class="${to===40?"on":""}">Lv40까지 (사탕)</button><button data-xl="50" class="${to===50?"on":""}">Lv50까지 (XL사탕)</button></div>
-    <label class="bxopt"><input type="checkbox" id="bxGood" ${st.good?"checked":""}> 목표 레벨에서 B티어(1위 대비 70%) 이상 되는 포켓몬만</label>
+    <div class="bxopt">목표 레벨에서 <select id="bxMinT" class="tsel">${[["","전체"],["SS","SS"],["S","S"],["A","A"],["B","B"],["C","C"]].map(([k,n])=>`<option value="${k}" ${st.minT===k?"selected":""}>${n}</option>`).join("")}</select> ${st.minT?"티어 이상만 보기":"티어 모두 보기"}</div>
     <div class="bxsec">별의모래 1만 개당 강해지는 정도 순 · 같은 포켓몬은 한 줄로</div>
     ${body||`<div class="empty">조건에 맞는 포켓몬이 없어요.</div>`}`;
 }
@@ -1608,7 +1610,7 @@ function bindBox(v,root){
     CAPS.push({id:CAPF.id,a,d,h,lv:+root.querySelector("#cfL").value}); CAPF.id=null; CAPF.q=""; saveCaps(); renderBox(v); };
   root.querySelectorAll("[data-cdel]").forEach(b=>b.onclick=()=>{ CAPS.splice(+b.dataset.cdel,1); saveCaps(); renderBox(v); });
   const u=root.querySelector("#bxUnk"); if(u) u.onchange=()=>{ st.unk=u.checked; re(); };
-  const g=root.querySelector("#bxGood"); if(g) g.onchange=()=>{ st.good=g.checked; re(); };
+  const g=root.querySelector("#bxMinT"); if(g) g.onchange=()=>{ st.minT=g.value; re(); };
   const inp=root.querySelector(".xsearch input"), sg=root.querySelector(".xsugg");
   if(inp){ inp.oninput=()=>{ st.q=inp.value; const q=inp.value.trim(); sg.innerHTML=q?findIds(q).slice(0,8).map(i=>`<button class="chip" data-xid="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):""; };
     const pick=(id,q)=>{ const c=CARDS[id]; if(!c) return; st.q=q??c.ko; st.opp=c.types.slice(0,2); renderBox(v); };
@@ -1617,7 +1619,7 @@ function bindBox(v,root){
 }
 // ---------- 4) 내 포켓몬 목록 (검색·정렬·고치기) ----------
 const LISTST={q:"",sort:"dex",n:60};
-const LSORTS=[["dex","도감번호순"],["name","이름순"],["cp","CP 높은 순"],["iv","개체값 높은 순"],["lv","레벨 높은 순"],["use","레이드 쓸모 순"]];
+const LSORTS=[["dex","도감번호순"],["name","이름순"],["cp","CP 높은 순"],["iv","개체값 높은 순"],["lv","레벨 높은 순"],["use","레이드 티어순"]];
 const USE_CACHE=new WeakMap(); const raidUse=m=>{ if(!USE_CACHE.has(m)) USE_CACHE.set(m,useOf(m,m.lv,m.a,m.d,m.h,"raid")?.p||0); return USE_CACHE.get(m); };
 const DM_N={D:"다이맥스",G:"거다이맥스"};
 function boxListRows(){
@@ -1694,7 +1696,7 @@ function renderIntro(){
   const party=withDemo(()=>{ const oc=CARDS.rayquaza, opp=oc?oc.types.slice(0,2):["dragon"], ideal=bossRaidRows(opp).sort((a,b)=>b.v-a.v)[0]?.v||1;
     return `<div class="bossCard">${oc?SPRITE(oc.id)+`<b>${esc(oc.ko)}</b>`:""} ${opp.map(chip).join(" + ")}</div><div class="bxsec">레이드 딜러 6마리</div>`
       +myRaidBest(opp).slice(0,4).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}`,(b.v/ideal*100).toFixed(0)+"%","최상 대비")).join(""); });
-  const dust=withDemo(()=>{ Object.assign(BOXST,{dust:"raid",to:40,good:false}); return boxDust().replace(/<label class="bxopt">[\s\S]*?<\/label>/,""); });
+  const dust=withDemo(()=>{ Object.assign(BOXST,{dust:"raid",to:40,minT:""}); return boxDust().replace(/<div class="bxopt">목표 레벨에서[\s\S]*?<\/div>/,""); });
   const cap=withDemo(()=>{ CAPS=[{id:"gardevoir",a:12,d:15,h:14,lv:40},{id:"metagross",a:14,d:15,h:15,lv:40},{id:"garchomp",a:15,d:13,h:15,lv:40}].filter(c=>CARDS[c.id]); return boxCap().replace(/<form[\s\S]*?<\/form><div class="sugg csugg"><\/div>/,"").replace('<div class="bxsec">은뚜껑 후보 추가</div>',""); });
   const list=withDemo(()=>{ Object.assign(LISTST,{q:"",sort:"cp",n:5}); return boxList(); });
   const card=(t,d,demo)=>`<div class="icard"><h3>${t}</h3><p>${d}</p>${demo?`<div class="demo" inert>${demo}</div>`:""}</div>`;
