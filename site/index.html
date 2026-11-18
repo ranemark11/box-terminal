@@ -525,7 +525,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.3</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.4</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1268,11 +1268,13 @@ function parseCSV(t){ const rows=[]; let row=[],f="",q=false;
     if(q){ if(ch==='"'){ if(t[i+1]==='"'){f+='"';i++;} else q=false; } else f+=ch; }
     else if(ch==='"') q=true; else if(ch===','){row.push(f);f="";} else if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&t[i+1]==='\n') i++; row.push(f); rows.push(row); row=[]; f=""; } else f+=ch; }
   if(f||row.length){row.push(f);rows.push(row);} return rows.filter(r=>r.length>1); }
+// 사이트 도감에 없는(배틀 계산에서 빠진) 포켓몬은 경고 없이 건너뜀: 메타몽(132)·껍질몬(292)
+const SKIP_DEX=new Set([132,292]);
 function importCalcy(text){
   const rows=parseCSV(text.replace(/^﻿/,"")); const H=rows.shift().map(h=>h.trim()); const col=n=>H.indexOf(n);
   const need=["Nr","Name","Level","ØATT IV","ØDEF IV","ØHP IV"]; if(need.some(n=>col(n)<0)) throw new Error("Calcy IV CSV 형식이 아니에요");
   const g=(r,n)=>(r[col(n)]||"").trim(), out=[], miss=[];
-  for(const r of rows){ const dex=+g(r,"Nr"), name=g(r,"Name"); const id=calcyId(dex,name); if(!id){ miss.push(name); continue; }
+  for(const r of rows){ const dex=+g(r,"Nr"), name=g(r,"Name"); const id=calcyId(dex,name); if(!id){ if(!SKIP_DEX.has(dex)) miss.push(name); continue; }
     const sh=/그림자/.test(name)||g(r,"ShadowForm")==="2";
     out.push({id,sh,lv:+g(r,"Level")||20,a:+g(r,"ØATT IV"),d:+g(r,"ØDEF IV"),h:+g(r,"ØHP IV"),iv:+g(r,"ØIV%"),ex:g(r,"min IV%")===g(r,"max IV%"),
       dm:(g(r,"Dynamax")||"?").replace("-","").trim()||"-",lucky:g(r,"Lucky?")==="1",cp:+g(r,"CP")}); }
