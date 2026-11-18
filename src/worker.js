@@ -91,6 +91,28 @@ const validPw = (p, admin) => typeof p === "string" && p.length >= (admin ? 10 :
 const userInfo = u => ({ code: u.code, admin: !!u.is_admin, mustChange: !!u.must_change });
 const log = (db, admin, action, target, ip) => db.prepare("INSERT INTO admin_log (ts, admin, action, target, ip) VALUES (?, ?, ?, ?, ?)").bind(now(), admin, action, target || "", ip || "").run();
 
+// 박스 데이터 검사: 포켓몬 id(영문 소문자·숫자·_)와 숫자·참거짓 칸만 남기고 나머지는 버림
+const num = (v, lo, hi, d = lo) => { const x = Number(v); return Number.isFinite(x) ? Math.min(hi, Math.max(lo, x)) : d; };
+const okId = v => typeof v === "string" && /^[a-z0-9_]{1,60}$/.test(v);
+function cleanBox(b) {
+  let box = null;
+  if (b && b.box && Array.isArray(b.box.rows)) {
+    const rows = [];
+    for (const r of b.box.rows.slice(0, 5000)) {
+      if (!r || !okId(r.id)) continue;
+      rows.push({ id: r.id, sh: !!r.sh, lv: num(r.lv, 1, 51, 20), a: num(r.a, 0, 15), d: num(r.d, 0, 15), h: num(r.h, 0, 15), iv: num(r.iv, 0, 100),
+        ex: !!r.ex, dm: typeof r.dm === "string" && /^[A-Z?-]{1,3}$/.test(r.dm) ? r.dm : "?", lucky: !!r.lucky, cp: Math.round(num(r.cp, 0, 99999)) });
+    }
+    box = { rows, miss: [], date: typeof b.box.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(b.box.date) ? b.box.date : "" };
+  }
+  const caps = [];
+  if (b && Array.isArray(b.caps)) for (const c of b.caps.slice(0, 100)) {
+    if (!c || !okId(c.id)) continue;
+    caps.push({ id: c.id, a: Math.round(num(c.a, 0, 15)), d: Math.round(num(c.d, 0, 15)), h: Math.round(num(c.h, 0, 15)), lv: Number(c.lv) === 50 ? 50 : 40 });
+  }
+  return { box, caps };
+}
+
 async function api(req, env, path) {
   const db = env.DB;
   if (!db) return fail("서버 저장소가 아직 설정되지 않았어요.", 503);
@@ -144,9 +166,10 @@ async function api(req, env, path) {
   if (path === "password" && method === "POST") { // 비밀번호 바꾸기 (지금 비밀번호 필요) → 다른 기기 세션 모두 로그아웃
     let b; try { b = await readJson(req); } catch { return fail("잘못된 요청이에요."); }
     const u = await db.prepare("SELECT * FROM users WHERE code = ?").bind(code).first();
-    if (!sameStr(await pbkdf2(String(b.old || ""), unb64(u.salt), u.iter), u.pw_hash)) return fail("지금 비밀번호가 맞지 않아요.", 401);
+    // 첫 로그인(must_change)일 때는 방금 임시 비밀번호로 로그인한 상태라 지금 비밀번호를 다시 묻지 않음
+    if (!u.must_change && !sameStr(await pbkdf2(String(b.old || ""), unb64(u.salt), u.iter), u.pw_hash)) return fail("지금 비밀번호가 맞지 않아요.", 401);
     if (!validPw(b.password, u.is_admin)) return fail(u.is_admin ? "관리자 비밀번호는 10~128자예요." : "비밀번호는 8~128자예요.");
-    if (b.password === b.old) return fail("지금과 다른 비밀번호로 바꿔 주세요.");
+    if (sameStr(await pbkdf2(b.password, unb64(u.salt), u.iter), u.pw_hash)) return fail("지금과 다른 비밀번호로 바꿔 주세요.");
     const salt = randBytes(16);
     await db.prepare("UPDATE users SET pw_hash = ?, salt = ?, iter = ?, must_change = 0 WHERE code = ?").bind(await pbkdf2(b.password, salt, PBKDF2_ITER), b64(salt), PBKDF2_ITER, code).run();
     await db.prepare("DELETE FROM sessions WHERE code = ?").bind(code).run();
@@ -161,7 +184,7 @@ async function api(req, env, path) {
   }
   if (path === "box" && method === "PUT") {
     let b; try { b = await readJson(req); } catch (e) { return fail(e.message === "too_big" ? "데이터가 너무 커요." : "잘못된 요청이에요.", e.message === "too_big" ? 413 : 400); }
-    const data = JSON.stringify({ box: b.box ?? null, caps: Array.isArray(b.caps) ? b.caps : [] });
+    const data = JSON.stringify(cleanBox(b)); // 정해진 칸·형식만 저장
     const t = now();
     await db.prepare("INSERT INTO boxes (code, data, updated) VALUES (?, ?, ?) ON CONFLICT(code) DO UPDATE SET data = excluded.data, updated = excluded.updated").bind(code, data, t).run();
     return json({ ok: true, updated: t });
