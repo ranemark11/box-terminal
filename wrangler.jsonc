@@ -1,6 +1,13 @@
-// Cloudflare Workers(정적 파일) 배포 설정 — site 폴더를 그대로 공개
+// Cloudflare Workers 배포 설정
+// - site 폴더를 그대로 공개 (정적 파일)
+// - /api/* 요청만 src/worker.js가 처리 (로그인·서버 저장·관리자). 정적 파일 요청은 Worker를 거치지 않아 사용량에 안 잡힘
+// - DB: D1 데이터베이스 pyo-db
 {
   "name": "box-terminal",
+  "main": "src/worker.js",
   "compatibility_date": "2026-11-01",
-  "assets": { "directory": "./site" }
+  "assets": { "directory": "./site", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "pyo-db", "database_id": "48d803c7-541d-40ee-940b-f84fad8f08cf" }
+  ]
 }
