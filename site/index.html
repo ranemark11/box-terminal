@@ -495,7 +495,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.23</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.24</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1404,13 +1404,14 @@ async function renderAdmin(){
     <div class="mecard"><div class="mehd">사용자 ${us.length}명</div>
       ${us.map(u=>`<div class="adrow"><span><b>${fmtCode(u.code)}</b><br><small>${u.must_change?'<span style="color:var(--amber)">첫 로그인 대기</span>':"사용 중"} · 만든 날 ${fmtTime(u.created)} · 저장 ${fmtTime(u.updated)}${u.size?` · ${Math.round(u.size/1024)}KB`:""}</small></span><span><button class="mebtn sm" data-rst="${u.code}">비번 초기화</button> <button class="mebtn danger sm" data-udel="${u.code}">삭제</button></span></div>`).join("")||`<p class="sknote">아직 없어요.</p>`}</div>
     <div class="mecard"><div class="mehd"><span class="adm">관리자</span> 회원 포켓몬 넣기</div>
-      <div class="loginbox"><label>트레이너 코드<select id="abCode" class="tsel" style="display:block;width:100%;margin:4px 0 0;padding:8px">${us.length?`<option value="">회원을 골라 주세요</option>`+us.map(u=>`<option value="${u.code}">${fmtCode(u.code)}${u.size?" · 저장된 데이터 있음":""}</option>`).join(""):`<option value="">회원이 없어요</option>`}</select></label>
+      <div class="loginbox"><label>트레이너 코드 (12자리)<input id="abCode" inputmode="numeric" placeholder="1234 5678 9012" autocomplete="off"></label>
       <div class="err" id="abErr"></div><label class="mebtn main" style="text-align:center">Calcy IV CSV 골라서 넣기<input type="file" accept=".csv,text/csv" id="abFile" hidden></label>
       <p class="sknote">그 회원의 포켓몬 리스트가 이 파일로 통째로 바뀌어요 (은뚜껑 후보는 그대로). 회원은 내 정보에서 "서버에서 다시 불러오기"를 누르거나 다시 로그인하면 보여요.</p></div></div>
     <div class="mecard"><div class="mehd">관리 기록 (최근 30개)</div>${d.logs.map(l=>`<div class="adlog">${fmtTime(l.ts)} · ${ACT[l.action]||l.action}${l.target?" · "+fmtCode(l.target):""}${l.ip&&l.ip!=="local"?` · ${esc(l.ip)}`:""}</div>`).join("")||`<p class="sknote">없어요.</p>`}</div>`;
   const re=()=>renderAdmin();
-  const abF=root.querySelector("#abFile"); abF.onchange=()=>{ const file=abF.files[0], err=root.querySelector("#abErr"), target=root.querySelector("#abCode").value; abF.value=""; err.textContent="";
-    if(!target){ err.textContent="먼저 회원을 골라 주세요."; return; } if(!file) return;
+  const abF=root.querySelector("#abFile"); abF.onchange=()=>{ const file=abF.files[0], err=root.querySelector("#abErr"), target=root.querySelector("#abCode").value.replace(/\D/g,""); abF.value=""; err.textContent="";
+    if(target.length!==12){ err.textContent="트레이너 코드 12자리를 먼저 넣어 주세요."; return; }
+    if(!us.some(u=>u.code===target)){ err.textContent="그 트레이너 코드로 만든 계정이 없어요. 위에서 계정을 먼저 만들어 주세요."; return; } if(!file) return;
     file.text().then(t=>{ let bx; try{ bx=importCalcy(t); }catch(e){ err.textContent=e.message; return; }
       if(!bx.rows.length){ err.textContent="파일에서 포켓몬을 찾지 못했어요."; return; }
       confirmBox(`${fmtCode(target)} 회원의 포켓몬 리스트를 이 파일(${bx.rows.length}마리)로 바꿀까요?${bx.miss.length?`<br><small>이름을 못 찾은 ${bx.miss.length}마리는 빠져요: ${esc(bx.miss.slice(0,8).join(", "))}</small>`:""}`,async()=>{
