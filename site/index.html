@@ -153,6 +153,8 @@ button{font:inherit;color:inherit}
 .ddmenu button{appearance:none;border:0;background:none;color:#cfd6e6;text-align:left;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 .ddmenu button.on{background:var(--ink);color:#0b2124}
 .ddmenu hr{border:0;border-top:1px solid #3a4258;margin:3px 4px}
+.bxrow.sub2{margin-left:18px;opacity:.85;border-left:2px solid var(--faint);padding-left:6px}
+.dmore{appearance:none;border:0;background:none;color:var(--amber);font-size:11.5px;padding:2px 0 6px 30px;cursor:pointer;font-family:inherit}
 .bxrow .todo{color:var(--amber)}
 .bxrow .todo b{font-weight:700}
 .sbtn.wide{grid-column:1/-1;flex-direction:row;justify-content:center;gap:8px;min-height:0;padding:8px}
@@ -454,7 +456,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.12</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.13</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -588,7 +590,7 @@ const GROUPS={ pokemon:{subs:[["card","포켓몬 검색"],["dex","도감"]],last
                tier:{subs:[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀리그"]],last:"raid"} };
 // 드롭다운 메뉴: 정보(상성표·일정), 회원기능(로그인했을 때 헤더 버튼)
 const MENUS={ info:()=>[["type","상성표"],["home","일정"]],
-  member:()=>[["boxparty","파티 추천"],["boxdust","강화 효율"],["boxcap","병뚜껑 추천"],null,["me","내 정보"]].concat(ME&&ME.admin?[["admin","관리자 페이지"]]:[]) };
+  member:()=>[["boxparty","파티 추천"],["boxdust","강화 효율"],["boxcap","은뚜껑 추천"],null,["me","내 정보"]].concat(ME&&ME.admin?[["admin","관리자 페이지"]]:[]) };
 const MENU_VIEWS={info:["type","home"],member:["boxparty","boxdust","boxcap","me","admin"]};
 function closeMenu(){ document.querySelectorAll(".ddmenu").forEach(m=>m.remove()); }
 function openMenu(btn){ const name=btn.dataset.menu, was=document.querySelector(`.ddmenu[data-for="${name}"]`); closeMenu(); if(was) return;
@@ -1216,7 +1218,7 @@ function renderBox(v){
 const mRow=(i,m,sub,val,small)=>`<div class="bxrow"><span class="rk">${i}</span>${SPRITE(m.id)}<div class="inf"><div class="nm"><a data-poke="${esc(m.id)}">${esc(mName(m))}</a>${m.dm==="G"?'<span class="tag g">G-MAX</span>':""}</div><div class="sub">${sub}</div></div><div class="val">${val}<small>${small||""}</small></div></div>`;
 
 // ===== 로그인 · 서버 저장 · 내 정보 · 관리자 =====
-// 서버: Cloudflare Worker /api/* (src/worker.js) + D1. 로그인하면 박스·병뚜껑 후보를 서버에 저장하고 다른 기기에서 불러옴
+// 서버: Cloudflare Worker /api/* (src/worker.js) + D1. 로그인하면 박스·은뚜껑 후보를 서버에 저장하고 다른 기기에서 불러옴
 let ME=null, ME_UPDATED=null; // ME = {code, admin, mustChange}
 const api=(path,opt={})=>fetch("/api/"+path,{credentials:"same-origin",headers:{"content-type":"application/json"},...opt}).then(async r=>{ const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||("서버 오류 "+r.status)); return j; });
 const fmtCode=c=>String(c).length===12?String(c).replace(/(\d{4})(\d{4})(\d{4})/,"$1 $2 $3"):String(c);
@@ -1268,7 +1270,7 @@ function renderMe(){
 // 내 포켓몬 올리기·불러오기 (내 정보 화면 안)
 function boxSection(){
   const has=BOX&&BOX.rows&&BOX.rows.length;
-  return `<div class="mestat">${has?`포켓몬 <b>${BOX.rows.length}마리</b> · 올린 날 ${esc(BOX.date||"-")}`:"아직 올린 포켓몬이 없어요."}${ME?` · 서버 저장 ${fmtTime(ME_UPDATED)}`:""}<br>병뚜껑 후보 <b>${CAPS.length}마리</b></div>
+  return `<div class="mestat">${has?`포켓몬 <b>${BOX.rows.length}마리</b> · 올린 날 ${esc(BOX.date||"-")}`:"아직 올린 포켓몬이 없어요."}${ME?` · 서버 저장 ${fmtTime(ME_UPDATED)}`:""}</div>
     <div class="merow"><label class="mebtn main">${has?"새 CSV로 바꾸기":"포켓몬 리스트(CSV) 올리기"}<input type="file" accept=".csv,text/csv" id="boxFile" hidden></label>
       ${ME?`<button class="mebtn" id="boxPull">서버에서 다시 불러오기</button>`:""}${has?`<button class="mebtn danger" id="boxClr">포켓몬 지우기</button>`:""}
       ${typeof PREVIEW_CSV!=="undefined"?`<button class="mebtn" id="boxDemo">미리보기용 내 CSV</button>`:""}</div>
@@ -1278,7 +1280,7 @@ function bindBoxSection(root){
   const done=async()=>{ saveBox(); try{ await syncUp(true); }catch(e){ alertBox("서버 저장에 실패했어요: "+e.message); } renderMe(); };
   const f=root.querySelector("#boxFile"); if(f) f.onchange=()=>{ const file=f.files[0]; if(!file) return; file.text().then(t=>{ try{ BOX=importCalcy(t); done(); if(BOX.miss.length) alertBox("이름을 못 찾은 포켓몬: "+BOX.miss.join(", ")); }catch(e){ alertBox(e.message); } }); };
   const d=root.querySelector("#boxDemo"); if(d) d.onclick=()=>{ BOX=importCalcy(PREVIEW_CSV); done(); };
-  const c=root.querySelector("#boxClr"); if(c) c.onclick=()=>confirmBox(ME?"이 기기와 서버에서 포켓몬 리스트를 지울까요? (병뚜껑 후보는 남아요)":"이 기기에서 포켓몬 리스트를 지울까요?",()=>{ BOX=null; try{localStorage.removeItem("pyo-box");}catch(e){} done(); });
+  const c=root.querySelector("#boxClr"); if(c) c.onclick=()=>confirmBox(ME?"이 기기와 서버에서 포켓몬 리스트를 지울까요? (은뚜껑 후보는 남아요)":"이 기기에서 포켓몬 리스트를 지울까요?",()=>{ BOX=null; try{localStorage.removeItem("pyo-box");}catch(e){} done(); });
   const p=root.querySelector("#boxPull"); if(p) p.onclick=async()=>{ try{ await syncDown(); renderMe(); alertBox("서버에서 불러왔어요."); }catch(e){ alertBox(e.message); } };
 }
 // 무작위 첫 비밀번호를 한 번만 보여 주고 복사 (친구에게 보낼 안내 문장째 복사)
@@ -1366,7 +1368,14 @@ function evoTargets(id){ const c=CARDS[id], out=[{id,candy:0}]; if(!c) return ou
   for(let i=si+1;i<c.evo.length;i++) for(const t of c.evo[i]){ const how=(CARDS[t]?.how||[]).find(h=>cost[h.from]!==undefined);
     if(how){ cost[t]=cost[how.from]+how.c; out.push({id:t,candy:cost[t]}); } else if(CARDS[t]&&!CARDS[t].how&&c.evo[i-1].some(x=>cost[x]!==undefined)){ cost[t]=NaN; out.push({id:t,candy:NaN}); } }
   return out; }
-function pvpCands(lg,grow){ const cap=LCAP[lg], rows=DEX.pvp[lg]||[], out=[];
+// "지금" 후보: CP 제한 이하 내 포켓몬 전부(순위권 밖 포함). 가치 = (순위권이면 PvPoke 점수, 밖이면 40위 점수의 85%) × 지금 스탯곱 ÷ 리그 기준 스탯곱
+const REF_SP={}; const refSP=lg=>REF_SP[lg]||(REF_SP[lg]=(()=>{ const ids=[...new Set((DEX.pvp[lg]||[]).map(r=>r.id))].slice(0,10).filter(id=>CARDS[id]); return ids.reduce((s,id)=>s+bestSP(id,lg),0)/ids.length; })());
+function pvpNowCands(lg){ const cap=LCAP[lg], rows=DEX.pvp[lg]||[], out=[], low=(rows[rows.length-1]?.score||60)*0.85, ref=refSP(lg);
+  BOX.rows.forEach((m,ix)=>{ const c=CARDS[m.id]; if(!c) return; const st=c.stats, a=Math.round(m.a), d=Math.round(m.d), h=Math.round(m.h), cp=cpIV(st,a,d,h,m.lv);
+    if(cp>cap) return; const row=rows.find(r=>r.id===m.id&&r.tg.includes("s")===!!m.sh)||null;
+    const q=spIV(st,a,d,h,m.lv)/ref; out.push({m,ix,id:m.id,row,lv:m.lv,q,now:1,v:(row?row.score:low)*q,cp,evo:null,cost:null}); });
+  return out.sort((x,y)=>y.v-x.v); }
+function pvpCands(lg,grow){ if(!grow) return pvpNowCands(lg); const cap=LCAP[lg], rows=DEX.pvp[lg]||[], out=[];
   BOX.rows.forEach((m,ix)=>{ let best=null;
     for(const t of evoTargets(m.id)){ if(!grow&&t.id!==m.id) continue;
       const row=rows.find(r=>r.id===t.id&&r.tg.includes("s")===!!m.sh); if(!row) continue;
@@ -1391,15 +1400,15 @@ function boxPvp(){
   const row=(c,i)=>{ const m=c.m, todo=[];
     if(c.evo) todo.push(`<b>진화</b> ${esc(CARDS[m.id].ko)} → ${esc(CARDS[c.id].ko)}${c.evo.candy?` (사탕 ${c.evo.candy})`:""}`);
     if(c.cost) todo.push(`<b>강화</b> Lv${m.lv} → Lv${c.lv} (모래 ${c.cost.d.toLocaleString()} · 사탕 ${c.cost.c}${c.cost.x?` · XL ${c.cost.x}`:""})`);
-    return `<div class="bxrow"><span class="rk">${i+1}</span>${SPRITE(c.id)}<div class="inf"><div class="nm"><a data-poke="${esc(c.id)}">${esc((m.sh?"그림자 ":"")+CARDS[c.id].ko)}</a> ${TB(c.row.t)}</div>
-      <div class="sub">CP ${c.cp} · ${Math.round(m.a)}/${Math.round(m.d)}/${Math.round(m.h)} · 개체 효율 ${(c.q*100).toFixed(0)}%<br>${esc(c.row.mv)}${todo.length?`<br><span class="todo">${todo.join("<br>")}</span>`:""}</div></div>
+    return `<div class="bxrow"><span class="rk">${i+1}</span>${SPRITE(c.id)}<div class="inf"><div class="nm"><a data-poke="${esc(c.id)}">${esc((m.sh?"그림자 ":"")+CARDS[c.id].ko)}</a> ${c.row?TB(c.row.t):'<span class="q">순위권 밖</span>'}</div>
+      <div class="sub">CP ${c.cp} · Lv${m.lv} · ${Math.round(m.a)}/${Math.round(m.d)}/${Math.round(m.h)} · ${c.now?"능력":"개체 효율"} ${(c.q*100).toFixed(0)}%<br>${c.row?esc(c.row.mv):CARDS[c.id].types.map(t=>TN[t]).join("·")+" 타입"}${todo.length?`<br><span class="todo">${todo.join("<br>")}</span>`:""}</div></div>
       <div class="val">${c.v.toFixed(0)}<small>점</small></div></div>`; };
   const block=(title,t,empty)=>`<div class="bxsec">${title}</div>${t?t.team.map(row).join("")+`<div class="bxopt" style="flex-wrap:wrap">${t.holes.length?`겹치는 약점: ${t.holes.map(chip).join("")}`:"겹치는 약점 없음 👍"}</div>`:`<div class="empty">${empty}</div>`}`;
   const same=nowT&&growT&&nowT.team.every((c,i)=>growT.team[i]&&growT.team[i].ix===c.ix&&growT.team[i].lv===c.lv&&growT.team[i].id===c.id);
   return `<div class="seg">${LEAGUES.map(([k,n])=>`<button data-xg="${k}" class="${k===lg?"on":""}">${n}</button>`).join("")}</div>
     ${block("키우면 만들 수 있는 최고 파티 · 강화·진화 포함",growT,"이 리그 순위권에 들 수 있는 포켓몬이 없어요.")}
     ${same?`<div class="sknote">지금 가진 그대로가 최고 파티예요.</div>`:block("지금 바로 쓸 수 있는 파티 · 강화·진화 없이",nowT,"강화·진화 없이 바로 쓸 수 있는 순위권 포켓몬이 없어요.")}
-    <div class="sknote" style="margin-top:8px">${lg==="master"?"마스터리그는 CP 제한이 없어 Lv50까지 강화한 것으로 계산해요.":`CP ${LCAP[lg].toLocaleString()} 이하로 맞춰 계산해요. 이미 CP가 넘은 포켓몬은 빠져요.`} 리그 순위권(상위 40) 포켓몬만 후보예요.</div>`;
+    <div class="sknote" style="margin-top:8px">${lg==="master"?"마스터리그는 CP 제한이 없어 Lv50까지 강화한 것으로 계산해요.":`CP ${LCAP[lg].toLocaleString()} 이하로 맞춰 계산해요. 이미 CP가 넘은 포켓몬은 빠져요.`} "키우면" 파티는 리그 순위권(상위 40) 포켓몬, "지금" 파티는 CP 제한 이하 내 포켓몬 전부가 후보예요.</div>`;
 }
 // ---------- 2) 강화 효율 ----------
 function useOf(m,lv,a=m.a,d=m.d,h=m.h,mode){ // 그 포켓몬이 가장 쓸모 있는 타입에서 1위(Lv40·100%) 대비 %
@@ -1410,6 +1419,7 @@ function useOf(m,lv,a=m.a,d=m.d,h=m.h,mode){ // 그 포켓몬이 가장 쓸모 �
   return b;
 }
 let TANK_TOPS=null; const TANK_TOP=T=>{ if(!TANK_TOPS){ TANK_TOPS={}; for(const [k] of TYPES) TANK_TOPS[k]=Math.max(...dmaxTankPool().map(e=>e.bulk/eff(k,CARDS[e.id]?.types||[]))); } return TANK_TOPS[T]; };
+const DUST_OPEN=new Set();
 function boxDust(){
   const st=BOXST, to=st.to, mode=st.dust;
   const list=[];
@@ -1418,13 +1428,18 @@ function boxDust(){
     if(st.good&&aft.p<70) return;
     const cost=powerCost(m.lv,to,m.sh,m.lucky,m.id); const gain=aft.p-now.p; list.push({m,now,aft,cost,gain,eff:gain/(cost.d/10000)}); });
   list.sort((a,b)=>b.eff-a.eff);
+  // 같은 포켓몬(그림자 구분)은 가장 효율 좋은 한 마리만 보이고, ▸ 누르면 나머지(개체값 다른 것)를 펼침
+  const groups=[], gi={}; for(const o of list){ const k=o.m.id+(o.m.sh?"#s":""); if(gi[k]==null){ gi[k]=groups.length; groups.push({k,items:[]}); } groups[gi[k]].items.push(o); }
+  const line=(o,i,sub)=>`${mRow(sub?"·":i,o.m,`${ivTxt(o.m)} → Lv${to}<br>${TN[o.aft.t]} ${o.now.p.toFixed(0)}% → <b>${o.aft.p.toFixed(0)}%</b> ${TB(relTier(o.aft.p))} · 모래 ${o.cost.d.toLocaleString()} · 사탕 ${o.cost.c.toLocaleString()}${o.cost.x?` · XL ${o.cost.x.toLocaleString()}`:""}${o.m.id==="eternatus"?' <span class="q">사탕 특히 많이 필요</span>':""}`,"+"+o.eff.toFixed(1),"%p/1만").replace('class="bxrow"',sub?'class="bxrow sub2"':'class="bxrow"')}`;
+  const body=groups.slice(0,30).map((g,i)=>{ const more=g.items.length-1, open=DUST_OPEN.has(g.k);
+    return line(g.items[0],i+1,false)+(more?`<button class="dmore" data-dopen="${esc(g.k)}">${open?"▾ 접기":`▸ 같은 포켓몬 ${more}마리 더`}</button>`+(open?g.items.slice(1).map(o=>line(o,0,true)).join(""):""):""); }).join("");
   return `<div class="seg"><button data-xu="raid" class="${mode==="raid"?"on":""}">레이드</button><button data-xu="deal" class="${mode==="deal"?"on":""}">다이맥스 딜러</button></div>
     <div class="seg"><button data-xl="40" class="${to===40?"on":""}">Lv40까지 (사탕)</button><button data-xl="50" class="${to===50?"on":""}">Lv50까지 (XL사탕)</button></div>
     <label class="bxopt"><input type="checkbox" id="bxGood" ${st.good?"checked":""}> 목표 레벨에서 B티어(1위 대비 70%) 이상 되는 포켓몬만</label>
-    <div class="bxsec">별의모래 1만 개당 강해지는 정도 순</div>
-    ${list.slice(0,30).map((o,i)=>mRow(i+1,o.m,`${ivTxt(o.m)} → Lv${to}<br>${TN[o.aft.t]} ${o.now.p.toFixed(0)}% → <b>${o.aft.p.toFixed(0)}%</b> ${TB(relTier(o.aft.p))} · 모래 ${o.cost.d.toLocaleString()} · 사탕 ${o.cost.c.toLocaleString()}${o.cost.x?` · XL ${o.cost.x.toLocaleString()}`:""}${o.m.id==="eternatus"?' <span class="q">사탕 특히 많이 필요</span>':""}`,"+"+o.eff.toFixed(1),"%p/1만")).join("")||`<div class="empty">조건에 맞는 포켓몬이 없어요.</div>`}`;
+    <div class="bxsec">별의모래 1만 개당 강해지는 정도 순 · 같은 포켓몬은 한 줄로</div>
+    ${body||`<div class="empty">조건에 맞는 포켓몬이 없어요.</div>`}`;
 }
-// ---------- 3) 은색 병뚜껑 (후보를 직접 입력) ----------
+// ---------- 3) 은색 은뚜껑 (후보를 직접 입력) ----------
 // 후보: [{id,a,d,h,lv}] → localStorage "pyo-caps". 역할(레이드/다이맥스 딜러/탱커) 중 그 포켓몬이 가장 쓸모 있는 역할로 효과 계산
 let CAPS=[]; try{ CAPS=JSON.parse(localStorage.getItem("pyo-caps")||"[]"); }catch(e){}
 const saveCaps=()=>{ try{ localStorage.setItem("pyo-caps",JSON.stringify(CAPS)); }catch(e){} syncUp(); };
@@ -1452,7 +1467,7 @@ function boxCap(){
     return `<div class="bxrow">${SPRITE(c.id)}<div class="inf"><div class="nm"><a data-poke="${esc(c.id)}">${esc(cd.ko)}</a> <span style="font-weight:400;color:var(--dim);font-size:11px">Lv${c.lv} · ${c.a}/${c.d}/${c.h}</span></div>
       <div class="sub">${e.base?`${ROLE_N[e.role]} ${TN[e.base.t]||""} ${e.base.p.toFixed(0)}% ${TB(relTier(e.base.p))}`:"레이드·다이맥스 순위권 밖 (능력치만 비교)"}</div><div class="capstats">${stats}</div></div>
       <div class="val">${e.best?.g?"+"+e.best.g.dp.toFixed(1):"—"}<small>${e.best?.g?"%p":""}</small><button class="capdel" data-cdel="${x.i}">삭제</button></div></div>`; };
-  return `<div class="bxsec">병뚜껑 후보 추가</div>
+  return `<div class="bxsec">은뚜껑 후보 추가</div>
     <form class="search csearch"><input placeholder="포켓몬 이름 (예: 가디안)" autocomplete="off" value="${esc(fc?fc.ko:f.q)}"><button>찾기</button></form><div class="sugg csugg"></div>
     ${fc?`${mine.length?`<div class="bxopt" style="flex-wrap:wrap">내 박스에서: ${mine.map((m,i)=>`<button type="button" class="chip" data-cmine="${i}">Lv${m.lv} ${Math.round(m.a)}/${Math.round(m.d)}/${Math.round(m.h)}</button>`).join("")}</div>`:""}
       <div class="capform">${SPRITE(fc.id)}<b>${esc(fc.ko)}</b>
@@ -1461,7 +1476,7 @@ function boxCap(){
         <button type="button" id="cfAdd">후보에 추가</button></div>`:""}
     ${top?`<div class="capreco">추천: <b>${esc(CARDS[top.c.id].ko)}</b>의 <b>${top.e.best.nm} ${top.c[top.e.best.k]} → 15</b> · ${ROLE_N[top.e.role]} 기준 ${top.e.best.g.pct.toFixed(1)}% 강해져요</div>`:""}
     <div class="bxsec">후보 ${CAPS.length}마리 · 효과 큰 순</div>
-    ${evals.map(card).join("")||`<div class="empty">위에서 병뚜껑을 쓸까 고민 중인 포켓몬(이로치·반짝반짝·전설 등)을 추가해 보세요.</div>`}
+    ${evals.map(card).join("")||`<div class="empty">위에서 은뚜껑을 쓸까 고민 중인 포켓몬(이로치·반짝반짝·전설 등)을 추가해 보세요.</div>`}
     <div class="sknote" style="margin-top:8px">계산은 그 포켓몬이 가장 쓸모 있는 역할(레이드·다이맥스 딜러·탱커) 기준이에요. 그림자는 쓸 수 없고, 친한친구(Good Buddy) 이상이어야 해요.</div>`;
 }
 function bindBox(v,root){
@@ -1469,10 +1484,11 @@ function bindBox(v,root){
   root.querySelectorAll("[data-xt]").forEach(b=>b.onclick=()=>{ const k=b.dataset.xt,i=st.opp.indexOf(k); if(i>=0) st.opp.splice(i,1); else { st.opp.push(k); if(st.opp.length>2) st.opp.shift(); } re(); });
   root.querySelectorAll("[data-xm]").forEach(b=>b.onclick=()=>{ st.mode=b.dataset.xm; re(); });
   root.querySelectorAll("[data-xg]").forEach(b=>b.onclick=()=>{ st.lg=b.dataset.xg; re(); });
+  root.querySelectorAll("[data-dopen]").forEach(b=>b.onclick=()=>{ const k=b.dataset.dopen; DUST_OPEN.has(k)?DUST_OPEN.delete(k):DUST_OPEN.add(k); renderBox(v); });
   root.querySelectorAll("[data-xd]").forEach(b=>b.onclick=()=>{ st.dm=b.dataset.xd; re(); });
   root.querySelectorAll("[data-xu]").forEach(b=>b.onclick=()=>{ st.dust=b.dataset.xu; re(); });
   root.querySelectorAll("[data-xl]").forEach(b=>b.onclick=()=>{ st.to=+b.dataset.xl; re(); });
-  // 병뚜껑 후보 입력
+  // 은뚜껑 후보 입력
   const ci=root.querySelector(".csearch input"), cs=root.querySelector(".csugg");
   if(ci){ ci.oninput=()=>{ CAPF.q=ci.value; CAPF.id=null; const q=ci.value.trim(); cs.innerHTML=q?findIds(q).slice(0,8).map(i=>`<button class="chip" data-cid="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):""; };
     const pick=id=>{ CAPF.id=id; CAPF.a=CAPF.d=CAPF.h=""; renderBox(v); };
