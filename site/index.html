@@ -661,7 +661,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.0</small></button><span class="nbbadge" id="nbBadge" hidden>뉴비모드</span><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.1</small></button><span class="nbbadge" id="nbBadge" hidden>뉴비모드</span><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -808,7 +808,7 @@ const GROUPS={ pokemon:{subs:[["card","포켓몬 검색"],["dex","도감"]],last
                strat:{subs:[["type","상성표"],["rocket","로켓단"]],last:"type"},
                my:{subs:[["boxparty","파티 추천"],["boxdust","강화 효율"],["boxcap","은뚜껑 추천"],["boxlist","내 포켓몬"],["me","내 정보"]],last:"boxparty"},
                more:{subs:[["more","더보기"],["home","일정"],["guide","왕초보 가이드"],["intro","회원 기능 소개"]],last:"more"} };
-const GUEST_SUBS=[["intro","회원 기능 소개"],["me","로그인"]];
+const GUEST_SUBS=GROUPS.my.subs.filter(([k])=>k!=="me"); // 비회원: 내 정보(로그인) 탭 없음 — 로그인은 맨 위 버튼으로
 const isMem=()=>!!(ME&&!ME.mustChange);
 // 주소 #p=포켓몬id 는 포켓몬 카드 화면 (카드 링크를 보내면 그 포켓몬이 바로 열림)
 const hv=()=>{ const h=location.hash.slice(1); return h.startsWith("p=")?"card":h; };
@@ -817,7 +817,8 @@ const groupOf=v=>v==="admin"?"more":Object.keys(GROUPS).find(g=>GROUPS[g].subs.s
 function show(){
   let v=hv(); if(GROUPS[v]&&!VIEWS.includes(v)) v=GROUPS[v].last; if(!VIEWS.includes(v)) v="card";
   let g=groupOf(v), subs=g?GROUPS[g].subs:[];
-  if(!isMem()&&(g==="my"||v==="intro")){ g="my"; subs=GUEST_SUBS; }   // 비회원: 내 포켓몬 탭 = 소개 + 로그인
+  if(!isMem()&&v==="me"){ g=null; subs=[]; }   // 비회원 로그인 화면: 하위 탭 없이 따로
+  else if(!isMem()&&g==="my"){ GROUPS.my.last=v; subs=GUEST_SUBS; }   // 비회원: 회원 기능 탭은 보이되 내용은 안내만
   else if(g){ if(v!=="admin") GROUPS[g].last=v; if(g==="more"&&ME&&ME.admin) subs=subs.concat([["admin","관리자"]]); }
   VIEWS.forEach(x=>$("#v-"+x).classList.toggle("on",x===v));
   document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("on",b.dataset.nav===g));
@@ -840,7 +841,7 @@ function show(){
 function go(v){ if(GROUPS[v]&&!VIEWS.includes(v)) v=GROUPS[v].last; if(hv()===v) show(); else location.hash=v; }
 document.addEventListener("click",e=>{
   if(!e.target.closest(".hsearch")) closeMenu();
-  const nb=e.target.closest("[data-nav]"); if(nb){ const k=nb.dataset.nav; go(k==="my"?(isMem()?GROUPS.my.last:"intro"):k==="more"?"more":k); return; }
+  const nb=e.target.closest("[data-nav]"); if(nb){ const k=nb.dataset.nav; go(k==="my"?(!isMem()&&GROUPS.my.last==="me"?"boxparty":GROUPS.my.last):k==="more"?"more":k); return; }
   const g=e.target.closest("[data-go]"); if(g){ go(g.dataset.go); return; }
   const bo=e.target.closest("[data-boss]"); if(bo){ openBoss(bo.dataset.boss,bo.dataset.bm); return; }
   const p=e.target.closest("[data-poke]"); if(p){ openCard(p.dataset.poke); go("card"); }
@@ -1462,7 +1463,7 @@ function renderBox(v){
   const root=$("#v-"+v); if(!root) return;
   if(!DEX){ root.innerHTML=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`; return; }
   let body="";
-  if(!ME||ME.mustChange){ root.innerHTML=`<div class="empty">회원 전용 기능이에요.<br><button class="upbtn" data-go="me">로그인 ›</button></div>`; return; }
+  if(!ME||ME.mustChange){ root.innerHTML=ME?`<div class="empty">비밀번호를 먼저 정해 주세요.<br><button class="upbtn" data-go="me">내 정보로 가기 ›</button></div>`:`<div class="empty">회원 전용 기능이에요.<br>오른쪽 위 <b>로그인</b> 버튼으로 로그인해 주세요.<br><button class="upbtn" data-go="intro">회원 기능 소개 보기 ›</button></div>`; return; }
   if(v==="boxcap") body=boxCap();
   else if(!BOX||!BOX.rows.length) body=`<div class="empty">내 포켓몬 데이터를 먼저 올려 주세요.<br>올리기는 <b>내 정보</b>에서만 할 수 있어요.<br><button class="upbtn" data-go="me">내 정보로 가기 ›</button></div>`;
   else body=v==="boxparty"?boxParty():v==="boxlist"?boxList():boxDust();
