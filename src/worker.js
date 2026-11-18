@@ -1,7 +1,7 @@
 // PYOkemongo 서버 (Cloudflare Worker)
 // - /api/* 만 이 코드가 처리하고, 나머지는 site/ 정적 파일(ASSETS)을 그대로 보여 줌
 // - 계정: 트레이너 코드(12자리, 그대로 저장) + 비밀번호(PBKDF2-SHA256 해시만 저장, 사람마다 다른 salt)
-// - 가입 없음: 관리자가 트레이너 코드를 추가하면 바로 계정이 생김 (초기 비밀번호 INITIAL_PW, 첫 로그인 때 꼭 바꿔야 함)
+// - 가입 없음: 관리자가 트레이너 코드를 추가하면 바로 계정이 생김 (무작위 첫 비밀번호를 관리자에게 한 번만 보여 줌, 첫 로그인 때 꼭 바꿔야 함)
 // - 관리자: users.is_admin = 1 인 특별 계정. 서버 코드에는 관리자 계정 이름을 적지 않음(공개 저장소라서).
 //   관리자 계정은 D1 콘솔에서 한 번만 만들고, 첫 로그인 때 비밀번호를 꼭 바꿔야 관리 기능이 열림
 // - 세션: 무작위 토큰을 HttpOnly 쿠키로 주고, 서버에는 토큰의 SHA-256 해시만 저장
@@ -15,7 +15,8 @@ const ADMIN_FAILS = 3, ADMIN_LOCK_MIN = 60; // 관리자: 3번 틀리면 60분 �
 const IP_MAX = 30, IP_WINDOW_MIN = 15; // 같은 IP에서 15분에 30번 넘게 실패하면 잠시 막음
 const MAX_BODY = 400 * 1024;           // 박스 데이터 최대 400KB
 const COOKIE = "pyo_s";
-const INITIAL_PW = "hello"; // 관리자가 만든 계정의 첫 비밀번호 (must_change=1 이라 로그인 후 바꾸기 전엔 아무 기능도 못 씀)
+// 관리자가 만든 계정·초기화한 계정의 첫 비밀번호: 무작위(헷갈리는 글자 뺌), 관리자 화면에 한 번만 보여 줌. must_change=1 이라 바꾸기 전엔 아무 기능도 못 씀
+const tempPw = () => { const a = "abcdefghjkmnpqrstuvwxyz23456789", r = randBytes(8); let s = ""; for (let i = 0; i < 8; i++) s += a[r[i] % a.length] + (i === 3 ? "-" : ""); return s; };
 
 const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS users (code TEXT PRIMARY KEY, pw_hash TEXT NOT NULL, salt TEXT NOT NULL, iter INTEGER NOT NULL, created INTEGER NOT NULL, fails INTEGER NOT NULL DEFAULT 0, lock_until INTEGER NOT NULL DEFAULT 0, is_admin INTEGER NOT NULL DEFAULT 0, must_change INTEGER NOT NULL DEFAULT 0)`,
@@ -182,19 +183,19 @@ async function api(req, env, path) {
     }
     let b; try { b = await readJson(req); } catch { return fail("잘못된 요청이에요."); }
     const target = String(b.code || "").replace(/\D/g, "");
-    if (sub === "create" && method === "POST") { // 계정 바로 만들기: 비밀번호 INITIAL_PW, 첫 로그인 때 변경 필수
+    if (sub === "create" && method === "POST") { // 계정 바로 만들기: 무작위 첫 비밀번호, 첫 로그인 때 변경 필수
       if (!validCode(target)) return fail("트레이너 코드는 숫자 12자리예요.");
       if (await db.prepare("SELECT 1 FROM users WHERE code = ?").bind(target).first()) return fail("이미 있는 계정이에요.", 409);
-      const salt = randBytes(16);
+      const salt = randBytes(16), temp = tempPw();
       await db.prepare("INSERT INTO users (code, pw_hash, salt, iter, created, must_change) VALUES (?, ?, ?, ?, ?, 1)")
-        .bind(target, await pbkdf2(INITIAL_PW, salt, PBKDF2_ITER), b64(salt), PBKDF2_ITER, now()).run();
+        .bind(target, await pbkdf2(temp, salt, PBKDF2_ITER), b64(salt), PBKDF2_ITER, now()).run();
       await log(db, code, "create_user", target, ip);
-      return json({ ok: true });
+      return json({ ok: true, temp });
     }
     if (sub === "reset" && method === "POST") { // 비밀번호 초기화: 임시 비밀번호를 한 번만 보여 줌, 그 사람의 로그인은 모두 끊김
       const u = await db.prepare("SELECT is_admin FROM users WHERE code = ?").bind(target).first();
       if (!u || u.is_admin) return fail("초기화할 수 없는 계정이에요.");
-      const temp = INITIAL_PW;
+      const temp = tempPw();
       const salt = randBytes(16);
       await db.prepare("UPDATE users SET pw_hash = ?, salt = ?, iter = ?, fails = 0, lock_until = 0, must_change = 1 WHERE code = ?").bind(await pbkdf2(temp, salt, PBKDF2_ITER), b64(salt), PBKDF2_ITER, target).run();
       await db.prepare("DELETE FROM sessions WHERE code = ?").bind(target).run();

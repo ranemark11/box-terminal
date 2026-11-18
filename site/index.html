@@ -209,6 +209,7 @@ details[open].mecard summary{margin-bottom:8px}
 .adrow{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px}
 .adrow small{color:var(--dim);font-size:11px}
 .adrow span:last-child{white-space:nowrap}
+.tmppw{font-family:VT323,monospace;font-size:34px;letter-spacing:3px;color:var(--amber);background:rgba(0,0,0,.35);border:1px dashed var(--amber);border-radius:10px;padding:6px 10px;margin:6px 0;user-select:all}
 .adlog{font-size:11.5px;color:var(--dim);padding:2px 0}
 .upbtn{appearance:none;margin-top:10px;border:0;background:var(--ink);color:#0b2124;font-weight:700;border-radius:999px;padding:8px 16px;font-size:13px;cursor:pointer}
 /* ---- 도감 ---- */
@@ -453,7 +454,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.11</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.12</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1232,7 +1233,7 @@ function confirmBox(msg,ok){ const m=document.createElement("div"); m.className=
 const LOGIN_ST={mode:"login"};
 function renderMe(){
   const root=$("#v-me"); if(!root) return;
-  const pwForm=(title,force)=>`<div class="mecard"><div class="mehd">${title}</div>${force?`<p class="sknote">처음 로그인했거나 비밀번호가 초기화됐어요. 지금 비밀번호(처음엔 hello)를 넣고 새 비밀번호로 바꿔야 계속 쓸 수 있어요.</p>`:""}
+  const pwForm=(title,force)=>`<div class="mecard"><div class="mehd">${title}</div>${force?`<p class="sknote">처음 로그인했거나 비밀번호가 초기화됐어요. 관리자에게 받은 비밀번호를 "지금 비밀번호"에 넣고 새 비밀번호로 바꿔야 계속 쓸 수 있어요.</p>`:""}
     <div class="loginbox"><label>지금 비밀번호<input type="password" id="pwOld" autocomplete="current-password"></label><label>새 비밀번호 (${ME?.admin?"10":"8"}자 이상)<input type="password" id="pwNew" autocomplete="new-password"></label><label>새 비밀번호 확인<input type="password" id="pwNew2" autocomplete="new-password"></label><div class="err" id="pwErr"></div><button class="mebtn main" id="pwGo">비밀번호 바꾸기</button></div></div>`;
   let h="";
   if(!ME){
@@ -1280,6 +1281,16 @@ function bindBoxSection(root){
   const c=root.querySelector("#boxClr"); if(c) c.onclick=()=>confirmBox(ME?"이 기기와 서버에서 포켓몬 리스트를 지울까요? (병뚜껑 후보는 남아요)":"이 기기에서 포켓몬 리스트를 지울까요?",()=>{ BOX=null; try{localStorage.removeItem("pyo-box");}catch(e){} done(); });
   const p=root.querySelector("#boxPull"); if(p) p.onclick=async()=>{ try{ await syncDown(); renderMe(); alertBox("서버에서 불러왔어요."); }catch(e){ alertBox(e.message); } };
 }
+// 무작위 첫 비밀번호를 한 번만 보여 주고 복사 (친구에게 보낼 안내 문장째 복사)
+function pwBox(title,code,temp){
+  const msg=`PYOkemongo(https://pogo.hhhpyo.cloud) 로그인\n아이디: ${code}\n첫 비밀번호: ${temp}\n로그인하면 새 비밀번호로 바꿔 주세요.`;
+  const m=document.createElement("div"); m.className="shotmodal";
+  m.innerHTML=`<div class="shotbox"><p>${esc(title)}</p><div class="tmppw">${esc(temp)}</div><p class="sknote">이 화면을 닫으면 다시 볼 수 없어요. 복사해서 친구에게 보내 주세요.</p>
+    <div class="shotbtns"><button data-share data-cp="pw">비밀번호 복사</button><button data-cp="msg">안내 문장째 복사</button><button data-x>닫기</button></div></div>`;
+  document.body.appendChild(m);
+  const copy=async(t,b)=>{ try{ await navigator.clipboard.writeText(t); }catch(e){ const ta=document.createElement("textarea"); ta.value=t; m.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); } b.textContent="복사했어요 ✓"; };
+  m.onclick=e=>{ const b=e.target.closest("[data-cp]"); if(b) return copy(b.dataset.cp==="pw"?temp:msg,b); if(e.target.closest("[data-x]")) m.remove(); };
+}
 // ---------- 관리자 페이지 (관리자 로그인일 때만, 서버도 관리자만 응답) ----------
 async function renderAdmin(){
   const root=$("#v-admin"); if(!root) return;
@@ -1290,14 +1301,14 @@ async function renderAdmin(){
   const us=d.users.filter(u=>!u.is_admin);
   root.innerHTML=`<div class="mecard"><div class="mehd"><span class="adm">관리자</span> 계정 추가</div>
       <div class="loginbox"><label>트레이너 코드 (12자리)<input id="alCode" inputmode="numeric" placeholder="1234 5678 9012"></label><div class="err" id="alErr"></div><button class="mebtn main" id="alAdd">계정 만들기</button>
-      <p class="sknote">바로 계정이 생기고 첫 비밀번호는 <b>hello</b>예요. 친구가 처음 로그인하면 새 비밀번호로 바꾸게 돼요. 만들고 나면 친구에게 바로 알려 주세요.</p></div></div>
+      <p class="sknote">바로 계정이 생기고 무작위 첫 비밀번호가 한 번만 보여요. 복사해서 친구에게 보내 주세요. 친구가 처음 로그인하면 새 비밀번호로 바꾸게 돼요.</p></div></div>
     <div class="mecard"><div class="mehd">사용자 ${us.length}명</div>
       ${us.map(u=>`<div class="adrow"><span><b>${fmtCode(u.code)}</b><br><small>${u.must_change?'<span style="color:var(--amber)">첫 로그인 대기</span>':"사용 중"} · 만든 날 ${fmtTime(u.created)} · 저장 ${fmtTime(u.updated)}${u.size?` · ${Math.round(u.size/1024)}KB`:""}</small></span><span><button class="mebtn sm" data-rst="${u.code}">비번 초기화</button> <button class="mebtn danger sm" data-udel="${u.code}">삭제</button></span></div>`).join("")||`<p class="sknote">아직 없어요.</p>`}</div>
     <div class="mecard"><div class="mehd">관리 기록 (최근 30개)</div>${d.logs.map(l=>`<div class="adlog">${fmtTime(l.ts)} · ${ACT[l.action]||l.action}${l.target?" · "+fmtCode(l.target):""}${l.ip&&l.ip!=="local"?` · ${esc(l.ip)}`:""}</div>`).join("")||`<p class="sknote">없어요.</p>`}</div>`;
   const re=()=>renderAdmin();
   root.querySelector("#alAdd").onclick=async()=>{ const code=root.querySelector("#alCode").value.replace(/\D/g,""), err=root.querySelector("#alErr"); if(code.length!==12){ err.textContent="트레이너 코드는 숫자 12자리예요."; return; }
-    try{ await api("admin/create",{method:"POST",body:JSON.stringify({code})}); alertBox(`${fmtCode(code)} 계정을 만들었어요.\n첫 비밀번호: hello`); re(); }catch(e){ err.textContent=e.message; } };
-  root.querySelectorAll("[data-rst]").forEach(b=>b.onclick=()=>confirmBox(`${fmtCode(b.dataset.rst)}의 비밀번호를 초기화할까요?`,async()=>{ try{ const j=await api("admin/reset",{method:"POST",body:JSON.stringify({code:b.dataset.rst})}); alertBox(`비밀번호를 ${j.temp}(으)로 초기화했어요.\n친구가 로그인하면 새 비밀번호로 바꾸게 돼요.`); re(); }catch(e){ alertBox(e.message); } }));
+    try{ const j=await api("admin/create",{method:"POST",body:JSON.stringify({code})}); pwBox(`${fmtCode(code)} 계정을 만들었어요.`,code,j.temp); re(); }catch(e){ err.textContent=e.message; } };
+  root.querySelectorAll("[data-rst]").forEach(b=>b.onclick=()=>confirmBox(`${fmtCode(b.dataset.rst)}의 비밀번호를 초기화할까요?`,async()=>{ try{ const j=await api("admin/reset",{method:"POST",body:JSON.stringify({code:b.dataset.rst})}); pwBox(`${fmtCode(b.dataset.rst)} 비밀번호를 초기화했어요.`,b.dataset.rst,j.temp); re(); }catch(e){ alertBox(e.message); } }));
   root.querySelectorAll("[data-udel]").forEach(b=>b.onclick=()=>confirmBox(`${fmtCode(b.dataset.udel)} 계정과 저장된 데이터를 모두 지울까요?`,async()=>{ await api("admin/user",{method:"DELETE",body:JSON.stringify({code:b.dataset.udel})}).catch(e=>alertBox(e.message)); re(); }));
 }
 api("me").then(j=>{ setMe(j); return syncDown(); }).then(()=>{ const v=location.hash.slice(1); if(v.startsWith("box")) renderBox(v); if(v==="me") renderMe(); if(v==="admin") renderAdmin(); }).catch(()=>{});
