@@ -225,6 +225,18 @@ async function api(req, env, path) {
       await log(db, code, "reset_password", target, ip);
       return json({ ok: true, temp });
     }
+    if (sub === "box" && method === "PUT") { // 관리자가 회원 대신 포켓몬 리스트 넣기 (그 회원의 은뚜껑 후보는 그대로 둠)
+      const u = await db.prepare("SELECT is_admin FROM users WHERE code = ?").bind(target).first();
+      if (!u || u.is_admin) return fail("포켓몬을 넣을 수 없는 계정이에요.");
+      const old = await db.prepare("SELECT data FROM boxes WHERE code = ?").bind(target).first();
+      let caps = []; try { caps = old ? JSON.parse(old.data).caps || [] : []; } catch {}
+      const data = cleanBox({ box: b.box, caps });
+      if (!data.box || !data.box.rows.length) return fail("넣을 포켓몬이 없어요.");
+      const t = now();
+      await db.prepare("INSERT INTO boxes (code, data, updated) VALUES (?, ?, ?) ON CONFLICT(code) DO UPDATE SET data = excluded.data, updated = excluded.updated").bind(target, JSON.stringify(data), t).run();
+      await log(db, code, "put_box", target, ip);
+      return json({ ok: true, count: data.box.rows.length, updated: t });
+    }
     if (sub === "user" && method === "DELETE") {
       const u = await db.prepare("SELECT is_admin FROM users WHERE code = ?").bind(target).first();
       if (!u || u.is_admin) return fail("지울 수 없는 계정이에요.");

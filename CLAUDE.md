@@ -23,7 +23,7 @@
   두 워크플로는 `concurrency: data-commit`으로 겹치지 않게 되어 있음.
 
 ## 파일 구조
-- `site/index.html` — 사이트 전체(HTML·CSS·JS 한 파일). 페이지 제목 "표켓몬고 티어리스트(PYOkemongo) - 포켓몬고 정보 사이트", 화면 로고 "PYOkemongo v1.22"
+- `site/index.html` — 사이트 전체(HTML·CSS·JS 한 파일). 페이지 제목 "표켓몬고 티어리스트(PYOkemongo) - 포켓몬고 정보 사이트", 화면 로고 "PYOkemongo v1.23"
 - `src/worker.js` — 서버(Cloudflare Worker). `/api/*`만 처리(로그인·서버 저장·관리자), 나머지는 site/ 정적 파일. D1 `pyo-db`(바인딩 `DB`)
 - `wrangler.jsonc` — `main: src/worker.js`, assets `./site`(`run_worker_first: ["/api/*"]`), D1 database_id `48d803c7-…`
 - `site/_headers` — 정적 파일 보안 헤더(CSP·X-Frame-Options 등). 새 외부 주소(글꼴·이미지·스크립트)를 쓰면 CSP에도 추가해야 함. 인라인 스크립트라 `unsafe-inline` 허용 상태
@@ -98,7 +98,7 @@
 - 레이드·다이맥스·배틀 보드는 **처음엔 타입/리그 선택 없음** + 안내 문구. 선택은 저장하지 않고 탭·정렬만 기억.
 
 ## 화면 구성 (상단 탭)
-- 헤더(스크롤해도 고정 `.hdr`): 로고 **PYOkemongo v1.22** · 오른쪽에 **로그인** 버튼 → 로그인하면 **회원기능 ▾**(드롭다운).
+- 헤더(스크롤해도 고정 `.hdr`): 로고 **PYOkemongo v1.23** · 오른쪽에 **로그인** 버튼 → 로그인하면 **회원기능 ▾**(드롭다운).
 - **최상위 탭 3개**: 포켓몬 카드 · 티어리스트 · **정보 ▾**(드롭다운: 상성표 `#type` / 일정 `#home` / 회원 기능 소개 `#intro`). 정보 아래 화면에 있으면 정보 탭에 불 들어옴.
   드롭다운은 `MENUS`/`MENU_VIEWS`/`openMenu`로 관리 (`data-menu` 버튼). 하위 탭(밑줄형)은 `GROUPS`:
   - 포켓몬 카드 → **포켓몬 검색**(`#card`, 첫 화면) / **도감**(`#dex`)
@@ -146,7 +146,7 @@
 - (화면 문구는 "은뚜껑". 금뚜껑은 나중에 따로) 내 정보의 내 포켓몬 칸에는 은뚜껑 후보 수를 표시하지 않음.
 - Calcy는 큐레무 블랙/화이트를 구분 못 함(능력치 같음) → "큐레무 블랙"으로 들어옴.
 - 내 정보의 올리기 버튼 아래 **"📖 올리는 방법 보기"** → Calcy IV 안내 창(`showHowto`: 자동 스캔 → 포켓몬 정보창에서 옆으로 넘기기("포켓몬 조사하기" 언급 없음) → 내보내기 → 올리기, 사용자가 직접 다듬은 문구라 그대로 유지. 3단계 첫 줄 "PYOkemongo 사이트로 돌아와서, 오른쪽 위…", 맨 끝에 "잘못 읽혔으면 내 포켓몬에서 고치기" 안내). 내 정보 맨 위 표기는 "트레이너코드 1234 5678 9012". 포켓몬 리스트 지우는 버튼 이름은 "데이터 지우기".
-- 회원 대신 포켓몬을 넣어 줄 때: 사이트의 `importCalcy` + 서버 `cleanBox`로 변환해 D1 콘솔용 `INSERT INTO boxes … ON CONFLICT(code) DO UPDATE` SQL을 만들어 사용자에게 줌(샌드박스는 D1에 직접 못 붙음). 데이터 형식 `{"box":{rows,miss:[],date},"caps":[]}`, updated는 ms. 이렇게 넣으면 그 회원의 은뚜껑 후보는 비워짐.
+- 회원 대신 포켓몬 넣기: **관리자 페이지 "회원 포켓몬 넣기"** 카드(회원 선택 + CSV 파일 → 브라우저에서 `importCalcy` → 확인 창 → `PUT /api/admin/box {code, box}`). 서버는 관리자만(아니면 404), 관리자·없는 계정은 거절, `cleanBox` 검사, **그 회원의 은뚜껑 후보는 그대로 둠**, `admin_log` "put_box". (예전 방식: D1 콘솔용 SQL — 은뚜껑 후보가 비워지므로 이제 쓰지 않음)
 - 포켓몬 리스트: **Calcy IV CSV**(History → 내보내기)를 **내 정보**에서 올림 → localStorage `pyo-box` + 서버 저장. 각 회원 탭에는 저장/불러오기 없음, **올리기는 내 정보에서만.** 다른 회원 탭은 올린 게 없으면 "내 포켓몬 데이터를 먼저 올려 주세요" + "내 정보로 가기 ›" 버튼만.
   CSV → 카드 매핑 `calcyId`(도감번호 + 폼 단어 `FORM_KO` 역방향 `FORM_KW`). 기술은 CSV에 거의 없어서 **추천 기술 가정**.
 - 실제 능력치 환산: 데이터(Lv40·15/15/15) × 비율 `ratio`(레벨 CPM·개체값). 레이드 ER ∝ rA×(rD×rH)^¼, 맥스딜 ∝ rA, 다이맥스 내구 ∝ rD×rH.
@@ -175,8 +175,8 @@
 - 박스 저장은 서버에서 `cleanBox`로 검사(포켓몬 id 형식·숫자 범위·정해진 칸만, 최대 5000마리·은뚜껑 후보 100개).
 - 잠금: 일반 5번 틀리면 15분, 관리자 3번 틀리면 60분, IP 15분에 30번 실패 시 차단. 쓰기 요청은 같은 출처 + JSON만(CSRF 방지). 박스 최대 400KB.
 - **관리자**: `users.is_admin=1` 특별 계정(아이디는 트레이너 코드가 아닌 별도 숫자, **코드·문서에 적지 않음**). D1 콘솔에서 한 번만 만듦(must_change=1 → 첫 로그인 때 비밀번호 10자 이상으로 바꿔야 모든 기능 열림).
-  관리자 API(`/api/admin/*`)는 관리자가 아니면 404. 관리자 페이지: 계정 추가(트레이너 코드), 사용자 목록(첫 로그인 대기/사용 중), 비밀번호 초기화(무작위, 한 번만 표시), 계정 삭제, 관리 기록(`admin_log`).
-- API: `me`, `login`, `logout`, `password`, `box`(GET/PUT), `account`(DELETE, 관리자 불가), `admin/overview|create|reset|user`.
+  관리자 API(`/api/admin/*`)는 관리자가 아니면 404. 관리자 페이지: 계정 추가(트레이너 코드), 회원 포켓몬 넣기(CSV), 사용자 목록(첫 로그인 대기/사용 중), 비밀번호 초기화(무작위, 한 번만 표시), 계정 삭제, 관리 기록(`admin_log`).
+- API: `me`, `login`, `logout`, `password`, `box`(GET/PUT), `account`(DELETE, 관리자 불가), `admin/overview|create|reset|user|box`(box = PUT, 회원 포켓몬 넣기).
 - 무료 한도 충분(D1 하루 읽기 500만·쓰기 10만 줄, Workers 하루 10만 요청; 정적 파일은 Worker를 안 거침).
 - 로컬 시험: node:sqlite로 D1 흉내 내서 `worker.fetch` 직접 호출(Playwright로 화면까지).
 
