@@ -533,7 +533,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.6</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.7</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -958,7 +958,7 @@ async function saveCardImage(c,sh){
   const clone=card.cloneNode(true); clone.querySelectorAll("img").forEach(i=>i.removeAttribute("loading"));
   wrap.appendChild(clone); wrap.insertAdjacentHTML("beforeend",`<div class="shot-by">by. PYOkemongo</div>`); document.body.appendChild(wrap);
   // 이미지로 그릴 때 글꼴 폭이 조금 달라져 진화 버튼 글자가 줄바꿈되며 테두리를 벗어나는 문제 → 버튼에 여유 폭을 줌
-  clone.querySelectorAll(".evo button").forEach(b=>{ b.style.minWidth=(b.offsetWidth+16)+"px"; b.style.whiteSpace="nowrap"; });
+  clone.querySelectorAll(".evo button").forEach(b=>{ b.style.minWidth=(b.offsetWidth+8)+"px"; b.style.whiteSpace="nowrap"; b.style.textAlign="center"; });
   const skip=n=>!(n.classList&&(n.classList.contains("shbtn")||n.classList.contains("skgo")));
   try{
     const lib=await loadH2I(); try{ await document.fonts.ready; }catch(e){}
