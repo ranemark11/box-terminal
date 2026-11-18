@@ -6,5 +6,8 @@
   "events": 22,
   "byRule": 18,
   "gemini": 0
+ },
+ "rocket": {
+  "groups": 26
  }
 }
