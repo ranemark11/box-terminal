@@ -495,7 +495,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.21</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.22</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1339,7 +1339,7 @@ function boxSection(){
   const has=BOX&&BOX.rows&&BOX.rows.length;
   return `<div class="mestat">${has?`포켓몬 <b>${BOX.rows.length}마리</b> · 올린 날 ${esc(BOX.date||"-")}`:"아직 올린 포켓몬이 없어요."}${ME?` · 서버 저장 ${fmtTime(ME_UPDATED)}`:""}</div>
     <div class="merow"><label class="mebtn main">${has?"새 CSV로 바꾸기":"포켓몬 리스트(CSV) 올리기"}<input type="file" accept=".csv,text/csv" id="boxFile" hidden></label>
-      ${ME?`<button class="mebtn" id="boxPull">서버에서 다시 불러오기</button>`:""}${has?`<button class="mebtn danger" id="boxClr">포켓몬 지우기</button>`:""}
+      ${ME?`<button class="mebtn" id="boxPull">서버에서 다시 불러오기</button>`:""}${has?`<button class="mebtn danger" id="boxClr">데이터 지우기</button>`:""}
       ${typeof PREVIEW_CSV!=="undefined"?`<button class="mebtn" id="boxDemo">미리보기용 내 CSV</button>`:""}</div>
     <div class="merow"><button class="mebtn" id="boxHow">📖 올리는 방법 보기</button></div>
     <p class="sknote">Calcy IV → 기록(History) → 내보내기(CSV)로 만든 파일이에요.${ME?" 올리면 서버에 저장돼서 다른 기기에서 로그인해도 그대로 보여요.":""}</p>`;
