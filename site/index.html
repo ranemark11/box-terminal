@@ -182,6 +182,37 @@ button{font:inherit;color:inherit}
 .bxrow .val small{display:block;font-family:inherit;font-size:12px;color:var(--dim)}
 .bxrow .sub .tb{transform:scale(.72);transform-origin:left center;margin-right:-6px}
 .bxrow .q{font-size:10px;border:1px dashed var(--dim);color:var(--dim);border-radius:4px;padding:0 3px;margin-left:4px}
+.minebar{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:10px 0 4px}
+.minebar span{margin-right:auto;font-size:12.5px;font-weight:700;color:var(--amber)}
+.minebar button{appearance:none;border:1px solid var(--ink);background:none;color:var(--ink);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.minebar:not(.on) button{background:var(--ink);color:#0b2124}
+.own{display:inline-block;font-size:10.5px;border:1px solid var(--ink);color:var(--ink);border-radius:5px;padding:0 5px;margin-top:2px}
+.own.none{border-style:dashed;border-color:var(--dim);color:var(--dim)}
+.lbar{display:flex;gap:6px;align-items:stretch}
+.lbar input{flex:1;min-width:0;background:rgba(0,0,0,.3);border:1px solid var(--faint);color:var(--ink);border-radius:10px;padding:9px 11px;font-size:14px;font-family:inherit}
+.lbar select,.edmon select{background:#11191c;border:1px solid var(--faint);color:var(--ink);border-radius:10px;padding:0 8px;font-size:12.5px;font-family:inherit}
+.linfo{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--dim);margin:8px 2px 2px}
+.linfo button,.lmore{appearance:none;border:1px solid var(--faint);background:none;color:var(--ink);border-radius:999px;padding:4px 11px;font-size:11.5px;cursor:pointer;font-family:inherit}
+.lmore{display:block;margin:10px auto 0;padding:7px 16px}
+button.lrow{appearance:none;width:100%;background:none;border:0;border-bottom:1px solid rgba(255,255,255,.06);color:inherit;font:inherit;text-align:left;cursor:pointer}
+.lrow .ed{color:var(--dim);font-size:13px;margin-left:2px}
+.edmon{text-align:left;font-size:12.5px}
+.edhd{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:8px;min-height:40px}
+.edhd .spr{width:40px;height:40px}
+.edmon label{display:block;color:var(--dim);font-size:11.5px}
+.edmon input[type=number],.edmon input:not([type]),.edmon select{display:block;width:100%;box-sizing:border-box;margin-top:3px;background:rgba(0,0,0,.3);border:1px solid var(--faint);color:var(--ink);border-radius:8px;padding:8px;font-size:14px;font-family:inherit;height:38px}
+.edgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}
+.edchk{display:flex;gap:16px;margin:10px 0 2px}
+.edchk label{display:flex;align-items:center;gap:5px;color:var(--ink);font-size:13px}
+.edmon .err{color:#ff8a8a;font-size:12px;min-height:16px;margin-top:6px}
+.shotbtns [data-save]{background:var(--ink);color:#0b2124;font-weight:700}
+.intro-top{font-size:13.5px;line-height:1.6;margin:2px 2px 12px}
+.icard{border:1px solid var(--faint);border-radius:14px;padding:12px;margin:0 0 12px;background:rgba(0,0,0,.22)}
+.icard h3{margin:0 0 3px;font-size:15.5px;color:var(--amber)}
+.icard p{margin:0 0 9px;font-size:12.5px;line-height:1.55}
+.demo{position:relative;max-height:330px;overflow:hidden;border:1px solid var(--faint);border-radius:10px;padding:6px 10px 0;background:#0b1416;pointer-events:none;user-select:none}
+.demo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:54px;background:linear-gradient(rgba(11,20,22,0),#0b1416)}
+.demo::before{content:"예시 화면";display:block;text-align:right;font-size:10px;color:var(--dim);margin-bottom:-4px}
 .bxsec{font-size:12px;font-weight:700;color:var(--amber);margin:12px 2px 4px}
 .bxopt{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);margin:2px 2px 8px}
 .bxopt input{accent-color:var(--ink)}
@@ -463,7 +494,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.16</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.17</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -516,6 +547,8 @@ td.num.sorted{color:var(--amber)}
     <section class="view" id="v-boxparty"></section>
     <section class="view" id="v-boxdust"></section>
     <section class="view" id="v-boxcap"></section>
+    <section class="view" id="v-boxlist"></section>
+    <section class="view" id="v-intro"></section>
     <section class="view" id="v-me"></section>
     <section class="view" id="v-admin"></section>
 
@@ -591,14 +624,14 @@ const LEAGUE_ICON={
 const lgSvg=(k,c)=>`<svg viewBox="0 0 24 24" style="color:${c}" aria-hidden="true">${LEAGUE_ICON[k]}</svg>`;
 
 // ===== 라우팅 =====
-const VIEWS=["home","card","dex","type","raid","dmax","pvp","boxparty","boxdust","boxcap","me","admin"];
+const VIEWS=["home","card","dex","type","raid","dmax","pvp","boxparty","boxdust","boxcap","boxlist","intro","me","admin"];
 // 최상위 탭 → 하위 탭 묶음 (하위 탭이 있는 탭은 마지막으로 본 하위 탭을 기억)
 const GROUPS={ pokemon:{subs:[["card","포켓몬 검색"],["dex","도감"]],last:"card"},
                tier:{subs:[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀리그"]],last:"raid"} };
 // 드롭다운 메뉴: 정보(상성표·일정), 회원기능(로그인했을 때 헤더 버튼)
-const MENUS={ info:()=>[["type","상성표"],["home","일정"]],
-  member:()=>[["boxparty","파티 추천"],["boxdust","강화 효율"],["boxcap","은뚜껑 추천"],null,["me","내 정보"]].concat(ME&&ME.admin?[["admin","관리자 페이지"]]:[]) };
-const MENU_VIEWS={info:["type","home"],member:["boxparty","boxdust","boxcap","me","admin"]};
+const MENUS={ info:()=>[["type","상성표"],["home","일정"],["intro","회원 기능 소개"]],
+  member:()=>[["boxparty","파티 추천"],["boxdust","강화 효율"],["boxcap","은뚜껑 추천"],["boxlist","내 포켓몬"],null,["me","내 정보"]].concat(ME&&ME.admin?[["admin","관리자 페이지"]]:[]) };
+const MENU_VIEWS={info:["type","home","intro"],member:["boxparty","boxdust","boxcap","boxlist","me","admin"]};
 function closeMenu(){ document.querySelectorAll(".ddmenu").forEach(m=>m.remove()); }
 function openMenu(btn){ const name=btn.dataset.menu, was=document.querySelector(`.ddmenu[data-for="${name}"]`); closeMenu(); if(was) return;
   const cur=location.hash.slice(1), m=document.createElement("div"); m.className="ddmenu"; m.dataset.for=name;
@@ -617,6 +650,9 @@ function show(){
   if(v.startsWith("box")) renderBox(v);
   if(v==="me") renderMe();
   if(v==="admin") renderAdmin();
+  if(v==="type") renderType();
+  if(v==="home") renderHome();
+  if(v==="intro") renderIntro();
   $("#acctBtn").classList.toggle("on",MENU_VIEWS.member.includes(v));
   window.scrollTo(0,0);
 }
@@ -722,9 +758,13 @@ function pickRow(id,cat,sub){
   return `<div class="pick${j&&!j.v?" dimmed":""}" style="--bc:${color}">${SPRITE(id)}<div class="pi">
     <div class="pc">${CATN[cat]||""}${sub?`<small>${sub}</small>`:""}</div>
     <div class="pn"><a data-poke="${esc(id)}">${esc(name)}</a>${j?.v?VTAG[j.v]:""}${evo}</div>
-    ${j?`<div class="pr">${j.txt}</div>`:""}</div>
+    ${j?`<div class="pr">${j.txt}</div>`:""}${ownTag(id,cat)}</div>
     <button class="bgo" data-boss="${esc(id)}" data-bm="${cat==="max"?"dmax":"raid"}">공략 ›</button></div>`;
 }
+// 내 포켓몬에 이미 있는지 (같은 진화 가족, 그림자는 그림자끼리, 맥스배틀은 다이맥스 되는 것만)
+function ownTag(id,cat){ if(!hasBox()) return ""; const c=CARDS[id], fam=new Set((c.evo||[]).flat()); fam.add(id); let n=0,best=-1;
+  for(const m of BOX.rows){ if(!fam.has(m.id)||(cat==="shadow")!==!!m.sh) continue; if(cat==="max"&&!canDmax(m,true)) continue; n++; if(m.iv>best) best=m.iv; }
+  return n?`<span class="own">보유 ${n}마리 · 최고 ${Math.round(best)}%</span>`:`<span class="own none">미보유</span>`; }
 const PICK_CATS=["raid","mega","max","shadow"];
 // 일정 → [ {id,cat,e} ] (같은 포켓몬·분류는 한 번만)
 function eventPicks(list,skip){
@@ -1115,6 +1155,16 @@ function renderType(){
     rows.sort((a,b)=>b[tk]-a[tk]); assignTiers(rows,tk); rows.sort((a,b)=>b.v-a.v);
     const top=rows[0]?.v||1, list=rows.slice(0,30);
     const col=TMODE==="raid"?"점수":role==="tank"?(st.gauge?"점수":"내구"):"점수";
+    const member=ME&&!ME.mustChange, mine=BOSS.mine&&hasBox();
+    const mineBar=!member?"":mine?`<div class="minebar on"><span>내 포켓몬 기준</span><button data-mine="0">‹ 전체 포켓몬으로 보기</button></div>`:`<div class="minebar"><button data-mine="1">내 포켓몬으로 보기 ›</button></div>`;
+    let mineHTML="";
+    if(mine){ const lab=w=>w<0.6?"이중반감":w<0.99?"반감":w>2.5?"이중약점":w>1.5?"약점":"보통", dq=b=>b.m.dm==="?"&&!SPECIAL_DMAX.includes(b.m.id)?'<span class="q">다이맥스?</span>':"";
+      if(TMODE==="raid") mineHTML=myRaidBest(opp).slice(0,12).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}`,(b.v/top*100).toFixed(0)+"%","최상 대비")).join("");
+      else{ const r=myDmaxBest(opp,BOXST.unk);
+        mineHTML=role==="deal"?r.deal.slice(0,12).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}${dq(b)}`,Math.round(b.v),"맥스딜")).join("")
+          :r.tank.slice(0,12).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>상대 공격 ${lab(b.w)}${dq(b)}`,Math.round(b.v),"내구")).join(""); }
+      mineHTML=`<div class="bxsec">내 포켓몬 상위 12마리</div>`+(mineHTML||`<div class="empty">맞는 포켓몬이 없어요.</div>`)
+        +(TMODE==="dmax"?`<label class="bxopt"><input type="checkbox" id="tyUnk" ${BOXST.unk?"checked":""}> 다이맥스 여부를 모르는 포켓몬(Calcy "?")도 넣기</label>`:""); }
     body=`<div class="mgrid">
         ${group("이중약점",atk.filter(a=>a.x>=2.5))}
         ${group("약점",atk.filter(a=>a.x>=1.5&&a.x<2.5))}
@@ -1123,11 +1173,12 @@ function renderType(){
       </div>
       <div class="seg modeSeg"><button data-m="raid" class="${TMODE==="raid"?"on":""}">레이드 추천</button><button data-m="dmax" class="${TMODE==="dmax"?"on":""}">다이맥스 추천</button></div>
       ${TMODE==="dmax"?roleSwitch(st.role):""}
-      ${TMODE==="dmax"&&role==="tank"?`<div class="seg gopt"><button data-g="0" class="${st.gauge?"":"on"}">내구만</button><button data-g="1" class="${st.gauge?"on":""}">게이지 반영</button></div>`:""}
-      <table><thead><tr><th>#</th><th>포켓몬 / 기술</th><th class="num">${col}</th><th style="text-align:center">티어</th></tr></thead><tbody>${list.map((r,i)=>{
+      ${TMODE==="dmax"&&role==="tank"&&!mine?`<div class="seg gopt"><button data-g="0" class="${st.gauge?"":"on"}">내구만</button><button data-g="1" class="${st.gauge?"on":""}">게이지 반영</button></div>`:""}
+      ${mineBar}
+      ${mine?mineHTML:`<table><thead><tr><th>#</th><th>포켓몬 / 기술</th><th class="num">${col}</th><th style="text-align:center">티어</th></tr></thead><tbody>${list.map((r,i)=>{
         const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?'<span class="tag p">+기술MAX</span>':"");
         return `<tr style="--tc:${r.mt?TC[r.mt]:"#5aa8ff"}"><td class="rank">${i+1}</td><td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></div></div></td>
-          <td class="num sorted">${(+r.v).toFixed(TMODE==="dmax"&&role==="tank"&&!st.gauge?0:1)}<span class="p">${(r.v/top*100).toFixed(0)}%</span></td><td class="tier">${TB(r._t)}</td></tr>`;}).join("")}</tbody></table>
+          <td class="num sorted">${(+r.v).toFixed(TMODE==="dmax"&&role==="tank"&&!st.gauge?0:1)}<span class="p">${(r.v/top*100).toFixed(0)}%</span></td><td class="tier">${TB(r._t)}</td></tr>`;}).join("")}</tbody></table>`}
       <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
   }
   root.innerHTML=`<div class="label">&gt; 상대 포켓몬 검색 또는 타입 선택</div>
@@ -1145,9 +1196,12 @@ function renderType(){
     if(i>=0) BOSS.opp.splice(i,1); else { BOSS.opp.push(k); if(BOSS.opp.length>2) BOSS.opp.shift(); } renderType(); });
   root.querySelector(".clr").onclick=()=>{ BOSS.id=null; BOSS.opp=[]; BOSS.q=""; renderType(); };
   root.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{ TMODE=b.dataset.m; saveType(); renderType(); });
+  root.querySelectorAll("[data-mine]").forEach(b=>b.onclick=()=>{ if(b.dataset.mine==="1"&&!hasBox()){ alertBox("내 포켓몬 데이터를 먼저 올려 주세요.\n올리기는 내 정보에서만 할 수 있어요."); go("me"); return; } BOSS.mine=b.dataset.mine==="1"; renderType(); });
+  const tu=root.querySelector("#tyUnk"); if(tu) tu.onchange=()=>{ BOSS_UNK(tu.checked); };
   root.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{ st.role=b.dataset.role; save(); renderType(); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
   root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ st.gauge=b.dataset.g==="1"; save(); renderType(); $("#p-dmax").dataset.ready=""; renderBoard("dmax"); });
 }
+function BOSS_UNK(on){ BOXST.unk=on; saveBoxSt(); renderType(); }
 function openBoss(id,mode){ const c=CARDS[id]; if(!c) return;
   BOSS.id=id; BOSS.q=c.ko; BOSS.opp=c.types.slice(0,2); if(mode) TMODE=mode; renderType(); go("type"); }
 function saveType(){ try{ localStorage.setItem("pyo-type",JSON.stringify({TMODE})); }catch(e){} }
@@ -1218,7 +1272,7 @@ function renderBox(v){
   if(!ME||ME.mustChange){ root.innerHTML=`<div class="empty">회원 전용 기능이에요.<br><button class="upbtn" data-go="me">로그인 ›</button></div>`; return; }
   if(v==="boxcap") body=boxCap();
   else if(!BOX||!BOX.rows.length) body=`<div class="empty">내 포켓몬 데이터를 먼저 올려 주세요.<br>올리기는 <b>내 정보</b>에서만 할 수 있어요.<br><button class="upbtn" data-go="me">내 정보로 가기 ›</button></div>`;
-  else body=v==="boxparty"?boxParty():boxDust();
+  else body=v==="boxparty"?boxParty():v==="boxlist"?boxList():boxDust();
   root.innerHTML=body+`<div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
   bindBox(v,root);
 }
@@ -1355,8 +1409,19 @@ async function renderAdmin(){
   root.querySelectorAll("[data-udel]").forEach(b=>b.onclick=()=>confirmBox(`${fmtCode(b.dataset.udel)} 계정과 저장된 데이터를 모두 지울까요?`,async()=>{ await api("admin/user",{method:"DELETE",body:JSON.stringify({code:b.dataset.udel})}).catch(e=>alertBox(e.message)); re(); }));
 }
 const INV0=(location.hash.match(/^#invite=(.+)$/)||[])[1]; if(INV0){ try{ history.replaceState(null,"","#me"); }catch(e){} }
-(INV0?useInvite(decodeURIComponent(INV0)).then(ok=>{ if(!ok) throw 0; }).catch(()=>api("me").then(j=>{ setMe(j); go("me"); alertBox("초대 코드가 맞지 않거나 이미 사용됐어요.\n이미 비밀번호를 정했다면 로그인해 주세요."); return syncDown(); })):api("me").then(j=>{ setMe(j); return syncDown(); })).then(()=>{ const v=location.hash.slice(1); if(v.startsWith("box")) renderBox(v); if(v==="me") renderMe(); if(v==="admin") renderAdmin(); }).catch(()=>{});
+(INV0?useInvite(decodeURIComponent(INV0)).then(ok=>{ if(!ok) throw 0; }).catch(()=>api("me").then(j=>{ setMe(j); go("me"); alertBox("초대 코드가 맞지 않거나 이미 사용됐어요.\n이미 비밀번호를 정했다면 로그인해 주세요."); return syncDown(); })):api("me").then(j=>{ setMe(j); return syncDown(); })).then(()=>{ const v=location.hash.slice(1); if(v.startsWith("box")) renderBox(v); if(v==="me") renderMe(); if(v==="admin") renderAdmin(); if(v==="type") renderType(); if(v==="home") renderHome(); if(v==="intro") renderIntro(); }).catch(()=>{});
 // ---------- 1) 파티 추천 ----------
+// 상대(opp) 기준 내 포켓몬 순위 — 파티 추천과 상성표 "내 포켓몬으로 보기"가 같이 씀
+function myRaidBest(opp,rows=BOX.rows){ const best=[]; // 개체마다 가장 좋은 타입 하나
+  rows.forEach((m,ix)=>{ if(!CARDS[m.id]) return; const r=ratio(m); const inc=Math.max(...opp.map(o=>eff(o,CARDS[m.id].types)));
+    let b=null; for(const x of myRaidRows(m)){ const v=x.er*r.A*Math.pow(r.D*r.H,0.25)*eff(x.t2,opp)/1.6*Math.pow(1/inc,0.25); if(!b||v>b.v) b={m,ix,x,v}; } if(b) best.push(b); });
+  return best.sort((a,b)=>b.v-a.v); }
+function myDmaxBest(opp,unk,rows=BOX.rows){ const deal=[],tank=[];
+  rows.forEach((m,ix)=>{ if(!CARDS[m.id]||!canDmax(m,unk)) return; const o={m,ix}, r=ratio(m), c=CARDS[m.id];
+    let b=null; for(const x of myDmaxRows(m)){ const v=x.max*r.A*eff(x.t2,opp)/1.6; if(!b||v>b.v) b={...o,x,v}; } if(b) deal.push(b);
+    const row=myDmaxRows(m)[0]; if(row){ const worst=Math.max(...opp.map(t=>eff(t,c.types))); tank.push({...o,x:row,v:row.bulk*r.D*r.H/worst,w:worst}); } });
+  deal.sort((a,b)=>b.v-a.v); tank.sort((a,b)=>b.v-a.v); return {deal,tank}; }
+const hasBox=()=>!!(ME&&!ME.mustChange&&BOX&&BOX.rows&&BOX.rows.length);
 function boxParty(){
   const st=BOXST, opp=st.opp;
   const modeSeg=`<div class="seg">${[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀리그"]].map(([k,n])=>`<button data-xm="${k}" class="${st.mode===k?"on":""}">${n}</button>`).join("")}</div>`;
@@ -1366,19 +1431,11 @@ function boxParty(){
   let res="";
   if(!opp.length) res=`<div class="empty">상대 포켓몬 이름을 검색하거나 타입을 골라 주세요.</div>`;
   else if(st.mode==="raid"){
-    const best=[]; // 개체마다 가장 좋은 타입 하나
-    BOX.rows.forEach((m,ix)=>{ const r=ratio(m); const inc=Math.max(...opp.map(o=>eff(o,CARDS[m.id].types)));
-      let b=null; for(const x of myRaidRows(m)){ const v=x.er*r.A*Math.pow(r.D*r.H,0.25)*eff(x.t2,opp)/1.6*Math.pow(1/inc,0.25); if(!b||v>b.v) b={m,ix,x,v}; } if(b) best.push(b); });
-    best.sort((a,b)=>b.v-a.v);
+    const best=myRaidBest(opp);
     const ideal=bossRaidRows(opp).sort((a,b)=>b.v-a.v)[0]?.v||1;
     res=`<div class="bxsec">레이드 딜러 6마리</div>`+best.slice(0,6).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}`,(b.v/ideal*100).toFixed(0)+"%","최상 대비")).join("")||`<div class="empty">맞는 포켓몬이 없어요.</div>`;
   }else{
-    const pool=BOX.rows.map((m,ix)=>({m,ix})).filter(o=>canDmax(o.m,st.unk));
-    const deal=[],tank=[];
-    for(const o of pool){ const r=ratio(o.m), c=CARDS[o.m.id];
-      let b=null; for(const x of myDmaxRows(o.m)){ const v=x.max*r.A*eff(x.t2,opp)/1.6; if(!b||v>b.v) b={...o,x,v}; } if(b) deal.push(b);
-      const row=myDmaxRows(o.m)[0]; if(row){ const worst=Math.max(...opp.map(t=>eff(t,c.types))); tank.push({...o,x:row,v:row.bulk*r.D*r.H/worst,w:worst}); } }
-    deal.sort((a,b)=>b.v-a.v); tank.sort((a,b)=>b.v-a.v);
+    const {deal,tank}=myDmaxBest(opp,st.unk);
     const lab=w=>w<0.6?"이중반감":w<0.99?"반감":w>2.5?"이중약점":w>1.5?"약점":"보통";
     const dRow=(b,i)=>mRow(i,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}${b.m.dm==="?"&&!SPECIAL_DMAX.includes(b.m.id)?'<span class="q">다이맥스?</span>':""}`,Math.round(b.v),"맥스딜");
     const tRow=(b,i)=>mRow(i,b.m,`${ivTxt(b.m)}<br>상대 공격 ${lab(b.w)}${b.m.dm==="?"&&!SPECIAL_DMAX.includes(b.m.id)?'<span class="q">다이맥스?</span>':""}`,Math.round(b.v),"내구");
@@ -1522,6 +1579,7 @@ function boxCap(){
     <div class="sknote" style="margin-top:8px">계산은 그 포켓몬이 가장 쓸모 있는 역할(레이드·다이맥스 딜러·탱커) 기준이에요. 그림자는 쓸 수 없고, 친한친구(Good Buddy) 이상이어야 해요.</div>`;
 }
 function bindBox(v,root){
+  if(v==="boxlist") bindBoxList(root);
   const st=BOXST, re=()=>{ saveBoxSt(); renderBox(v); };
   root.querySelectorAll("[data-xt]").forEach(b=>b.onclick=()=>{ const k=b.dataset.xt,i=st.opp.indexOf(k); if(i>=0) st.opp.splice(i,1); else { st.opp.push(k); if(st.opp.length>2) st.opp.shift(); } re(); });
   root.querySelectorAll("[data-xm]").forEach(b=>b.onclick=()=>{ st.mode=b.dataset.xm; re(); });
@@ -1548,6 +1606,97 @@ function bindBox(v,root){
     const pick=(id,q)=>{ const c=CARDS[id]; if(!c) return; st.q=q??c.ko; st.opp=c.types.slice(0,2); renderBox(v); };
     sg.onclick=e=>{ const b=e.target.closest("[data-xid]"); if(b) pick(b.dataset.xid); };
     root.querySelector(".xsearch").onsubmit=e=>{ e.preventDefault(); const id=findIds(inp.value)[0]; if(id) pick(id,inp.value); }; }
+}
+// ---------- 4) 내 포켓몬 목록 (검색·정렬·고치기) ----------
+const LISTST={q:"",sort:"dex",n:60};
+const LSORTS=[["dex","도감번호순"],["name","이름순"],["cp","CP 높은 순"],["iv","개체값 높은 순"],["lv","레벨 높은 순"],["use","레이드 쓸모 순"]];
+const USE_CACHE=new WeakMap(); const raidUse=m=>{ if(!USE_CACHE.has(m)) USE_CACHE.set(m,useOf(m,m.lv,m.a,m.d,m.h,"raid")?.p||0); return USE_CACHE.get(m); };
+const DM_N={D:"다이맥스",G:"거다이맥스"};
+function boxListRows(){
+  const st=LISTST, q=st.q.trim().toLowerCase().replace(/\s/g,"");
+  let rows=(BOX?.rows||[]).map((m,ix)=>({m,ix,c:CARDS[m.id]})).filter(o=>o.c);
+  if(q) rows=rows.filter(o=>mName(o.m).replace(/\s/g,"").toLowerCase().includes(q)||(o.c.en||"").toLowerCase().replace(/\s/g,"").includes(q));
+  const by={dex:(a,b)=>a.c.dex-b.c.dex||b.m.cp-a.m.cp, name:(a,b)=>a.c.ko.localeCompare(b.c.ko,"ko")||b.m.cp-a.m.cp, cp:(a,b)=>b.m.cp-a.m.cp, iv:(a,b)=>b.m.iv-a.m.iv||b.m.cp-a.m.cp, lv:(a,b)=>b.m.lv-a.m.lv||b.m.cp-a.m.cp, use:(a,b)=>raidUse(b.m)-raidUse(a.m)};
+  rows.sort(by[st.sort]||by.dex);
+  const line=o=>{ const m=o.m, iv=Math.round(m.iv)+"%"+(m.ex?"":"±");
+    const [big,small]=st.sort==="iv"?[iv,"CP "+m.cp]:st.sort==="use"?[raidUse(m)?raidUse(m).toFixed(0)+"%":"—","레이드"]:[m.cp||"—","CP · "+iv];
+    return `<button class="bxrow lrow" data-ledit="${o.ix}">${SPRITE(m.id)}<div class="inf"><div class="nm">${esc(mName(m))}${m.dm==="G"?'<span class="tag g">G-MAX</span>':""}${m.lucky?' <span class="q">반짝반짝</span>':""}</div>
+      <div class="sub">Lv${m.lv} · ${Math.round(m.a)}/${Math.round(m.d)}/${Math.round(m.h)}${DM_N[m.dm]?" · "+DM_N[m.dm]:""}</div></div><div class="val">${big}<small>${small}</small></div><span class="ed">✎</span></button>`; };
+  return `<div class="linfo"><span>${q?`검색 ${rows.length}마리 / `:""}전체 ${BOX?.rows?.length||0}마리 · 눌러서 고치기</span><button data-ladd>＋ 직접 추가</button></div>`
+    +(rows.slice(0,st.n).map(line).join("")||`<div class="empty">찾는 포켓몬이 없어요.</div>`)
+    +(rows.length>st.n?`<button class="lmore" data-lmore>더 보기 (${rows.length-st.n}마리 남음)</button>`:"");
+}
+function boxList(){ const st=LISTST;
+  return `<div class="lbar"><input id="blQ" placeholder="내 포켓몬 검색" autocomplete="off" value="${esc(st.q)}"><select id="blSort">${LSORTS.map(([k,n])=>`<option value="${k}" ${st.sort===k?"selected":""}>${n}</option>`).join("")}</select></div>
+    <div id="blList">${boxListRows()}</div>
+    <p class="sknote" style="margin-top:10px">고친 내용은 바로 저장돼요. 새 CSV를 올리면 목록이 새 파일로 통째로 바뀌어요.</p>`;
+}
+function bindBoxList(root){
+  const box=root.querySelector("#blList"), inp=root.querySelector("#blQ"), sel=root.querySelector("#blSort"); if(!box) return;
+  const re=()=>{ box.innerHTML=boxListRows(); };
+  inp.oninput=()=>{ LISTST.q=inp.value; LISTST.n=60; re(); };
+  sel.onchange=()=>{ LISTST.sort=sel.value; LISTST.n=60; re(); };
+  box.onclick=e=>{ const b=e.target.closest("[data-ledit]"); if(b){ editMon(+b.dataset.ledit); return; }
+    if(e.target.closest("[data-lmore]")){ LISTST.n+=100; re(); return; }
+    if(e.target.closest("[data-ladd]")) editMon(-1); };
+}
+// 포켓몬 한 마리 고치기 / 직접 추가 (ix<0 이면 새로 추가)
+function editMon(ix){
+  const isNew=ix<0, f=isNew?{id:null,sh:false,lv:20,a:15,d:15,h:15,dm:"-",lucky:false}:{...BOX.rows[ix]};
+  const m=document.createElement("div"); m.className="shotmodal"; document.body.appendChild(m);
+  const grab=()=>{ const v=id=>m.querySelector(id); if(!v("#edLv")) return; f.lv=parseFloat(v("#edLv").value); f.a=parseInt(v("#edA").value,10); f.d=parseInt(v("#edD").value,10); f.h=parseInt(v("#edH").value,10); f.dm=v("#edDm").value; f.sh=v("#edSh").checked; f.lucky=v("#edLk").checked; };
+  const draw=()=>{ const c=f.id&&CARDS[f.id], dm=["-","D","G","?"].includes(f.dm)?f.dm:"?", n=x=>isNaN(x)?"":Math.round(x);
+    m.innerHTML=`<div class="shotbox"><div class="edmon">
+      <div class="edhd">${c?SPRITE(c.id):""}<b>${c?esc((f.sh?"그림자 ":"")+c.ko):"포켓몬을 골라 주세요"}</b></div>
+      <label>${isNew?"포켓몬 고르기":"다른 포켓몬으로 바꾸기"}<input id="edQ" placeholder="이름 검색 (예: 큐레무 화이트)" autocomplete="off"></label><div class="sugg" id="edS"></div>
+      <div class="edgrid"><label>레벨<input id="edLv" type="number" min="1" max="51" step="0.5" value="${isNaN(f.lv)?"":f.lv}"></label><label>공격<input id="edA" type="number" min="0" max="15" value="${n(f.a)}"></label><label>방어<input id="edD" type="number" min="0" max="15" value="${n(f.d)}"></label><label>HP<input id="edH" type="number" min="0" max="15" value="${n(f.h)}"></label></div>
+      <label>다이맥스<select id="edDm">${[["-","못 함"],["D","다이맥스"],["G","거다이맥스"],["?","모름"]].map(([k,t])=>`<option value="${k}" ${dm===k?"selected":""}>${t}</option>`).join("")}</select></label>
+      <div class="edchk"><label><input type="checkbox" id="edSh" ${f.sh?"checked":""}> 그림자</label><label><input type="checkbox" id="edLk" ${f.lucky?"checked":""}> 반짝반짝</label></div>
+      <div class="err" id="edErr"></div></div>
+      <div class="shotbtns"><button data-save>저장</button>${isNew?"":`<button data-del>삭제</button>`}<button data-x>닫기</button></div></div>`;
+    const q=m.querySelector("#edQ"), sg=m.querySelector("#edS");
+    q.oninput=()=>{ const t=q.value.trim(); const nz=x=>String(x||"").toLowerCase().replace(/[\s()]/g,""); sg.innerHTML=t?SEARCH.filter(o=>nz(o.ko).includes(nz(t))||nz(o.en).includes(nz(t))).slice(0,8).map(o=>o.id).map(i=>`<button class="chip" data-eid="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):""; };
+    sg.onclick=e=>{ const b=e.target.closest("[data-eid]"); if(b){ grab(); f.id=b.dataset.eid; draw(); } };
+  };
+  draw();
+  const done=()=>{ saveBox(); syncUp(); m.remove(); if(location.hash==="#boxlist") renderBox("boxlist"); };
+  m.onclick=e=>{ if(e.target===m||e.target.closest("[data-x]")){ m.remove(); return; }
+    if(e.target.closest("[data-del]")){ confirmBox("이 포켓몬을 목록에서 지울까요?",()=>{ BOX.rows.splice(ix,1); done(); }); return; }
+    if(!e.target.closest("[data-save]")) return;
+    grab(); const err=m.querySelector("#edErr"), c=f.id&&CARDS[f.id], okIv=x=>Number.isInteger(x)&&x>=0&&x<=15;
+    if(!c){ err.textContent="포켓몬을 골라 주세요."; return; }
+    if(!(f.lv>=1&&f.lv<=51)||(f.lv*2)%1!==0){ err.textContent="레벨은 1~51 사이로, 0.5 단위로 넣어 주세요."; return; }
+    if(![f.a,f.d,f.h].every(okIv)){ err.textContent="공격·방어·HP 개체값은 0~15로 넣어 주세요."; return; }
+    const s=c.stats, cp=Math.max(10,Math.floor((s[0]+f.a)*Math.sqrt(s[1]+f.d)*Math.sqrt(s[2]+f.h)*cpmAt(f.lv)**2/10));
+    const row={id:f.id,sh:!!f.sh,lv:f.lv,a:f.a,d:f.d,h:f.h,iv:+((f.a+f.d+f.h)/45*100).toFixed(1),ex:true,dm:f.dm,lucky:!!f.lucky,cp};
+    if(!BOX) BOX={rows:[],miss:[],date:new Date().toLocaleDateString("sv")};
+    if(isNew) BOX.rows.push(row); else BOX.rows[ix]=row; done(); };
+}
+// ===== 회원 기능 소개 (정보 ▾, 로그인 안 한 사람도 봄) — 예시 포켓몬으로 실제 화면을 그대로 그려서 보여 줌 =====
+const DEMO_SRC=[["mewtwo",1,30,15,13,14,"-"],["rayquaza",0,35,15,15,14,"-"],["mamoswine",0,35,14,15,15,"-"],["garchomp",0,25,14,15,15,"-"],["metagross",0,40,15,14,15,"D"],["kyogre",0,30,15,15,15,"-"],["charizard",0,28,14,14,15,"G"],["gengar",0,20,15,12,13,"G"],["machamp",0,32,13,15,15,"D"],["dragonite",0,20,15,14,13,"-"],["tyranitar",1,25,13,12,15,"-"],["gardevoir",0,30,12,15,14,"D"]];
+function demoRows(){ return DEMO_SRC.filter(r=>CARDS[r[0]]).map(([id,sh,lv,a,d,h,dm])=>{ const s=CARDS[id].stats;
+  return {id,sh:!!sh,lv,a,d,h,iv:(a+d+h)/45*100,ex:true,dm,lucky:false,cp:Math.max(10,Math.floor((s[0]+a)*Math.sqrt(s[1]+d)*Math.sqrt(s[2]+h)*cpmAt(lv)**2/10))}; }); }
+function withDemo(fn){ const b=BOX, s={...BOXST}, c=CAPS, l={...LISTST}, ci=CAPF.id;
+  BOX={rows:demoRows(),miss:[],date:""}; CAPF.id=null;
+  try{ return fn(); }catch(e){ return ""; } finally{ BOX=b; Object.assign(BOXST,s); CAPS=c; Object.assign(LISTST,l); CAPF.id=ci; } }
+function renderIntro(){
+  const root=$("#v-intro"); if(!root) return;
+  if(!DEX){ root.innerHTML=`<div class="empty">도감 데이터를 불러오는 중이에요…</div>`; return; }
+  const chip=k=>`<span class="tchip" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`;
+  const party=withDemo(()=>{ const oc=CARDS.rayquaza, opp=oc?oc.types.slice(0,2):["dragon"], ideal=bossRaidRows(opp).sort((a,b)=>b.v-a.v)[0]?.v||1;
+    return `<div class="bossCard">${oc?SPRITE(oc.id)+`<b>${esc(oc.ko)}</b>`:""} ${opp.map(chip).join(" + ")}</div><div class="bxsec">레이드 딜러 6마리</div>`
+      +myRaidBest(opp).slice(0,4).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}`,(b.v/ideal*100).toFixed(0)+"%","최상 대비")).join(""); });
+  const dust=withDemo(()=>{ Object.assign(BOXST,{dust:"raid",to:40,good:false}); return boxDust().replace(/<label class="bxopt">[\s\S]*?<\/label>/,""); });
+  const cap=withDemo(()=>{ CAPS=[{id:"gardevoir",a:12,d:15,h:14,lv:40},{id:"metagross",a:14,d:15,h:15,lv:40},{id:"garchomp",a:15,d:13,h:15,lv:40}].filter(c=>CARDS[c.id]); return boxCap().replace(/<form[\s\S]*?<\/form><div class="sugg csugg"><\/div>/,"").replace('<div class="bxsec">은뚜껑 후보 추가</div>',""); });
+  const list=withDemo(()=>{ Object.assign(LISTST,{q:"",sort:"cp",n:5}); return boxList(); });
+  const card=(t,d,demo)=>`<div class="icard"><h3>${t}</h3><p>${d}</p>${demo?`<div class="demo" inert>${demo}</div>`:""}</div>`;
+  const member=ME&&!ME.mustChange;
+  root.innerHTML=`<p class="intro-top"><b>회원 기능</b>은 내 포켓몬 리스트를 올려 두고, <b>내가 가진 포켓몬 기준</b>으로 추천을 받는 기능이에요. 아래는 예시 포켓몬으로 만든 화면이에요.</p>
+    ${card("파티 추천","상대 포켓몬을 고르면 내 포켓몬 중에서 레이드 딜러 6마리, 다이맥스 파티, 배틀리그 3마리를 골라 줘요. 상성표에서도 '내 포켓몬으로 보기'로 바로 볼 수 있어요.",party)}
+    ${card("강화 효율","별의모래를 어느 포켓몬에 쓰면 가장 많이 강해지는지 순서대로 보여 줘요.",dust)}
+    ${card("은뚜껑 추천","고민 중인 포켓몬의 개체값을 넣으면 공격·방어·HP 중 무엇을 올릴지 알려 줘요.",cap)}
+    ${card("내 포켓몬","올린 포켓몬을 검색·정렬해서 보고, 잘못 읽힌 정보는 눌러서 바로 고쳐요. 일정에서는 이미 가진 포켓몬인지도 표시돼요.",list)}
+    <div class="empty">${member?`회원기능 ▾ 메뉴에서 바로 써 보세요.<br><button class="upbtn" data-go="boxparty">파티 추천 가기 ›</button>`:`지금은 초대받은 사람만 회원 기능을 이용할 수 있어요.<br><button class="upbtn" data-go="me">로그인 ›</button>`}</div>`;
 }
 // ===== 도감 (지방별, 도감번호 순) =====
 const REGIONS=[["관동",1,151],["성도",152,251],["호연",252,386],["신오",387,493],["하나",494,649],["칼로스",650,721],["알로라",722,809],["가라르",810,905],["팔데아",906,1025]];
@@ -1582,6 +1731,7 @@ fetch("data/pokedex.json").then(r=>{ if(!r.ok) throw new Error(r.status); return
   ["raid","dmax","pvp"].forEach(id=>{ $("#p-"+id).dataset.ready=""; renderBoard(id); });
   if(location.hash.slice(1)==="dex") renderDex();
   if(location.hash.slice(1).startsWith("box")) renderBox(location.hash.slice(1));
+  if(location.hash.slice(1)==="intro") renderIntro();
   renderType();
   renderHome();
 }).catch(err=>{
