@@ -495,7 +495,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.20</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.21</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1310,9 +1310,9 @@ function renderMe(){
       <div class="err" id="lgErr"></div><button class="mebtn main" id="lgGo">로그인</button>
       <p class="sknote">지금은 초대받은 사람만 회원 기능을 이용할 수 있어요.</p></div></div>`;
   }else if(ME.mustChange){
-    h=`<div class="mecard"><div class="mehd">${ME.admin?"관리자":"트레이너"} <b>${fmtCode(ME.code)}</b></div></div>`+pwForm("비밀번호 정하기",true)+`<button class="mebtn" id="lgOut">로그아웃</button>`;
+    h=`<div class="mecard"><div class="mehd">${ME.admin?"관리자":"트레이너코드"} <b>${fmtCode(ME.code)}</b></div></div>`+pwForm("비밀번호 정하기",true)+`<button class="mebtn" id="lgOut">로그아웃</button>`;
   }else{
-    h=`<div class="mecard"><div class="mehd">${ME.admin?'<span class="adm">관리자</span>':"트레이너"} <b>${fmtCode(ME.code)}</b></div>
+    h=`<div class="mecard"><div class="mehd">${ME.admin?'<span class="adm">관리자</span>':"트레이너코드"} <b>${fmtCode(ME.code)}</b></div>
         ${ME.admin?`<button class="mebtn main" data-go="admin">관리자 페이지 ›</button>`:""}</div>
       <div class="mecard"><div class="mehd">내 포켓몬</div>${boxSection()}</div>
       <details class="mecard"><summary class="mehd">비밀번호 바꾸기 ▾</summary>${pwForm("",false).replace('<div class="mecard"><div class="mehd"></div>',"").replace(/<\/div>$/,"")}</details>
@@ -1360,9 +1360,10 @@ function showHowto(){
       <li>Calcy IV로 돌아가 <b>메뉴(☰) → 기록(History) → 우측상단 점 세개 → Export</b>를 눌러요.</li>
       <li><b>내보내기(Export History to csv)</b>를 눌러 CSV 파일로 저장해요.</li></ol>
     <h4>3. 올리기</h4><ol>
-      <li>오른쪽 위 <b>회원기능 ▾ → 내 정보</b>를 눌러요.</li>
+      <li>PYOkemongo 사이트로 돌아와서, 오른쪽 위 <b>회원기능 ▾ → 내 정보</b>를 눌러요.</li>
       <li><b>포켓몬 리스트(CSV) 올리기</b>를 누르고 저장한 파일을 골라요.</li></ol>
     <p>"포켓몬 ○○마리"라고 뜨면 끝이에요. 포켓몬을 새로 잡거나 강화해서 데이터가 바뀌면 내보내기 - 올리기로 다시 최신화해요.</p>
+    <p>포켓몬 정보가 실제와 다르게 들어갔다면 Calcy IV가 화면을 잘못 읽은 거예요. <b>회원기능 ▾ → 내 포켓몬</b>에서 그 포켓몬을 눌러 바로 고칠 수 있어요.</p>
     </div><div class="shotbtns"><button data-x>닫기</button></div></div>`;
   document.body.appendChild(m); m.onclick=e=>{ if(e.target===m||e.target.closest("[data-x]")) m.remove(); };
 }
