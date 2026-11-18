@@ -421,7 +421,7 @@ details[open].mecard summary{margin-bottom:8px}
 .evo{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
 .stage{display:flex;flex-direction:column;gap:3px}
 .evo .arw{color:var(--dim);font-family:VT323,monospace;font-size:18px}
-.evo button{appearance:none;border:1px solid var(--faint);background:rgba(0,0,0,.3);border-radius:7px;padding:4px 8px;font-size:12px;cursor:pointer;color:var(--ink);text-align:left}
+.evo button{appearance:none;border:1px solid var(--faint);background:rgba(0,0,0,.3);border-radius:7px;padding:4px 8px;font-size:12px;cursor:pointer;color:var(--ink);text-align:left;white-space:nowrap}
 .evo button.cur{background:var(--ink);color:#0b2124;font-weight:700;border-color:var(--ink)}
 .evo .branch{font-size:10px;color:var(--dim)}
 .drow{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:7px 0;border-top:1px solid rgba(111,179,154,.15)}
@@ -433,6 +433,8 @@ details[open].mecard summary{margin-bottom:8px}
 .form.tl u{text-decoration:underline dotted;text-underline-offset:3px;color:var(--ink)}
 .tlgo{font-style:normal;color:var(--ink);font-size:10px;margin-left:1px}
 .sumc.tl .w::after{content:" ▸";color:var(--ink);font-size:10px}
+.shot .sumc.tl .w::after,.shot .tlgo{display:none;content:none}
+.shot .form.tl u{text-decoration:none;color:inherit}
 tr.flash td{animation:flashrow 2.2s ease-out}
 @keyframes flashrow{0%,40%{background:rgba(255,211,107,.28)}100%{background:transparent}}
 .form .tb{min-width:28px;height:24px;font-size:19px}
@@ -531,7 +533,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.5</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.6</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -955,6 +957,8 @@ async function saveCardImage(c,sh){
   wrap.innerHTML="";
   const clone=card.cloneNode(true); clone.querySelectorAll("img").forEach(i=>i.removeAttribute("loading"));
   wrap.appendChild(clone); wrap.insertAdjacentHTML("beforeend",`<div class="shot-by">by. PYOkemongo</div>`); document.body.appendChild(wrap);
+  // 이미지로 그릴 때 글꼴 폭이 조금 달라져 진화 버튼 글자가 줄바꿈되며 테두리를 벗어나는 문제 → 버튼에 여유 폭을 줌
+  clone.querySelectorAll(".evo button").forEach(b=>{ b.style.minWidth=(b.offsetWidth+16)+"px"; b.style.whiteSpace="nowrap"; });
   const skip=n=>!(n.classList&&(n.classList.contains("shbtn")||n.classList.contains("skgo")));
   try{
     const lib=await loadH2I(); try{ await document.fonts.ready; }catch(e){}
