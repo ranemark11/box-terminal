@@ -510,7 +510,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.29</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.0</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1502,11 +1502,11 @@ function myDmaxBest(opp,unk,rows=BOX.rows){ const deal=[],tank=[];
     let b=null; for(const x of myDmaxRows(m)){ const v=x.max*r.A*eff(x.t2,opp)/1.6; if(!b||v>b.v) b={...o,x,v}; } if(b) deal.push(b);
     const row=myDmaxRows(m)[0]; if(row){ const worst=Math.max(...opp.map(t=>eff(t,c.types))); tank.push({...o,x:row,v:row.bulk*r.D*r.H/worst,w:worst}); } });
   deal.sort((a,b)=>b.v-a.v); tank.sort((a,b)=>b.v-a.v); return {deal,tank}; }
-// 레이드 솔플 어림 계산: 내 딜러 6마리가 제한 시간 동안 넣는 딜 ÷ 상대 체력 (실수 보정 90%)
+// 레이드 솔플 어림 계산: 내 딜러 6마리가 제한 시간 동안 넣는 딜 ÷ 상대 체력 (최대 딜 100% 기준)
 //  실제 DPS = 표의 DPS(상대 방어 180·효과굉장 기준) × 내 공격 비율 × 180/상대 방어 × 상성/1.6
 //  버티는 시간 = 표의 TDO/DPS × 내 방어·체력 비율 ÷ (상대 공격/209 × 상대 기술 상성). 6마리가 다 쓰러지면 15초 뒤 다시 입장
 const RAID_T={1:{n:"1성",hp:600,cpm:0.5974,t:180},3:{n:"3성",hp:3600,cpm:0.73,t:180},5:{n:"5성",hp:15000,cpm:0.79,t:300}};
-const SOLO_EFF=0.9;
+const SOLO_EFF=1; // 최대 딜 100% 기준 (팀파워·날씨를 넣으면 더 잘 나오므로 따로 깎지 않음)
 const guessTier=c=>c.evo.length===1&&c.stats[0]+c.stats[1]+c.stats[2]>=600?5:3;
 function soloCalc(bid,opp,best,tk){ const c=CARDS[bid], R=RAID_T[tk], bDef=(c.stats[1]+15)*R.cpm, bAtk=(c.stats[0]+15)*R.cpm;
   const team=best.slice(0,6).map(b=>{ const r=ratio(b.m), inc=Math.max(...opp.map(o=>eff(o,CARDS[b.m.id].types)));
@@ -1518,7 +1518,7 @@ function soloHTML(bid,opp,best){ const c=bid&&CARDS[bid]; if(!c||!best.length) r
   const tk=BOXST.rtFor===bid&&RAID_T[BOXST.rt]?BOXST.rt:guessTier(c), o=soloCalc(bid,opp,best,tk), ok=o.clear!=null;
   return `<div class="solo${ok?" ok":""}"><div class="seg">${Object.entries(RAID_T).map(([k,r])=>`<button data-rt="${k}" data-rtb="${esc(bid)}" class="${+k===+tk?"on":""}">${r.n}</button>`).join("")}</div>
     <div class="st">${ok?`<b>솔플 가능</b> · 약 ${Math.ceil(o.clear)}초 (제한 ${o.R.t}초)`:`혼자서 약 <b>${o.pct.toFixed(0)}%</b> · ${Math.ceil(100/Math.max(o.pct,1))}명 정도 필요`}</div>
-    <small>${esc(c.ko)} ${o.R.n} 레이드 · 내 딜러 6마리 · 실수 보정 ${SOLO_EFF*100}% 어림값 (날씨·친구 보너스 제외)</small></div>`; }
+    <small>${esc(c.ko)} ${o.R.n} 레이드 · 내 딜러 6마리</small></div>`; }
 function bindSolo(root,re){ root.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{ BOXST.rt=+b.dataset.rt; BOXST.rtFor=b.dataset.rtb; saveBoxSt(); re(); }); }
 const hasBox=()=>!!(ME&&!ME.mustChange&&BOX&&BOX.rows&&BOX.rows.length);
 function boxParty(){
