@@ -146,6 +146,13 @@ button{font:inherit;color:inherit}
 .shotbox img{width:100%;border-radius:10px;display:block}
 .shotbox p{font-size:12.5px;margin:8px 0}
 .shot-tip{color:var(--dim)}
+.howto{text-align:left;font-size:13.5px;line-height:1.65}
+.howto h3{font-size:15px;margin:0 0 4px;color:var(--ink)}
+.howto h4{font-size:13.5px;margin:12px 0 2px;color:var(--amber,#f2b84b)}
+.howto ol{margin:0;padding-left:20px}
+.howto li{margin:3px 0}
+.howto p{font-size:13px;margin:6px 0}
+.howto b{color:var(--ink)}
 .shotbtns{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
 .shotbtns button,.shotbtns a{appearance:none;border:1px solid var(--ink);background:none;color:var(--ink);border-radius:999px;padding:6px 14px;font-size:12.5px;cursor:pointer;text-decoration:none}
 .shotbtns [data-share]{background:var(--ink);color:#0b2124;font-weight:700}
@@ -456,7 +463,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.14</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.15</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1279,9 +1286,33 @@ function boxSection(){
     <div class="merow"><label class="mebtn main">${has?"새 CSV로 바꾸기":"포켓몬 리스트(CSV) 올리기"}<input type="file" accept=".csv,text/csv" id="boxFile" hidden></label>
       ${ME?`<button class="mebtn" id="boxPull">서버에서 다시 불러오기</button>`:""}${has?`<button class="mebtn danger" id="boxClr">포켓몬 지우기</button>`:""}
       ${typeof PREVIEW_CSV!=="undefined"?`<button class="mebtn" id="boxDemo">미리보기용 내 CSV</button>`:""}</div>
+    <div class="merow"><button class="mebtn" id="boxHow">📖 올리는 방법 보기</button></div>
     <p class="sknote">Calcy IV → 기록(History) → 내보내기(CSV)로 만든 파일이에요.${ME?" 올리면 서버에 저장돼서 다른 기기에서 로그인해도 그대로 보여요.":""}</p>`;
 }
+// 내 포켓몬 올리는 방법 (Calcy IV) 안내 창
+function showHowto(){
+  const m=document.createElement("div"); m.className="shotmodal";
+  m.innerHTML=`<div class="shotbox"><div class="howto">
+    <h3>내 포켓몬 올리기 안내 (Calcy IV)</h3>
+    <p>안드로이드 기기에서만 할 수 있어요. 순서는 <b>스캔 → 내보내기 → 올리기</b> 세 가지예요.</p>
+    <h4>1. 스캔하기</h4><ol>
+      <li>플레이 스토어에서 <b>Calcy IV</b>를 설치하고 열어요. 묻는 권한은 모두 <b>허용</b>을 눌러요.</li>
+      <li>Calcy IV에서 <b>자동 스캔(AutoScan)</b>을 켜요.</li>
+      <li><b>게임으로 전환</b>을 눌러요. 포켓몬고가 열려요.</li>
+      <li>포켓몬 한 마리를 열고, 오른쪽 아래 <b>포켓몬 조사하기</b>를 눌러요.</li>
+      <li>그 상태에서 화면을 <b>옆으로 넘기기만</b> 해요. 넘길 때마다 한 마리씩 자동으로 저장돼요.</li></ol>
+    <h4>2. 내보내기</h4><ol>
+      <li>Calcy IV로 돌아가 <b>메뉴(☰) → 기록(History) → 우측상단 점 세개 → Export</b>를 눌러요.</li>
+      <li><b>내보내기(Export History to csv)</b>를 눌러 CSV 파일로 저장해요.</li></ol>
+    <h4>3. 올리기</h4><ol>
+      <li>오른쪽 위 <b>회원기능 ▾ → 내 정보</b>를 눌러요.</li>
+      <li><b>포켓몬 리스트(CSV) 올리기</b>를 누르고 저장한 파일을 골라요.</li></ol>
+    <p>"포켓몬 ○○마리"라고 뜨면 끝이에요. 포켓몬을 새로 잡거나 강화해서 데이터가 바뀌면 내보내기 - 올리기로 다시 최신화해요.</p>
+    </div><div class="shotbtns"><button data-x>닫기</button></div></div>`;
+  document.body.appendChild(m); m.onclick=e=>{ if(e.target===m||e.target.closest("[data-x]")) m.remove(); };
+}
 function bindBoxSection(root){
+  const hw=root.querySelector("#boxHow"); if(hw) hw.onclick=showHowto;
   const done=async()=>{ saveBox(); try{ await syncUp(true); }catch(e){ alertBox("서버 저장에 실패했어요: "+e.message); } renderMe(); };
   const f=root.querySelector("#boxFile"); if(f) f.onchange=()=>{ const file=f.files[0]; if(!file) return; file.text().then(t=>{ try{ BOX=importCalcy(t); done(); if(BOX.miss.length) alertBox("이름을 못 찾은 포켓몬: "+BOX.miss.join(", ")); }catch(e){ alertBox(e.message); } }); };
   const d=root.querySelector("#boxDemo"); if(d) d.onclick=()=>{ BOX=importCalcy(PREVIEW_CSV); done(); };
