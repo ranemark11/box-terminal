@@ -183,8 +183,30 @@ async function main() {
   await writeFile(CACHE, JSON.stringify(cache, null, 1));
   await writeFile(OUT, JSON.stringify({ updated: now.toISOString().slice(0, 10), source: "LeekDuck (ScrapedDuck)", events }, null, 1));
   report.counts = { events: events.length, byRule: Object.values(ruled).filter(Boolean).length, gemini: todo.length };
+  await updateRocket(now);
   await writeFile(REPORT, JSON.stringify(report, null, 1));
   console.log(`일정 ${events.length}개 저장 (규칙 변환 ${report.counts.byRule}개, AI 번역 대상 ${todo.length}개)`);
+}
+
+// GO 로켓단 출전 포켓몬 (ScrapedDuck rocketLineups) → site/data/rocket.json. 실패해도 일정 저장은 그대로.
+const ROCKET_SRC = "https://raw.githubusercontent.com/bigfoott/ScrapedDuck/data/rocketLineups.min.json";
+const ROCKET_OUT = "site/data/rocket.json";
+export function rocketSlim(raw) {
+  return raw.map(g => {
+    const nm = g.name || "", lead = ["Cliff", "Arlo", "Sierra", "Giovanni"].find(x => x === nm);
+    const k = lead ? lead.toLowerCase() : g.type ? g.type : /Decoy/.test(nm) ? "decoy" : /Female/.test(nm) ? "female" : "male";
+    return { k, g: /Female/.test(nm) ? "f" : /Male/.test(nm) ? "m" : "", s: [g.firstPokemon, g.secondPokemon, g.thirdPokemon].map(sl => (sl || []).map(p => [p.name, p.isEncounter ? 1 : 0])) };
+  }).filter(g => g.s.some(sl => sl.length));
+}
+async function updateRocket(now) {
+  try {
+    const res = await fetch(ROCKET_SRC);
+    if (!res.ok) throw new Error("응답 오류 " + res.status);
+    const list = rocketSlim(await res.json());
+    if (list.length < 10) throw new Error("목록이 너무 적음: " + list.length);
+    await writeFile(ROCKET_OUT, JSON.stringify({ updated: now.toISOString().slice(0, 10), source: "LeekDuck (ScrapedDuck)", list }));
+    report.rocket = { groups: list.length };
+  } catch (e) { report.warnings.push("로켓단 갱신 실패: " + (e.message || e)); }
 }
 
 main().catch(async err => {

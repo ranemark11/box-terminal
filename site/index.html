@@ -528,17 +528,141 @@ td.num.sorted{color:var(--amber)}
   .pic{width:96px;height:96px}
   .cname{font-size:17px}
 }
+/* ---- v2.8: 위 검색창 + 아래 탭 ---- */
+body{padding-bottom:86px}
+.hdr .top{padding:0 6px 8px}
+.hsearch{position:relative;margin:0 2px}
+.hsearch .search input{padding:8px 11px;font-size:14px;background:rgba(0,0,0,.35);border-color:#5d6680;color:#e6ebf5}
+.hsearch .search input::placeholder{color:#8a93a8}
+.hsugg{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:45;background:#1b2130;border:1px solid #5d6680;border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:5px;box-shadow:0 10px 24px rgba(0,0,0,.6)}
+.hsugg:empty{display:none}
+.hsugg .hint{font-size:11.5px;color:#8a93a8}
+.hsugg .chip{color:#e6ebf5;border-color:#5d6680}
+.nbbadge{font-size:10.5px;font-weight:700;color:#0b2124;background:var(--amber);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.nbbadge[hidden]{display:none}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;justify-content:center;pointer-events:none;padding:0 10px}
+.tabbar-in{pointer-events:auto;width:100%;max-width:760px;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;background:linear-gradient(180deg,var(--bezel-hi),var(--bezel-lo));border:1px solid #5d6680;border-bottom:0;border-radius:16px 16px 0 0;padding:6px 6px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -8px 20px rgba(0,0,0,.55)}
+.tabbar button{appearance:none;border:0;background:none;color:#98a2b8;font:inherit;font-size:11px;font-weight:700;padding:6px 0 4px;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap}
+.tabbar svg{width:22px;height:22px}
+.tabbar button.on{color:#0b2124;background:var(--ink);box-shadow:0 0 14px rgba(140,255,210,.4)}
+.kakaobar{bottom:66px}
+.subtabs{overflow-x:auto;scrollbar-width:none}
+.subtabs::-webkit-scrollbar{display:none}
+.subtabs button{white-space:nowrap;flex:1 0 auto;padding-left:10px;padding-right:10px}
+#v-card .sugg{margin-top:0}
+.oldmv{font-size:9.5px;font-weight:700;color:#0b2124;background:var(--amber);border-radius:4px;padding:0 4px;margin-left:3px;vertical-align:1px}
+/* ---- 더보기 ---- */
+.mlist{border:1px solid var(--faint);border-radius:12px;overflow:hidden;margin-bottom:12px;background:rgba(0,0,0,.25)}
+.mrowb{appearance:none;width:100%;border:0;border-bottom:1px solid var(--faint);background:none;color:var(--ink);font:inherit;text-align:left;padding:13px 40px 12px 14px;cursor:pointer;display:block;position:relative;text-decoration:none}
+.mrowb:last-child{border-bottom:0}
+.mrowb b{display:block;font-size:14.5px}
+.mrowb span{display:block;font-size:11.5px;color:var(--dim);margin-top:3px;line-height:1.45}
+.mrowb>i{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--dim);font-size:18px}
+.mrowb.sw{cursor:default;padding-right:74px}
+.swt{appearance:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);width:50px;height:28px;border-radius:999px;border:1px solid var(--faint);background:rgba(0,0,0,.5);cursor:pointer;padding:0}
+.swt i{position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:var(--dim);transition:left .15s}
+.swt.on{background:var(--ink);border-color:var(--ink)}
+.swt.on i{left:25px;background:#0b2124}
+.fan{font-size:11px;color:var(--dim);line-height:1.6;padding:2px 4px}
+.stale{font-size:12px;color:var(--amber);border:1px dashed var(--amber);border-radius:10px;padding:8px 11px;margin-bottom:12px}
+/* ---- 로켓단 ---- */
+.rksec{font-size:13px;font-weight:700;margin:14px 2px 8px;color:var(--ink)}
+.rksec small{font-weight:400;color:var(--dim);font-size:11px;margin-left:4px}
+.rk{border:1px solid var(--faint);border-left:4px solid var(--c);border-radius:12px;margin-bottom:7px;background:rgba(0,0,0,.28);overflow:hidden}
+.rk.open{border-color:var(--c)}
+.rkhead{appearance:none;width:100%;border:0;background:none;color:var(--ink);font:inherit;text-align:left;display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer}
+.rkico{flex:none;width:26px;height:26px;border-radius:50%;background:var(--c);display:grid;place-items:center;color:#fff}
+.rkico svg{width:15px;height:15px;color:#fff}
+.rkface{font-family:VT323,monospace;font-size:19px;color:#fff;line-height:1}
+.rkt{flex:1;min-width:0}
+.rkt b{display:block;font-size:14px}
+.rkt i{display:block;font-size:11.5px;color:var(--dim);margin-top:3px;line-height:1.4}
+.rkarw{color:var(--dim);font-size:12px}
+.rkbody{padding:2px 10px 10px;border-top:1px dashed var(--faint)}
+.rklab{font-size:12px;font-weight:700;color:var(--amber);margin:10px 0 2px}
+.rkslot{display:flex;gap:8px;padding:8px 0;border-bottom:1px dashed var(--faint)}
+.rkno{flex:none;width:44px;font-size:11px;color:var(--dim);padding-top:8px}
+.rkmons{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.rkmon{display:flex;gap:7px;align-items:center}
+.rkn{font-size:13px;font-weight:700}
+.rkn a{cursor:pointer}
+.rkenc{font-style:normal;color:var(--amber);margin-left:3px}
+.rkw{display:flex;flex-wrap:wrap;gap:3px;align-items:center;margin-top:3px;font-size:10.5px;color:var(--dim)}
+.rkw>span:first-child{margin-right:2px}
+.tchip.sm.big{box-shadow:0 0 0 2px var(--amber)}
+.rklegend{font-size:11px;color:var(--dim);margin:12px 2px 0;line-height:1.5}
+/* ---- 왕초보 가이드 ---- */
+.gcard{border:1px solid var(--faint);border-radius:12px;padding:12px 12px 10px;margin-bottom:12px;background:rgba(0,0,0,.25)}
+.gcard h3{margin:0 0 10px;font-size:15px;display:flex;align-items:center;gap:8px}
+.gcard h3 span{flex:none;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#0b2124;display:grid;place-items:center;font-size:12px}
+.gcard ul{margin:0;padding-left:17px}
+.gcard li{font-size:12.5px;line-height:1.65;color:#d5efe5;margin-bottom:3px}
+.gcard li b{color:#fff}
+.gc.g{color:#5fe08a}.gc.o{color:#ffa94d}.gc.r{color:#ff6b6b}
+.gbtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.gbtns button{appearance:none;border:1px solid var(--ink);background:none;color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.gfig{margin:0 0 10px;display:grid;gap:8px}
+.gfig.three{grid-template-columns:repeat(3,1fr)}
+.gfig.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.gitem{width:34px;height:34px;object-fit:contain}
+.gitem.xs{width:16px;height:16px;vertical-align:-3px;margin:0 1px 0 4px}
+.gthrow{position:relative;height:190px;border-radius:12px;overflow:hidden;border:2px solid #0a1618}
+.gsky{position:absolute;inset:0;background:linear-gradient(180deg,#6ec3ff 0%,#bfe9ff 55%,#e8f8d8 56%)}
+.ggrass{position:absolute;left:-20%;right:-20%;bottom:-30px;height:120px;border-radius:50% 50% 0 0;background:linear-gradient(180deg,#8fdc6c,#4faa46)}
+.gthrow .gpika{position:absolute;left:50%;top:34px;width:92px;height:92px;transform:translateX(-50%);object-fit:contain;filter:drop-shadow(0 6px 4px rgba(0,0,0,.25))}
+.gring{position:absolute;left:50%;top:80px;width:56px;height:56px;margin:-28px 0 0 -28px;border:3px solid #fff;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 4px rgba(0,0,0,.35)}
+.gring i{border:3px solid #37d667;border-radius:50%;box-shadow:0 0 4px rgba(0,0,0,.3)}
+.gcall{position:absolute;left:0;right:0;top:5px;text-align:center;font-family:VT323,monospace;font-size:21px;color:#fff;text-shadow:0 2px 0 #1d5a8c,0 0 6px rgba(0,0,0,.4)}
+.gball{position:absolute;left:50%;bottom:5px;width:34px;height:34px;transform:translateX(-50%);object-fit:contain}
+.gmon{position:relative;border-radius:12px;background:linear-gradient(180deg,#bfe9ff 0,#e9f7ff 34%,#fff 34%);color:#33434a;text-align:center;padding:8px 8px 10px;border:2px solid #0a1618}
+.gmon .gpika{width:84px;height:84px;object-fit:contain;display:block;margin:0 auto}
+.gcp{font-size:12px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.gcp b{font-size:20px}
+.gnm{font-weight:700;font-size:14px;margin-top:2px}
+.ghp{height:5px;border-radius:3px;background:#dfe7ea;margin:5px 18% 2px;overflow:hidden}
+.ghp i{display:block;height:100%;background:#6fe3a5}
+.ghpt{font-size:10px;color:#7a8a90;margin-bottom:6px}
+.gpw{display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;margin-top:5px;background:#f1f6f7;border-radius:999px;padding:3px 8px 3px 3px}
+.gpb{background:linear-gradient(90deg,#8fe08d,#3fc6a5);color:#fff;border-radius:999px;padding:4px 12px;margin-right:auto;font-size:11.5px}
+.gpb.ev{background:linear-gradient(90deg,#7fd4f0,#4a9df0)}
+.gitems{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:start}
+.git{border:1px solid var(--faint);border-radius:10px;padding:7px 4px 6px;text-align:center;background:rgba(255,255,255,.04)}
+.git b{display:block;font-size:11.5px;margin-top:3px;line-height:1.3}
+.git span{display:block;font-size:10px;color:var(--dim);margin-top:2px;line-height:1.3}
+.gappr{display:flex;gap:10px;align-items:center;border-radius:12px;background:#fff;color:#33434a;padding:10px 12px;border:2px solid #0a1618}
+.gappr .gpika{width:76px;height:76px;object-fit:contain;flex:none}
+.gapr{flex:1;min-width:0}
+.gbar{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;margin-bottom:6px}
+.gbar>span{width:30px;flex:none}
+.gbar em{font-style:normal;width:16px;text-align:right;color:#7a8a90}
+.gseg{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.gseg i{height:9px;border-radius:5px;background:#e3e9eb;overflow:hidden;display:block}
+.gseg u{display:block;height:100%;background:#f5a623}
+.gseg.max u{background:#e2574c}
+.gstar{color:#f5a623;font-size:16px;letter-spacing:2px}
+.gstar small{color:#7a8a90;font-size:11px;letter-spacing:0;margin-left:4px}
+.gmoves{border-radius:12px;background:#fff;color:#33434a;padding:10px 12px;border:2px solid #0a1618;display:flex;flex-direction:column;gap:10px;justify-content:center}
+.gmv em{display:block;font-style:normal;font-size:10.5px;color:#7a8a90;margin-bottom:3px}
+.gmv b{font-size:13.5px;display:flex;align-items:center;gap:6px}
+.gcharge{height:7px;border-radius:4px;background:#e3e9eb;margin-top:6px;overflow:hidden}
+.gcharge i{display:block;width:70%;height:100%;background:linear-gradient(90deg,#ffd84d,#ffb300)}
+.gchart{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px dashed var(--faint);border-radius:10px}
+.gchart div{display:flex;align-items:center;gap:8px;font-size:13px}
+.gchart span{color:var(--dim)}
+.gchart b{margin-left:auto;font-family:VT323,monospace;font-size:20px}
+.gchart .up{color:#5fe08a}.gchart .dn{color:#ff8a8a}
+.gstars{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gstars span{border:1px solid var(--faint);border-radius:10px;padding:8px 2px;text-align:center;color:var(--amber);font-size:13px;letter-spacing:1px}
+.gstars span.five{font-size:11px;padding-top:10px}
+.gstars em{display:block;font-style:normal;font-size:10.5px;color:var(--dim);letter-spacing:0;margin-top:4px}
+@media(max-width:420px){ .gfig.two{grid-template-columns:1fr} .gthrow{height:170px} .gthrow .gpika{width:76px;height:76px;top:32px} .gring{top:70px} .gcall{font-size:17px} }
 </style>
 </head>
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.7</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
-  <nav class="nav" id="nav">
-    <button data-go="pokemon">포켓몬 카드</button>
-    <button data-go="tier">티어리스트</button>
-    <button data-menu="info" id="infoBtn">정보 ▾</button>
-  </nav>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.0</small></button><span class="nbbadge" id="nbBadge" hidden>뉴비모드</span><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
     <div class="subtabs" id="subnav"></div>
@@ -568,7 +692,6 @@ td.num.sorted{color:var(--amber)}
 
     <!-- ===== 카드 검색 ===== -->
     <section class="view" id="v-card">
-      <form class="search" id="sform"><input id="q" placeholder="포켓몬 이름 (예: 데기라스)" autocomplete="off"><button>검색</button></form>
       <div class="sugg" id="sugg"></div>
       <div class="savebar"><button class="savebtn" id="saveBtn">📷 이미지로 저장</button></div>
       <div id="cardOut"></div>
@@ -589,9 +712,19 @@ td.num.sorted{color:var(--amber)}
     <section class="view" id="v-intro"></section>
     <section class="view" id="v-me"></section>
     <section class="view" id="v-admin"></section>
+    <section class="view" id="v-rocket"></section>
+    <section class="view" id="v-guide"></section>
+    <section class="view" id="v-more"></section>
 
   </div>
 </div>
+<nav class="tabbar" id="tabbar"><div class="tabbar-in">
+  <button data-nav="pokemon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M9 17h6"/></svg>카드</button>
+  <button data-nav="tier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>티어</button>
+  <button data-nav="strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>공략</button>
+  <button data-nav="my"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h6M15 12h6"/><circle cx="12" cy="12" r="3"/></svg>내 포켓몬</button>
+  <button data-nav="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>더보기</button>
+</div></nav>
 
 <script>
 // 카카오톡 안 브라우저면 기본 브라우저(크롬·삼성 인터넷 등)로 같은 주소(초대 링크 포함)를 다시 엶.
@@ -668,28 +801,28 @@ const LEAGUE_ICON={
 const lgSvg=(k,c)=>`<svg viewBox="0 0 24 24" style="color:${c}" aria-hidden="true">${LEAGUE_ICON[k]}</svg>`;
 
 // ===== 라우팅 =====
-const VIEWS=["home","card","dex","type","raid","dmax","pvp","boxparty","boxdust","boxcap","boxlist","intro","me","admin"];
-// 최상위 탭 → 하위 탭 묶음 (하위 탭이 있는 탭은 마지막으로 본 하위 탭을 기억)
+const VIEWS=["home","card","dex","type","rocket","raid","dmax","pvp","boxparty","boxdust","boxcap","boxlist","intro","guide","more","me","admin"];
+// 아래 탭(5개) → 하위 탭 묶음 (마지막으로 본 하위 탭을 기억). 새 기능은 공략·더보기 안에 넣는다.
 const GROUPS={ pokemon:{subs:[["card","포켓몬 검색"],["dex","도감"]],last:"card"},
-               tier:{subs:[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀리그"]],last:"raid"} };
-// 드롭다운 메뉴: 정보(상성표·일정), 회원기능(로그인했을 때 헤더 버튼)
-const MENUS={ info:()=>[["type","상성표"],["home","일정"],["intro","회원 기능 소개"]],
-  member:()=>[["boxparty","파티 추천"],["boxdust","강화 효율"],["boxcap","은뚜껑 추천"],["boxlist","내 포켓몬"],null,["me","내 정보"]].concat(ME&&ME.admin?[["admin","관리자 페이지"]]:[]) };
-const MENU_VIEWS={info:["type","home","intro"],member:["boxparty","boxdust","boxcap","boxlist","me","admin"]};
-function closeMenu(){ document.querySelectorAll(".ddmenu").forEach(m=>m.remove()); }
-function openMenu(btn){ const name=btn.dataset.menu, was=document.querySelector(`.ddmenu[data-for="${name}"]`); closeMenu(); if(was) return;
-  const cur=location.hash.slice(1), m=document.createElement("div"); m.className="ddmenu"; m.dataset.for=name;
-  m.innerHTML=MENUS[name]().map(it=>it?`<button data-go="${it[0]}" class="${it[0]===cur?"on":""}">${it[1]}</button>`:"<hr>").join("");
-  const hdr=document.querySelector(".hdr"), r=btn.getBoundingClientRect(), h=hdr.getBoundingClientRect();
-  m.style.top=(r.bottom-h.top+4)+"px"; m.style.right=Math.max(6,h.right-r.right)+"px"; hdr.appendChild(m); }
-const groupOf=v=>Object.keys(GROUPS).find(g=>GROUPS[g].subs.some(([k])=>k===v));
+               tier:{subs:[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀리그"]],last:"raid"},
+               strat:{subs:[["type","상성표"],["rocket","로켓단"]],last:"type"},
+               my:{subs:[["boxparty","파티 추천"],["boxdust","강화 효율"],["boxcap","은뚜껑 추천"],["boxlist","내 포켓몬"],["me","내 정보"]],last:"boxparty"},
+               more:{subs:[["more","더보기"],["home","일정"],["guide","왕초보 가이드"],["intro","회원 기능 소개"]],last:"more"} };
+const GUEST_SUBS=[["intro","회원 기능 소개"],["me","로그인"]];
+const isMem=()=>!!(ME&&!ME.mustChange);
+// 주소 #p=포켓몬id 는 포켓몬 카드 화면 (카드 링크를 보내면 그 포켓몬이 바로 열림)
+const hv=()=>{ const h=location.hash.slice(1); return h.startsWith("p=")?"card":h; };
+function closeMenu(){ const h=$("#hsugg"); if(h) h.innerHTML=""; }
+const groupOf=v=>v==="admin"?"more":Object.keys(GROUPS).find(g=>GROUPS[g].subs.some(([k])=>k===v));
 function show(){
-  let v=location.hash.slice(1); if(GROUPS[v]) v=GROUPS[v].last; if(!VIEWS.includes(v)) v="card";
-  const g=groupOf(v); if(g) GROUPS[g].last=v;
+  let v=hv(); if(GROUPS[v]&&!VIEWS.includes(v)) v=GROUPS[v].last; if(!VIEWS.includes(v)) v="card";
+  let g=groupOf(v), subs=g?GROUPS[g].subs:[];
+  if(!isMem()&&(g==="my"||v==="intro")){ g="my"; subs=GUEST_SUBS; }   // 비회원: 내 포켓몬 탭 = 소개 + 로그인
+  else if(g){ if(v!=="admin") GROUPS[g].last=v; if(g==="more"&&ME&&ME.admin) subs=subs.concat([["admin","관리자"]]); }
   VIEWS.forEach(x=>$("#v-"+x).classList.toggle("on",x===v));
-  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.go===v||(!!g&&b.dataset.go===g)||(MENU_VIEWS[b.dataset.menu]||[]).includes(v)));
-  closeMenu();
-  $("#subnav").innerHTML=g?GROUPS[g].subs.map(([k,l])=>`<button data-go="${k}" class="${k===v?"on":""}">${l}</button>`).join(""):"";
+  document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("on",b.dataset.nav===g));
+  $("#subnav").innerHTML=subs.map(([k,l])=>`<button data-go="${k}" class="${k===v?"on":""}">${l}</button>`).join("");
+  const pm=location.hash.match(/^#p=(.+)$/); if(pm&&DEX){ let id=pm[1]; try{ id=decodeURIComponent(id); }catch(e){} if(CARDS[id]&&id!==CUR_ID) openCard(id); }
   if(v==="dex") renderDex();
   if(v.startsWith("box")) renderBox(v);
   if(v==="me") renderMe();
@@ -697,13 +830,18 @@ function show(){
   if(v==="type") renderType();
   if(v==="home") renderHome();
   if(v==="intro") renderIntro();
-  $("#acctBtn").classList.toggle("on",MENU_VIEWS.member.includes(v));
+  if(v==="rocket") renderRocket();
+  if(v==="guide") renderGuide();
+  if(v==="more") renderMore();
+  $("#acctBtn").classList.toggle("on",v==="me");
+  if(v==="card"&&CUR_ID&&location.hash!=="#p="+CUR_ID){ try{ history.replaceState(null,"","#p="+CUR_ID); }catch(e){} }
   window.scrollTo(0,0);
 }
-function go(v){ if(GROUPS[v]) v=GROUPS[v].last; if(location.hash.slice(1)===v) show(); else location.hash=v; }
+function go(v){ if(GROUPS[v]&&!VIEWS.includes(v)) v=GROUPS[v].last; if(hv()===v) show(); else location.hash=v; }
 document.addEventListener("click",e=>{
-  const mb=e.target.closest("[data-menu]"); if(mb){ openMenu(mb); return; }
-  const g=e.target.closest("[data-go]"); closeMenu(); if(g){ go(g.dataset.go); return; }
+  if(!e.target.closest(".hsearch")) closeMenu();
+  const nb=e.target.closest("[data-nav]"); if(nb){ const k=nb.dataset.nav; go(k==="my"?(isMem()?GROUPS.my.last:"intro"):k==="more"?"more":k); return; }
+  const g=e.target.closest("[data-go]"); if(g){ go(g.dataset.go); return; }
   const bo=e.target.closest("[data-boss]"); if(bo){ openBoss(bo.dataset.boss,bo.dataset.bm); return; }
   const p=e.target.closest("[data-poke]"); if(p){ openCard(p.dataset.poke); go("card"); }
 });
@@ -765,7 +903,7 @@ const bestOf=list=>list.reduce((m,x)=>!m||ORDER(x.t)<ORDER(m.t)?x:m,null);
 let TANK_BEST=null;
 function tankBest(){ // 다이맥스 탱커: 포켓몬별 가장 높은 티어 (상대 공격 타입 기준)
   if(TANK_BEST) return TANK_BEST; const m={};
-  for(const [T] of TYPES){ const rows=dmaxTankRows(T,"all",false).sort((a,b)=>b.tr-a.tr); assignTiers(rows,"tr");
+  for(const [T] of TYPES){ const rows=dmaxTankRows(T,NEWBIE?"base":"all",false).sort((a,b)=>b.tr-a.tr); assignTiers(rows,"tr");
     for(const r of rows) if(r._t&&(!m[r.id]||ORDER(r._t)<ORDER(m[r.id].t))) m[r.id]={t:r._t,w:TN[T]}; }
   return TANK_BEST=m;
 }
@@ -778,14 +916,14 @@ function judge(id,mode){
   if(mode==="max"){
     const tb=tankBest();
     for(const f of finals){ const F=CARDS[f], pre=f!==id?`${esc(F.ko)} `:"";
-      const d=bestOf(F.tiers?.dmax?.n||[]), k=tb[f];
+      const d=bestOf(TL(F,"dmax","n")), k=tb[f];
       add(d?.t,`${pre}딜러 <b>${d?.t}</b> ${esc(d?.w||"")}`);
       add(k?.t,`${pre}탱커 <b>${k?.t}</b> ${esc(k?.w||"")} 상대`);
     }
     if(!parts.length&&!finals.some(f=>CARDS[f].dmx||dmaxTankPool().some(e=>e.id===f))) parts.push("다이맥스 정보 아직 없음");
   }else{
     const sh=mode==="shadow";
-    for(const f of finals){ const F=CARDS[f], x=bestOf(F.tiers?.raid?.[sh?"s":"n"]||[]); if(!x) continue;
+    for(const f of finals){ const F=CARDS[f], x=bestOf(TL(F,"raid",sh?"s":"n")); if(!x) continue;
       const who=noPlus(x.f), pre=!["일반","그림자"].includes(who)?who:f!==id?(sh?"그림자 ":"")+F.ko:"";
       add(x.t,`${pre?esc(pre)+" ":""}레이드 <b>${x.t}</b> ${esc(x.w)}${plusOf(x.f)?" +기술MAX":""}`); }
   }
@@ -813,7 +951,7 @@ const PICK_CATS=["raid","mega","max","shadow"];
 // 일정 → [ {id,cat,e} ] (같은 포켓몬·분류는 한 번만)
 function eventPicks(list,skip){
   const out=[], seen=new Set(skip||[]);
-  for(const e of list){ if(!PICK_CATS.includes(e[0])||/아워/.test(e[1])) continue;
+  for(const e of list){ if(!PICK_CATS.includes(e[0])||(NEWBIE&&(e[0]==="mega"||e[0]==="shadow"))||/아워/.test(e[1])) continue;
     for(const n of e[5]||[]){ const id=n2id(n); if(!id) continue; const k=e[0]+":"+id; if(seen.has(k)) continue; seen.add(k); out.push({id,cat:e[0],e}); } }
   const vo=x=>{ const j=judge(x.id,x.cat==="max"?"max":x.cat==="shadow"?"shadow":"raid"); return j?.v==="must"?0:j?.v==="rec"?1:2; };
   return out.sort((a,b)=>vo(a)-vo(b));
@@ -878,14 +1016,16 @@ function getRecent(){ try{ return (JSON.parse(localStorage.getItem(RECENT_KEY)||
 function addRecent(id){ try{ const r=[id,...getRecent().filter(x=>x!==id)].slice(0,10); localStorage.setItem(RECENT_KEY,JSON.stringify(r)); }catch(e){} }
 // 평소에는 최근 검색(한 줄, 좌우 스와이프), 입력 중에는 관련 목록을 임시로 표시
 function suggest(q){
-  q=q.trim(); const box=$("#sugg");
-  if(q){ box.classList.remove("recent"); box.innerHTML=findIds(q).slice(0,12).map(i=>`<button class="chip" data-id="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join("")||'<span class="hint">일치하는 포켓몬이 없어요</span>'; return; }
-  const r=getRecent(); box.classList.add("recent");
+  q=(q||"").trim(); const hs=$("#hsugg");
+  hs.innerHTML=q&&DEX?(findIds(q).slice(0,12).map(i=>`<button type="button" class="chip" data-id="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join("")||'<span class="hint">일치하는 포켓몬이 없어요</span>'):"";
+  const r=getRecent(), box=$("#sugg"); box.classList.add("recent");
   box.innerHTML='<span class="hint">최근</span>'+(r.length?r.map(i=>`<button class="chip" data-id="${esc(i)}">${esc(CARDS[i].ko)}</button>`).join(""):'<span class="hint">아직 검색 기록이 없어요</span>');
 }
-$("#sugg").addEventListener("click",e=>{const b=e.target.closest("[data-id]"); if(b){ addRecent(b.dataset.id); openCard(b.dataset.id); }});
+const pickCard=id=>{ addRecent(id); const q=$("#q"); q.value=""; q.blur(); openCard(id); go("card"); };
+$("#sugg").addEventListener("click",e=>{const b=e.target.closest("[data-id]"); if(b) pickCard(b.dataset.id);});
+$("#hsugg").addEventListener("click",e=>{const b=e.target.closest("[data-id]"); if(b) pickCard(b.dataset.id);});
 $("#q").addEventListener("input",e=>DEX&&suggest(e.target.value));
-$("#sform").addEventListener("submit",e=>{e.preventDefault(); if(!DEX) return; const id=findIds($("#q").value)[0]; if(id){ addRecent(id); openCard(id); } else $("#cardOut").innerHTML=`<div class="empty">"${esc($("#q").value)}"을(를) 찾지 못했어요.<br>한글 또는 영어 이름으로 검색해 보세요.</div>`;});
+$("#sform").addEventListener("submit",e=>{e.preventDefault(); if(!DEX) return; const id=findIds($("#q").value)[0]; if(id) pickCard(id); else { closeMenu(); go("card"); $("#cardOut").innerHTML=`<div class="empty">"${esc($("#q").value)}"을(를) 찾지 못했어요.<br>한글 또는 영어 이름으로 검색해 보세요.</div>`; } });
 
 const SPR_URL=dex=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${dex}.png`;
 const SPRITE=(id,cls="")=>{ const c=CARDS[id]; return c?`<img class="spr ${cls}" src="${SPR_URL(c.dex)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`:`<span class="spr ${cls}"></span>`; };
@@ -894,11 +1034,11 @@ let SHADOW=false, CUR_ID=null;
 const MODES=[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀"]];
 // 카드에 보여줄 티어 목록: 최종진화는 자기 것, 진화 전은 최종진화형의 것(배틀은 자기 순위가 있으면 자기 것)
 function tiersFor(c, mode, sh){
-  const side=sh?"s":"n", own=c.tiers?.[mode]?.[side]||[];
+  const side=sh?"s":"n", own=TL(c,mode,side);
   if(c.final||(mode==="pvp"&&own.length)) return {list:own, via:null};
   const finals=c.evo[c.evo.length-1].filter(id=>CARDS[id]);
   const list=finals.flatMap(fid=>{ const f=CARDS[fid];
-    return (f.tiers?.[mode]?.[side]||[]).map(x=>({...x,
+    return TL(f,mode,side).map(x=>({...x,
       f: x.f==="일반"||x.f==="다이맥스" ? f.ko : x.f==="그림자" ? `그림자 ${f.ko}` : x.f==="거다이맥스" ? `거다이맥스 ${f.ko}` : mode==="pvp" ? `${f.ko} · ${x.f}` : x.f, fid}));
   }).sort((a,b)=>ORDER(a.t)-ORDER(b.t)||b.p-a.p);
   return {list, via:finals.map(id=>CARDS[id].ko)};
@@ -928,11 +1068,12 @@ function skillHTML(c){
     return `<div class="sec">추천 스킬</div><div class="sknote">스킬 추천은 <b>최종 진화 형태</b>에서만 제공해요.${fins.length?`<div class="skgo">${fins.map(id=>`<button data-n2="${esc(id)}">${esc(CARDS[id].ko)} 추천 스킬 보기 ›</button>`).join("")}</div>`:""}</div>`;
   }
   const r=c.rec; if(!r) return "";
-  const mv=(x,el)=>`<span class="${el?"elite":""}">${esc(x)}</span>`;
+  const old=el=>el&&NEWBIE?'<small class="oldmv">레거시</small>':"";
+  const mv=(x,el)=>`<span class="${el?"elite":""}">${esc(x)}</span>${old(el)}`;
   const combo=b=>`${mv(b.f,b.ef)} · ${mv(b.c,b.ec)}`;
   const main=r.e||r.n; if(!main) return "";
   const alt=r.e&&r.n?`<div class="alt">또는 ${combo(r.n)}</div>`:"";
-  const plus=(r.plus||[]).map(x=>`<span class="plusmv"><span class="tag p">+</span>${esc(x.move)} <small>${esc(x.mega)}</small></span>`).join("");
+  const plus=(NEWBIE?[]:r.plus||[]).map(x=>`<span class="plusmv"><span class="tag p">+</span>${esc(x.move)} <small>${esc(x.mega)}</small></span>`).join("");
   return `<div class="sec">추천 스킬</div>
     <div class="skill"><span class="tchip" style="--tc:${TC[r.t]}">${svg(r.t,"#fff")}${TN[r.t]}</span>
       <div class="sk-main"><div>${combo(main)}${plus?`<span class="plusbox">${plus}</span>`:""}</div>${alt}</div></div>${s2HTML(r.s2)}`;
@@ -940,7 +1081,7 @@ function skillHTML(c){
 // 2번째 스페셜어택 (추가 해방): 주력과 다른 타입
 function s2HTML(x){
   const m=x&&(x.e||x.n); if(!m) return "";
-  const one=b=>`<span class="tchip sm" style="--tc:${TC[b.t]}">${svg(b.t,"#fff")}${TN[b.t]}</span> <span class="${b.ec?"elite":""}">${esc(b.c)}</span>`;
+  const one=b=>`<span class="tchip sm" style="--tc:${TC[b.t]}">${svg(b.t,"#fff")}${TN[b.t]}</span> <span class="${b.ec?"elite":""}">${esc(b.c)}</span>${b.ec&&NEWBIE?'<small class="oldmv">레거시</small>':""}`;
   return `<div class="skill s2"><span class="s2l">2번째<br>스페셜어택</span><div class="sk-main"><div>${one(m)}</div>${x.e&&x.n?`<div class="alt">또는 ${one(x.n)}</div>`:""}</div></div>`;
 }
 
@@ -986,8 +1127,8 @@ const cpOf=(st,lv)=>Math.max(10,Math.floor((st[0]+15)*Math.sqrt(st[1]+15)*Math.s
 function openCard(id, keepShadow){
   const c=CARDS[id]; if(!c) return;
   if(!keepShadow) SHADOW=false; CUR_ID=id;
-  const sh=SHADOW&&hasShadow(c);
-  $("#q").value=c.ko; suggest("");
+  const sh=SHADOW&&hasShadow(c)&&!NEWBIE;
+  suggest("");
   const color=sh?"#7b3fb0":(TC[c.types[0]]||"#6fb39a");
   const R=Object.fromEntries(MODES.map(([m])=>[m,tiersFor(c,m,sh)]));
   const evo=c.evo.map((stage,i)=>(i?'<span class="arw">›</span>':"")+`<div class="stage">${stage.map(s=>`<button class="${s===id?"cur":""}" data-n2="${esc(s)}">${esc(CARDS[s]?.ko||s)}</button>`).join("")}${stage.length>1?'<span class="branch">분기 진화</span>':""}</div>`).join("");
@@ -1003,7 +1144,7 @@ function openCard(id, keepShadow){
       <div class="pic">${svg(c.types[0]).replace("<svg",'<svg class="ph"')}<div class="no">No.${String(c.dex).padStart(4,"0")}</div>
         <img src="${ART(c.dex)}" alt="" loading="lazy" onerror="this.remove()"></div>
       <div>
-        <div class="cname">${sh?"그림자 ":""}${esc(c.ko)}<small>#${c.dex}</small>${hasShadow(c)?`<button class="shbtn${sh?" on":""}" id="shBtn">${sh?"그림자 ON":"그림자"}</button>`:""}</div>
+        <div class="cname">${sh?"그림자 ":""}${esc(c.ko)}<small>#${c.dex}</small>${hasShadow(c)&&!NEWBIE?`<button class="shbtn${sh?" on":""}" id="shBtn">${sh?"그림자 ON":"그림자"}</button>`:""}</div>
         <div class="ctype">${c.types.map(t=>`<span class="tchip" style="--tc:${TC[t]}">${svg(t,"#fff")}${TN[t]}</span>`).join("")}</div>
         <div class="sum">${MODES.map(([m,l])=>sumCell(l,R[m],m)).join("")}</div>
       </div>
@@ -1023,6 +1164,7 @@ function openCard(id, keepShadow){
   $("#cardOut").querySelectorAll("[data-n2]").forEach(b=>b.onclick=()=>openCard(b.dataset.n2,true));
   $("#saveBtn").onclick=()=>saveCardImage(c,sh);
   const sb=$("#shBtn"); if(sb) sb.onclick=()=>{ SHADOW=!SHADOW; openCard(id,true); };
+  if(hv()==="card"&&location.hash!=="#p="+id){ try{ history.replaceState(null,"","#p="+id); }catch(e){} }
   $("#cardOut").querySelectorAll("[data-tm]").forEach(el=>el.onclick=()=>goTier(el.dataset.tm,el.dataset.tw,el.dataset.tid,el.dataset.tsh,el.dataset.tg));
 }
 
@@ -1103,9 +1245,9 @@ function renderBoard(id){
       ${B.roles?roleSwitch(st.role):""}
       <div class="pickMsg empty">${C.pick}</div>
       <div class="boardBody"><div class="head"></div>
-      ${C.tabs?`<div class="tabs">${C.tabs.map(([k,l])=>`<button class="tab" data-tab="${k}">${l}</button>`).join("")}</div>`:""}
+      ${C.tabs&&!NEWBIE?`<div class="tabs">${C.tabs.map(([k,l])=>`<button class="tab" data-tab="${k}">${l}</button>`).join("")}</div>`:""}
       ${C.gaugeOpt?`<div class="seg gopt"><button data-g="0">내구만</button><button data-g="1">게이지 반영</button></div>`:""}
-      <table><thead><tr><th>#</th><th>포켓몬 / 기술</th>${C.cols.map(([k,l])=>`<th class="num"><button data-k="${k}">${l}</button></th>`).join("")}<th style="text-align:center">티어</th></tr></thead><tbody></tbody></table>
+      <table><thead><tr><th>#</th><th>포켓몬 / 기술</th>${C.cols.map(([k,l])=>`<th class="num"><button data-k="${k}">${NBW(l)}</button></th>`).join("")}<th style="text-align:center">티어</th></tr></thead><tbody></tbody></table>
       <div class="emptyBox"></div></div>
       <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
     root.querySelector(".sels").addEventListener("click",e=>{const b=e.target.closest("[data-s]"); if(b){st.sel=b.dataset.s; save(); renderBoard(id);}});
@@ -1124,11 +1266,11 @@ function renderBoard(id){
   if(!sel) return;
   const c=sel.c;
   const tk=C.tierKey||C.tierCol;
-  const rows=assignTiers(C.rows(st.sel,st.tab).map(r=>({...r})).sort((a,b)=>b[tk]-a[tk]),tk,!C.noPct);
+  const rows=assignTiers(C.rows(st.sel,NEWBIE?"base":st.tab).map(r=>({...r})).sort((a,b)=>b[tk]-a[tk]),tk,!C.noPct);
   const head=root.querySelector(".head"); head.style.setProperty("--c",c);
   head.innerHTML=`<div class="ico">${sel.icon}</div><h2>${C.head(st.sel)}</h2><div class="cnt">${rows.length} 마리</div>`;
   root.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("on",b.dataset.tab===st.tab));
-  root.querySelectorAll("th button").forEach(b=>{const on=b.dataset.k===st.sort; b.classList.toggle("on",on); b.textContent=C.cols.find(x=>x[0]===b.dataset.k)[1]+(on?" ▼":"");});
+  root.querySelectorAll("th button").forEach(b=>{const on=b.dataset.k===st.sort; b.classList.toggle("on",on); b.textContent=NBW(C.cols.find(x=>x[0]===b.dataset.k)[1])+(on?" ▼":"");});
   const tb=root.querySelector("tbody"), eb=root.querySelector(".emptyBox");
   if(!rows.length){ tb.innerHTML=""; eb.innerHTML=`<div class="empty">이 타입은 아직 해당 포켓몬이 없어요.</div>`; return; }
   eb.innerHTML="";
@@ -1206,7 +1348,7 @@ function renderType(){
     const atk=TYPES.map(([k])=>({k,x:eff(k,opp)}));
     const group=(label,list)=>`<div class="mrow"><span class="ml">${label}</span><span class="mc">${list.length?list.map(a=>chip(a.k)).join(""):'<span class="none">없음</span>'}</span></div>`;
     const role=TMODE==="dmax"?st.role:"deal";
-    const rows=TMODE==="raid"?bossRaidRows(opp):bossDmaxRows(opp,role,st.gauge);
+    const rows=(TMODE==="raid"?bossRaidRows(opp):bossDmaxRows(opp,role,st.gauge)).filter(r=>!NEWBIE||!r.tg.length);
     const tk=TMODE==="raid"?"v":"tr";
     rows.sort((a,b)=>b[tk]-a[tk]); assignTiers(rows,tk); rows.sort((a,b)=>b.v-a.v);
     const top=rows[0]?.v||1, list=rows.slice(0,30);
@@ -1342,7 +1484,7 @@ function syncUp(now){ if(!ME||ME.mustChange) return Promise.resolve(); clearTime
 async function syncDown(){ if(!ME||ME.mustChange) return; const j=await api("box");
   if(j.data){ BOX=j.data.box||null; CAPS=Array.isArray(j.data.caps)?j.data.caps:[]; try{ localStorage.setItem("pyo-box",JSON.stringify(BOX)); localStorage.setItem("pyo-caps",JSON.stringify(CAPS)); }catch(e){} ME_UPDATED=j.updated; }
   else if(BOX||CAPS.length) await syncUp(true); }
-function setMe(j){ ME=j&&j.code?{code:j.code,admin:!!j.admin,mustChange:!!j.mustChange,imp:!!j.imp}:null; renderImpBar(); const b=$("#acctBtn"); if(b){ const mem=ME&&!ME.mustChange; b.textContent=mem?"회원기능 ▾":"로그인"; if(mem){ b.dataset.menu="member"; delete b.dataset.go; } else { b.dataset.go="me"; delete b.dataset.menu; } } }
+function setMe(j){ ME=j&&j.code?{code:j.code,admin:!!j.admin,mustChange:!!j.mustChange,imp:!!j.imp}:null; renderImpBar(); const b=$("#acctBtn"); if(b){ const mem=ME&&!ME.mustChange; b.textContent=mem?"내 정보":"로그인"; b.dataset.go="me"; } if(document.getElementById("tabbar")&&typeof VIEWS!=="undefined") show(); }
 function confirmBox(msg,ok){ const m=document.createElement("div"); m.className="shotmodal"; m.innerHTML=`<div class="shotbox"><p>${msg}</p><div class="shotbtns"><button data-share data-ok>확인</button><button data-x>취소</button></div></div>`; document.body.appendChild(m); m.onclick=e=>{ if(e.target.closest("[data-ok]")){ m.remove(); ok(); } else if(e.target===m||e.target.closest("[data-x]")) m.remove(); }; }
 // 관리자가 회원으로 들어간 동안 화면 위에 띠 + "관리자로 돌아가기"
 function renderImpBar(){ const old=document.getElementById("impBar"); if(old) old.remove();
@@ -1418,10 +1560,10 @@ function showHowto(){
       <li>Calcy IV로 돌아가 <b>메뉴(☰) → 기록(History) → 우측상단 점 세개 → Export</b>를 눌러요.</li>
       <li><b>내보내기(Export History to csv)</b>를 눌러 CSV 파일로 저장해요.</li></ol>
     <h4>3. 올리기</h4><ol>
-      <li>PYOkemongo 사이트로 돌아와서, 오른쪽 위 <b>회원기능 ▾ → 내 정보</b>를 눌러요.</li>
+      <li>PYOkemongo 사이트로 돌아와서, 오른쪽 위 <b>내 정보</b>를 눌러요.</li>
       <li><b>포켓몬 리스트(CSV) 올리기</b>를 누르고 저장한 파일을 골라요.</li></ol>
     <p>"포켓몬 ○○마리"라고 뜨면 끝이에요. 포켓몬을 새로 잡거나 강화해서 데이터가 바뀌면 내보내기 - 올리기로 다시 최신화해요.</p>
-    <p>포켓몬 정보가 실제와 다르게 들어갔다면 Calcy IV가 화면을 잘못 읽은 거예요. <b>회원기능 ▾ → 내 포켓몬</b>에서 그 포켓몬을 눌러 바로 고칠 수 있어요.</p>
+    <p>포켓몬 정보가 실제와 다르게 들어갔다면 Calcy IV가 화면을 잘못 읽은 거예요. 아래 <b>내 포켓몬</b> 탭 → <b>내 포켓몬</b>에서 그 포켓몬을 눌러 바로 고칠 수 있어요.</p>
     </div><div class="shotbtns"><button data-x>닫기</button></div></div>`;
   document.body.appendChild(m); m.onclick=e=>{ if(e.target===m||e.target.closest("[data-x]")) m.remove(); };
 }
@@ -1581,8 +1723,8 @@ function boxParty(){
     const best=myRaidBest(opp);
     const ideal=bossRaidRows(opp).sort((a,b)=>b.v-a.v)[0]?.v||1;
     res=soloHTML(st.bid,opp,best)+`<div class="bxsec">레이드 딜러 6마리</div>`+(best.slice(0,6).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}`,(b.v/ideal*100).toFixed(0)+"%","최상 대비")).join("")||`<div class="empty">맞는 포켓몬이 없어요.</div>`);
-    const mg=myMegaBest(opp)[0];
-    res+=`<div class="bxsec">메가진화 1마리 (파티에 함께)</div>`+(mg?mRow("M",mg.m,`<b>${esc(mg.x.n)}</b>${mg.x.tg.includes("p")?PTAG:""} · ${ivTxt(mg.m)}<br>${chip(mg.x.t2)} ${esc(mg.x.mv)}`,(mg.v/ideal*100).toFixed(0)+"%","최상 대비"):`<div class="empty">메가진화할 수 있는 포켓몬이 없어요.</div>`);
+    const mg=NEWBIE?null:myMegaBest(opp)[0];
+    if(!NEWBIE) res+=`<div class="bxsec">메가진화 1마리 (파티에 함께)</div>`+(mg?mRow("M",mg.m,`<b>${esc(mg.x.n)}</b>${mg.x.tg.includes("p")?PTAG:""} · ${ivTxt(mg.m)}<br>${chip(mg.x.t2)} ${esc(mg.x.mv)}`,(mg.v/ideal*100).toFixed(0)+"%","최상 대비"):`<div class="empty">메가진화할 수 있는 포켓몬이 없어요.</div>`);
   }else{
     const {deal,tank}=myDmaxBest(opp,st.unk);
     const lab=w=>w<0.6?"이중반감":w<0.99?"반감":w>2.5?"이중약점":w>1.5?"약점":"보통";
@@ -1868,18 +2010,187 @@ function renderDex(){
   root.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{ DEX_REGION=+b.dataset.r; renderDex(); window.scrollTo(0,0); });
 }
 
+// ===== 뉴비모드 =====
+// 켜면 사이트 전체에서 메가·원시회귀·그림자·거다이맥스를 빼고 다시 계산. 전설·환상·옛기술(레거시)은 그대로.
+// 말 바꾸기는 2개만: ER→점수, TDO→총딜 (게이지·레거시는 그대로 씀). 레거시 기술에는 "레거시" 표시를 붙임
+let NEWBIE=false; try{ NEWBIE=localStorage.getItem("pyo-newbie")==="1"; }catch(e){}
+const NBW=s=>NEWBIE?({ER:"점수",TDO:"총딜"}[s]||s):s;
+let NB_T={};
+// 기본 포켓몬만으로 다시 매긴 티어 (카드·일정에서 씀)
+function nbIndex(mode){ if(NB_T[mode]) return NB_T[mode]; const m={}; if(!DEX) return m;
+  const key=mode==="raid"?"er":"score";
+  for(const [k,all] of Object.entries(DEX[mode]||{})){ const rows=all.filter(r=>!r.tg.length).map(r=>({...r})).sort((a,b)=>b[key]-a[key]);
+    assignTiers(rows,key,mode!=="pvp");
+    rows.forEach((r,i)=>{ if(!r._t) return; (m[r.id]=m[r.id]||[]).push({f:mode==="dmax"?"다이맥스":"일반",w:mode==="pvp"?LN[k]:TN[k],t:r._t,r:i+1,p:Math.round(r[key]/rows[0][key]*100)}); }); }
+  for(const id in m) m[id].sort((a,b)=>ORDER(a.t)-ORDER(b.t)||b.p-a.p);
+  return NB_T[mode]=m; }
+const TL=(c,mode,side)=>NEWBIE?(side==="s"?[]:(nbIndex(mode)[c.id]||[])):(c.tiers?.[mode]?.[side]||[]);
+function setNewbie(on){ NEWBIE=!!on; try{ localStorage.setItem("pyo-newbie",NEWBIE?"1":"0"); }catch(e){} applyNewbie(); }
+function applyNewbie(){ const b=$("#nbBadge"); if(b) b.hidden=!NEWBIE; NB_T={}; TANK_BEST=null;
+  if(!DEX) return;
+  ["raid","dmax","pvp"].forEach(id=>{ $("#p-"+id).dataset.ready=""; renderBoard(id); });
+  if(CUR_ID) openCard(CUR_ID); renderType(); renderHome(); show(); }
+
+// ===== GO 로켓단 공략 (data/rocket.json, 매일 자동 갱신) =====
+// 대사는 게임 한국어 문장. 추천은 레이드 추천과 같은 계산을 상대 3칸에 고르게 적용한 값.
+let ROCKET=null;
+const RK_QUOTE={normal:"노말이라고 약하다고 생각해?",fire:"포켓몬이 뿜어내는 불의 온도가 몇 도인지 알아?",water:"이 바다는 위험해!",electric:"짜릿하게 만들어주지!",grass:"우릴 상관마!",ice:"널 얼려버리겠다!",fighting:"이 단단한 몸은 장식이 아니야!",poison:"독으로 공격할 준비 완료!",ground:"땅에 때려 눕혀주마!",flying:"내 포켓몬이 화려하게 날아오른다!",psychic:"보이지 않는 힘을 쓰는 에스퍼를 무섭다고 생각해?",bug:"가랏! 내 벌레 포켓몬!",rock:"렛츠 락앤롤!",ghost:"흐..흐..흐..흐.. 흐흣!",dragon:"크아아아아! 무섭지!",dark:"빛이 있으면 그늘도 있는 법!",steel:"철벽 공격이다!",fairy:"내 귀여운 포켓몬 어때!"};
+const RK_ETC=[["male","남자 조무래기","승자만이 승리할 수 있지!","#8a93a8"],["female","여자 조무래기","승자만이 승리할 수 있지!","#ff6b8b"],["decoy","위장한 조무래기","비주기님은 쉽게 못찾지!","#ff9d3c"]];
+const RK_LEAD=[["cliff","클리프"],["arlo","알로"],["sierra","시에라"],["giovanni","비주기"]];
+const RKST={open:null};
+const RK_ALIAS={darmanitan:"darmanitan_standard"};
+function rkId(n){ const m=String(n).match(/^(Alolan|Galarian|Hisuian|Paldean) (.+)$/);
+  let b=(m?m[2]:String(n)).toLowerCase().replace(/[^a-z0-9 ]/g,"").trim().replace(/ +/g,"_"); if(m) b+="_"+m[1].toLowerCase();
+  if(CARDS[b]) return b; if(RK_ALIAS[b]&&CARDS[RK_ALIAS[b]]) return RK_ALIAS[b];
+  return Object.keys(CARDS).find(k=>k.startsWith(b+"_"))||null; }
+const rkTags=r=>(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("p")?PTAG:"");
+// 상대 3칸(칸마다 같은 비중)에 대한 전체 추천
+function rkBest(slots){ const acc={};
+  for(const sl of slots){ const ids=sl.map(p=>rkId(p[0])).filter(Boolean);
+    for(const id of ids){ const w=1/ids.length;
+      for(const r of bossRaidRows(CARDS[id].types.slice(0,2))){ if(NEWBIE&&r.tg.length) continue; const k=r.id+r.tg.join()+r.n, a=(acc[k]=acc[k]||{r,v:0,bv:0}); a.v+=r.v*w; if(r.v>a.bv){ a.bv=r.v; a.r=r; } } } }
+  const seen=new Set(); let mega=0; // 같은 포켓몬은 한 번만, 메가진화는 한 마리만(동시에 한 마리만 메가진화 가능)
+  return Object.values(acc).sort((a,b)=>b.v-a.v).filter(a=>{ if(seen.has(a.r.id)) return false; if(a.r.tg.includes("m")&&mega++) return false; seen.add(a.r.id); return true; }).slice(0,6); }
+function rkMine(slots){ const acc={};
+  for(const sl of slots){ const ids=sl.map(p=>rkId(p[0])).filter(Boolean);
+    for(const id of ids){ const w=1/ids.length;
+      for(const b of myRaidBest(CARDS[id].types.slice(0,2))){ if(NEWBIE&&b.m.sh) continue; const a=(acc[b.ix]=acc[b.ix]||{m:b.m,x:b.x,v:0,bv:0}); a.v+=b.v*w; if(b.v>a.bv){ a.bv=b.v; a.x=b.x; } } } }
+  const seen=new Set(); return Object.values(acc).sort((a,b)=>b.v-a.v).filter(a=>{ const d=CARDS[a.m.id].dex+(a.m.sh?"s":""); return !seen.has(d)&&seen.add(d); }).slice(0,3); }
+function rkLineupHTML(g,label){
+  const chip=(k,big)=>`<span class="tchip sm${big?" big":""}" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`;
+  const slot=(sl,i)=>`<div class="rkslot"><div class="rkno">${i+1}번째</div><div class="rkmons">${sl.map(([n,enc])=>{ const id=rkId(n), c=id&&CARDS[id];
+      if(!c) return `<div class="rkmon"><span class="spr"></span><div><b>${esc(n)}</b></div></div>`;
+      const weak=TYPES.map(([k])=>({k,x:eff(k,c.types)})).filter(a=>a.x>1.5).sort((a,b)=>b.x-a.x);
+      return `<div class="rkmon">${SPRITE(id)}<div><div class="rkn"><a data-poke="${esc(id)}">${esc(c.ko)}</a>${enc?'<i class="rkenc" title="이기면 잡을 수 있어요">★</i>':""}</div><div class="rkw"><span>약점</span>${weak.map(a=>chip(a.k,a.x>2.5)).join("")||"없음"}</div></div></div>`; }).join("")}</div></div>`;
+  const best=rkBest(g.s), top=best[0]?.v||1;
+  const rec=best.map((a,i)=>`<div class="bxrow"><span class="rk">${i+1}</span>${SPRITE(a.r.id)}<div class="inf"><div class="nm"><a data-poke="${esc(a.r.id)}">${esc(a.r.n)}</a>${rkTags(a.r)}</div><div class="sub">${chip(a.r.mt)} ${esc(a.r.mv)}</div></div><div class="val">${(a.v/top*100).toFixed(0)}%</div></div>`).join("");
+  let mine="";
+  if(ME&&!ME.mustChange&&hasBox()){ const my=rkMine(g.s);
+    mine=`<div class="bxsec">내 포켓몬 추천 3마리</div>`+(my.map((a,i)=>mRow(i+1,a.m,`${ivTxt(a.m)}<br>${chip(a.x.t2)} ${esc(a.x.mv)}`,(a.v/top*100).toFixed(0)+"%","최상 대비")).join("")||`<div class="empty">맞는 포켓몬이 없어요.</div>`); }
+  return `${label?`<div class="rklab">${label}</div>`:""}${g.s.map(slot).join("")}${mine}<div class="bxsec">추천 포켓몬</div>${rec}`;
+}
+function renderRocket(){
+  const root=$("#v-rocket"); if(!root) return;
+  if(!DEX||!ROCKET){ root.innerHTML=`<div class="empty">${ROCKET===false?"로켓단 정보를 불러오지 못했어요. 잠시 후 새로고침해 주세요.":"로켓단 정보를 불러오는 중이에요…"}</div>`; return; }
+  const by=k=>ROCKET.list.filter(g=>g.k===k);
+  const item=(k,color,icon,title,quote)=>{ const gs=by(k); if(!gs.length) return ""; const open=RKST.open===k;
+    return `<div class="rk${open?" open":""}" style="--c:${color}"><button class="rkhead" data-rk="${k}"><span class="rkico">${icon}</span><span class="rkt"><b>${title}</b>${quote?`<i>“${esc(quote)}”</i>`:""}</span><span class="rkarw">${open?"▴":"▾"}</span></button>${open?`<div class="rkbody">${gs.map(g=>rkLineupHTML(g,gs.length>1?(g.g==="f"?"여자 조무래기":"남자 조무래기"):"")).join("")}</div>`:""}</div>`; };
+  const face=t=>`<span class="rkface">${t}</span>`;
+  root.innerHTML=`<div class="label">&gt; 상대가 하는 말을 골라 주세요</div>
+    <div class="rksec">조무래기 <small>타입별</small></div>
+    ${TYPES.map(([k,n,c])=>item(k,c,svg(k,"#fff"),`${n} 타입`,RK_QUOTE[k])).join("")}
+    ${RK_ETC.map(([k,n,q,c])=>item(k,c,face(k==="male"?"♂":k==="female"?"♀":"?"),n,q)).join("")}
+    <div class="rksec">간부 · 비주기</div>
+    ${RK_LEAD.map(([k,n])=>item(k,k==="giovanni"?"#ff5d5d":"#b45bd1",face("R"),n,"")).join("")}
+    <div class="rklegend"><i class="rkenc">★</i> 이기면 잡을 수 있는 포켓몬 · 추천은 상대 3마리를 고르게 상대하는 기준</div>
+    <div class="note">갱신 <b>${esc(ROCKET.updated||"")}</b> · 출처: ${esc(ROCKET.source||"LeekDuck (ScrapedDuck)")}</div>`;
+  root.querySelectorAll("[data-rk]").forEach(b=>b.onclick=()=>{ const k=b.dataset.rk; RKST.open=RKST.open===k?null:k; renderRocket();
+    const el=root.querySelector(".rk.open"); if(el) el.scrollIntoView({block:"start",behavior:"smooth"}); });
+}
+
+// ===== 왕초보 가이드 =====
+// 게임 화면 그림은 사진이 아니라 직접 그린 것(예시 포켓몬은 항상 피카츄). 아이템 그림은 게임 이미지(PokeMiners).
+const ITEM=n=>`https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Items/${n}.png`;
+const itemImg=(n,cls="")=>`<img class="gitem ${cls}" src="${ITEM(n)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`;
+function renderGuide(){
+  const root=$("#v-guide"); if(!root||root.dataset.ready) return; root.dataset.ready="1";
+  const pika=`<img class="gpika" src="${ART(25)}" alt="피카츄" loading="lazy" onerror="this.style.visibility='hidden'">`;
+  const chip=k=>`<span class="tchip sm" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`;
+  const sec=(no,t,lines,fig,btn)=>`<div class="gcard"><h3><span>${no}</span>${t}</h3>${fig||""}<ul>${lines.map(l=>`<li>${l}</li>`).join("")}</ul>${btn?`<div class="gbtns">${btn}</div>`:""}</div>`;
+  const go=(v,l)=>`<button data-go="${v}">${l} ›</button>`;
+  const throwBox=(size,label)=>`<div class="gthrow"><div class="gsky"></div><div class="ggrass"></div>${pika}<div class="gring"><i style="width:${size}px;height:${size}px"></i></div><div class="gcall">${label}</div><img class="gball" src="${ITEM("pokeball_sprite")}" alt="" onerror="this.style.visibility='hidden'"></div>`;
+  const it=(n,t,d)=>`<div class="git">${itemImg(n)}<b>${t}</b><span>${d}</span></div>`;
+  const bar=(l,v)=>`<div class="gbar"><span>${l}</span><div class="gseg${v===15?" max":""}">${[0,1,2].map(i=>`<i><u style="width:${Math.max(0,Math.min(5,v-i*5))*20}%"></u></i>`).join("")}</div><em>${v}</em></div>`;
+  root.innerHTML=`<p class="intro-top">포켓몬고를 막 시작했다면 <b>이것만</b> 알아도 충분해요.</p>
+  ${sec(1,"잘 던지기",[
+    "안쪽 원이 <b>작을 때</b> 맞히면 더 잘 잡혀요. Nice → Great → Excellent 순서로 좋아요.",
+    "원의 색은 잡기 어려운 정도예요. <b class='gc g'>초록</b> 쉬움 · <b class='gc o'>주황</b> 보통 · <b class='gc r'>빨강</b> 어려움",
+    "공을 빙글 돌려 던지는 <b>커브볼</b>과 <b>나무열매</b>를 같이 쓰면 더 좋아요."],
+    `<div class="gfig three">${throwBox(40,"Nice!")}${throwBox(26,"Great!")}${throwBox(13,"Excellent!")}</div>`)}
+  ${sec(2,"키우기 — 강화와 진화",[
+    "<b>강화</b>에는 별의모래와 그 포켓몬의 사탕이 들어요. 레벨 40부터는 <b>사탕XL</b>도 필요해요.",
+    "<b>진화</b>에는 사탕만 들어요. 피카츄 → 라이츄는 사탕 50개.",
+    "<b>이상한사탕</b>은 원하는 포켓몬의 사탕으로 바꿀 수 있어요. 전설 포켓몬에 쓰는 게 좋아요.",
+    "우리 사이트에서 <b>티어가 높은 포켓몬</b>을 먼저 강화하면 좋아요. 별의모래와 (이상한)사탕은 귀중한 자원이에요."],
+    `<div class="gfig two"><div class="gmon"><div class="gcp">CP <b>500</b></div>${pika}<div class="gnm">피카츄</div><div class="ghp"><i></i></div><div class="ghpt">60 / 60 HP</div>
+      <div class="gpw"><span class="gpb">강화</span>${itemImg("stardust_painted","xs")}1,900 ${itemImg("pokemon_details_candy","xs")}2</div>
+      <div class="gpw"><span class="gpb ev">진화</span>${itemImg("pokemon_details_candy","xs")}50</div></div>
+      <div class="gitems">${it("stardust_painted","별의모래","강화에 꼭 필요")}${it("pokemon_details_candy","사탕","강화 · 진화")}${it("LV40_XLCandy_RGB_PSD","사탕XL","레벨 40 넘게 강화")}${it("Item_1301","이상한사탕","아무 사탕으로 변신")}</div></div>`,
+    go("card","포켓몬 검색"))}
+  ${sec(3,"개체값 — 같은 포켓몬도 타고난 능력이 달라요",[
+    "공격 · 방어 · HP가 각각 <b>0~15</b>예요. 포켓몬 화면에서 <b>조사하기</b>를 누르면 볼 수 있어요.",
+    "별 3개면 82% 이상, <b>빨간 별 3개</b>는 100%예요.",
+    "레이드는 공격이 높은 게 중요해요. 별 3개면 충분히 키울 만해요."],
+    `<div class="gfig"><div class="gappr">${pika}<div class="gapr">${bar("공격",15)}${bar("방어",13)}${bar("HP",14)}<div class="gstar">★★★ <small>93%</small></div></div></div></div>`)}
+  ${sec(4,"기술 — 노말기와 스페셜어택",[
+    "<b>노말기</b>는 화면을 누르면 나가고, 쓰면서 <b>게이지</b>가 차요. 게이지가 다 차면 <b>스페셜어택</b>을 쓸 수 있어요.",
+    "<b>기술머신</b>은 기술을 무작위로 바꿔요. <b>대단한 기술머신</b>은 원하는 기술을 직접 골라요.",
+    "<b class='elite'>레거시 기술</b>은 이벤트 때만 배울 수 있는 <b>더욱 강력한</b> 기술이에요. 대단한 기술머신으로도 배울 수 있어요."],
+    `<div class="gfig two"><div class="gmoves"><div class="gmv"><em>노말기</em><b>${chip("electric")} 전기쇼크</b></div><div class="gmv"><em>스페셜어택</em><b>${chip("electric")} 10만볼트</b><div class="gcharge"><i></i></div></div></div>
+      <div class="gitems">${it("Item_1201","노말 기술머신","노말기 무작위")}${it("Item_1202","스페셜 기술머신","스페셜어택 무작위")}${it("Item_1203","대단한 노말 기술머신","골라서 변경")}${it("Item_1204","대단한 스페셜 기술머신","골라서 변경")}</div></div>`)}
+  ${sec(5,"상성 — 약점을 찌르면 1.6배",[
+    "상대의 <b>약점 타입 기술</b>로 때리면 1.6배, 반감이면 0.63배예요.",
+    "상대 타입이 두 개인데 <b>둘 다 약점</b>이면 <b>이중약점</b> 2.56배, <b>둘 다 반감</b>이면 <b>이중반감</b> 0.39배예요. (풀 기술 → 물·땅 타입 = 이중약점)",
+    "포켓몬과 같은 타입의 기술을 쓰면 1.2배 더 세요. (전기 포켓몬 + 전기 기술)"],
+    `<div class="gfig"><div class="gchart"><div>${chip("water")} <span>▶</span> ${chip("fire")} <b class="up">×1.6</b></div><div>${chip("fire")} <span>▶</span> ${chip("water")} <b class="dn">×0.63</b></div><div>${chip("grass")} <span>▶</span> ${chip("water")}${chip("ground")} <b class="up">×2.56</b></div><div>${chip("grass")} <span>▶</span> ${chip("fire")}${chip("flying")} <b class="dn">×0.39</b></div></div></div>`,
+    go("type","상성표 보기"))}
+  ${sec(6,"레이드",[
+    "체육관에 나오는 강한 포켓몬을 여럿이 같이 잡아요. <b>1성 · 3성 · 5성 · 메가</b>가 있어요.",
+    "상대 <b>약점 타입</b>의 딜러 6마리를 데려가요. 누구를 키울지는 티어리스트에서 볼 수 있어요.",
+    "5성은 전설 포켓몬이에요. 보통 3~5명이 함께 해야 해요."],
+    `<div class="gfig"><div class="gstars"><span>★<em>1성 · 혼자</em></span><span>★★★<em>3성 · 1~2명</em></span><span class="five">★★★★★<em>5성 · 3~5명</em></span></div></div>`,
+    go("raid","레이드 티어")+go("type","상대 공략"))}
+  ${sec(7,"다이맥스 (맥스배틀)",[
+    "<b>파워스폿</b>에서 하는 전투예요. 걸어서 모으는 <b>맥스파티클</b>이 필요해요.",
+    "노말기로 게이지를 모아 <b>맥스기</b>를 3번 써요. 맥스기 타입은 노말기 타입을 따라가요.",
+    "세게 때리는 <b>딜러</b>와 오래 버티는 <b>탱커</b>를 나눠서 키워요."],"",
+    go("dmax","다이맥스 티어"))}
+  ${sec(8,"GO 로켓단",[
+    "검게 변한 포켓스톱이나 풍선에서 만나요. <b>하는 말</b>을 보면 어떤 타입을 쓰는지 알 수 있어요.",
+    "이기면 <b>그림자 포켓몬</b>을 잡을 수 있어요."],"",
+    go("rocket","로켓단 공략"))}
+  ${sec(9,"이 사이트 쓰는 법",[
+    "맨 위 <b>검색창</b>에 이름을 넣으면 그 포켓몬의 티어 · 추천 스킬 · 100% CP가 나와요.",
+    "<b>티어</b>에서 타입별로 누가 강한지 봐요. SS가 가장 높아요.",
+    "<b>더보기 → 뉴비모드</b>를 켜면 메가 · 그림자 · 거다이맥스를 빼고 보여 줘요."],"",
+    go("tier","티어리스트")+go("more","더보기"))}
+  <div class="note">아이템 그림: PokeMiners · 포켓몬 그림: PokeAPI</div>`;
+}
+
+// ===== 더보기 =====
+const daysOld=d=>{ const t=Date.parse(d); return isNaN(t)?0:Math.floor((Date.now()-t)/864e5); };
+function renderMore(){
+  const root=$("#v-more"); if(!root) return;
+  const row=(v,t,d)=>`<button class="mrowb" data-go="${v}"><b>${t}</b><span>${d}</span><i>›</i></button>`;
+  const stale=[]; if(DEX&&daysOld(DEX.updated)>10) stale.push("도감 · 티어"); if(EVENTS&&FEED_UPDATED&&daysOld(FEED_UPDATED)>3) stale.push("일정");
+  root.innerHTML=`${stale.length?`<div class="stale">${stale.join(" · ")} 정보가 오래됐을 수 있어요.</div>`:""}
+    <div class="mlist">
+      ${row("home","일정","지금 잡을 포켓몬 · 진행 중인 이벤트")}
+      ${row("guide","왕초보 가이드","처음 시작했다면 이것만")}
+      ${row("intro","회원 기능 소개","내 포켓몬 기준 추천 기능")}
+      ${ME&&ME.admin?row("admin","관리자 페이지","계정 · 회원 관리"):""}
+    </div>
+    <div class="mlist"><div class="mrowb sw"><b>뉴비모드</b><span>메가 · 그림자 · 거다이맥스를 빼고 보여 줘요</span><button class="swt${NEWBIE?" on":""}" id="nbSw" role="switch" aria-checked="${NEWBIE}"><i></i></button></div></div>
+    <div class="mlist"><a class="mrowb" href="mailto:hhhpyoxx@gmail.com?subject=${encodeURIComponent("PYOkemongo 의견")}"><b>의견 보내기</b><span>고쳤으면 하는 점이나 틀린 정보를 알려 주세요</span><i>›</i></a></div>
+    <div class="fan">PYOkemongo는 개인이 만든 비공식 팬 사이트예요. 포켓몬 · Pokémon GO의 이름과 그림에 대한 권리는 각 권리자에게 있어요.</div>`;
+  $("#nbSw").onclick=()=>setNewbie(!NEWBIE);
+}
+
 // ===== 시작 =====
+$("#nbBadge").hidden=!NEWBIE;
 renderHome(); show();
 ["raid","dmax","pvp"].forEach(renderBoard); renderType();
 $("#cardOut").innerHTML='<div class="empty">도감 데이터를 불러오는 중이에요…</div>';
 fetch("data/pokedex.json").then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }).then(d=>{
   DEX=d; TANK_POOL=null; if(d.tierRule) TIER_RULE=d.tierRule;
   for(const c of d.cards){ CARDS[c.id]=c; SEARCH.push({id:c.id,ko:c.ko,en:c.en}); if(!NAME2ID[c.ko]) NAME2ID[c.ko]=c.id; const k2=c.ko.replace(/\s/g,""); if(!NAME2ID[k2]) NAME2ID[k2]=c.id; const k3=c.ko.replace(/\(.+\)$/,""); if(k3!==c.ko&&!NAME2ID[k3]) NAME2ID[k3]=c.id; }
-  suggest(""); openCard(CARDS.pikachu?"pikachu":d.cards[0].id);
+  suggest(""); { let pid=(location.hash.match(/^#p=(.+)$/)||[])[1]; try{ pid=pid&&decodeURIComponent(pid); }catch(e){} openCard(pid&&CARDS[pid]?pid:CARDS.pikachu?"pikachu":d.cards[0].id); }
   ["raid","dmax","pvp"].forEach(id=>{ $("#p-"+id).dataset.ready=""; renderBoard(id); });
   if(location.hash.slice(1)==="dex") renderDex();
   if(location.hash.slice(1).startsWith("box")) renderBox(location.hash.slice(1));
   if(location.hash.slice(1)==="intro") renderIntro();
+  if(hv()==="rocket") renderRocket();
+  if(hv()==="more") renderMore();
   renderType();
   renderHome();
 }).catch(err=>{
@@ -1891,6 +2202,7 @@ fetch("data/events.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=
   else EVENTS=FALLBACK_EVENTS;
   renderHome();
 }).catch(()=>{ EVENTS=FALLBACK_EVENTS; renderHome(); });
+fetch("data/rocket.json",{cache:"no-cache"}).then(r=>r.ok?r.json():Promise.reject()).then(j=>{ ROCKET=j&&Array.isArray(j.list)?j:false; if(hv()==="rocket") renderRocket(); }).catch(()=>{ ROCKET=false; if(hv()==="rocket") renderRocket(); });
 fetch("data/picks.json",{cache:"no-cache"}).then(r=>r.json()).then(j=>{ PICKS=j; renderHome(); }).catch(()=>{});
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f285f8b484c8414c91a5f88bce921438"}'></script><!-- End Cloudflare Web Analytics -->
