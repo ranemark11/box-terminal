@@ -453,7 +453,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.10</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.11</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -1232,16 +1232,15 @@ function confirmBox(msg,ok){ const m=document.createElement("div"); m.className=
 const LOGIN_ST={mode:"login"};
 function renderMe(){
   const root=$("#v-me"); if(!root) return;
-  const pwForm=(title,force)=>`<div class="mecard"><div class="mehd">${title}</div>${force?`<p class="sknote">처음 로그인했거나 비밀번호가 초기화됐어요. 새 비밀번호로 바꿔야 계속 쓸 수 있어요.</p>`:""}
+  const pwForm=(title,force)=>`<div class="mecard"><div class="mehd">${title}</div>${force?`<p class="sknote">처음 로그인했거나 비밀번호가 초기화됐어요. 지금 비밀번호(처음엔 hello)를 넣고 새 비밀번호로 바꿔야 계속 쓸 수 있어요.</p>`:""}
     <div class="loginbox"><label>지금 비밀번호<input type="password" id="pwOld" autocomplete="current-password"></label><label>새 비밀번호 (${ME?.admin?"10":"8"}자 이상)<input type="password" id="pwNew" autocomplete="new-password"></label><label>새 비밀번호 확인<input type="password" id="pwNew2" autocomplete="new-password"></label><div class="err" id="pwErr"></div><button class="mebtn main" id="pwGo">비밀번호 바꾸기</button></div></div>`;
   let h="";
   if(!ME){
-    const join=LOGIN_ST.mode==="join";
-    h=`<div class="mecard"><div class="seg"><button data-lm="login" class="${join?"":"on"}">로그인</button><button data-lm="join" class="${join?"on":""}">가입</button></div>
-      <div class="loginbox"><label>${join?"트레이너 코드 (12자리)":"트레이너 코드 또는 아이디"}<input id="lgCode" inputmode="numeric" autocomplete="username" placeholder="1234 5678 9012"></label>
-      <label>비밀번호${join?" (8자 이상)":""}<input id="lgPw" type="password" autocomplete="${join?"new-password":"current-password"}"></label>
-      ${join?`<label>비밀번호 확인<input id="lgPw2" type="password" autocomplete="new-password"></label><p class="sknote">지금은 초대받은 사람만 회원 기능을 이용할 수 있어요.</p>`:""}
-      <div class="err" id="lgErr"></div><button class="mebtn main" id="lgGo">${join?"가입하기":"로그인"}</button></div></div>`;
+    h=`<div class="mecard"><div class="mehd">로그인</div>
+      <div class="loginbox"><label>트레이너 코드 또는 아이디<input id="lgCode" inputmode="numeric" autocomplete="username" placeholder="1234 5678 9012"></label>
+      <label>비밀번호<input id="lgPw" type="password" autocomplete="current-password"></label>
+      <div class="err" id="lgErr"></div><button class="mebtn main" id="lgGo">로그인</button>
+      <p class="sknote">지금은 초대받은 사람만 회원 기능을 이용할 수 있어요.</p></div></div>`;
   }else if(ME.mustChange){
     h=`<div class="mecard"><div class="mehd">${ME.admin?"관리자":"트레이너"} <b>${fmtCode(ME.code)}</b></div></div>`+pwForm("비밀번호 바꾸기",true)+`<button class="mebtn" id="lgOut">로그아웃</button>`;
   }else{
@@ -1253,12 +1252,10 @@ function renderMe(){
   }
   root.innerHTML=h;
   // 로그인 / 가입
-  root.querySelectorAll("[data-lm]").forEach(b=>b.onclick=()=>{ LOGIN_ST.mode=b.dataset.lm; renderMe(); });
-  const go=root.querySelector("#lgGo"); if(go) go.onclick=async()=>{ const join=LOGIN_ST.mode==="join", code=root.querySelector("#lgCode").value.replace(/\D/g,""), pw=root.querySelector("#lgPw").value, err=root.querySelector("#lgErr");
-    if(join&&code.length!==12){ err.textContent="트레이너 코드는 숫자 12자리예요."; return; } if(!code){ err.textContent="아이디를 넣어 주세요."; return; }
-    if(join&&pw.length<8){ err.textContent="비밀번호는 8자 이상이에요."; return; } if(join&&pw!==root.querySelector("#lgPw2").value){ err.textContent="비밀번호 확인이 달라요."; return; }
+  const go=root.querySelector("#lgGo"); if(go) go.onclick=async()=>{ const code=root.querySelector("#lgCode").value.replace(/\D/g,""), pw=root.querySelector("#lgPw").value, err=root.querySelector("#lgErr");
+    if(!code){ err.textContent="아이디를 넣어 주세요."; return; }
     go.disabled=true; err.textContent="";
-    try{ setMe(await api(join?"register":"login",{method:"POST",body:JSON.stringify({code,password:pw})})); await syncDown(); renderMe(); }
+    try{ setMe(await api("login",{method:"POST",body:JSON.stringify({code,password:pw})})); await syncDown(); renderMe(); }
     catch(e){ err.textContent=e.message==="Failed to fetch"?"서버에 연결할 수 없어요.":e.message; go.disabled=false; } };
   const pg=root.querySelector("#pwGo"); if(pg) pg.onclick=async()=>{ const o=root.querySelector("#pwOld").value,n=root.querySelector("#pwNew").value,err=root.querySelector("#pwErr");
     if(n!==root.querySelector("#pwNew2").value){ err.textContent="새 비밀번호 확인이 달라요."; return; }
@@ -1289,18 +1286,18 @@ async function renderAdmin(){
   if(!ME||!ME.admin||ME.mustChange){ root.innerHTML=""; go("card"); return; }
   root.innerHTML=`<div class="empty">불러오는 중…</div>`;
   let d; try{ d=await api("admin/overview"); }catch(e){ root.innerHTML=`<div class="empty">${esc(e.message)}</div>`; return; }
-  const ACT={login:"로그인",login_fail:"로그인 실패",password_change:"비밀번호 변경",allow_add:"명단 추가",allow_remove:"명단 삭제",reset_password:"비밀번호 초기화",delete_user:"계정 삭제"};
-  root.innerHTML=`<div class="mecard"><div class="mehd"><span class="adm">관리자</span> 가입 허용 명단</div>
-      <div class="loginbox"><label>트레이너 코드 (12자리)<input id="alCode" inputmode="numeric" placeholder="1234 5678 9012"></label><label>메모 (예: 친구 이름)<input id="alNote" maxlength="40"></label><div class="err" id="alErr"></div><button class="mebtn main" id="alAdd">명단에 추가</button></div>
-      ${d.allow.map(a=>`<div class="adrow"><span><b>${fmtCode(a.code)}</b> ${esc(a.note)}<br><small>${a.created?"가입함 "+fmtTime(a.created):"가입 대기"}</small></span><button class="mebtn danger sm" data-alrm="${a.code}">삭제</button></div>`).join("")||`<p class="sknote">아직 없어요.</p>`}</div>
-    <div class="mecard"><div class="mehd">가입한 사용자 ${d.users.filter(u=>!u.is_admin).length}명</div>
-      ${d.users.filter(u=>!u.is_admin).map(u=>`<div class="adrow"><span><b>${fmtCode(u.code)}</b><br><small>가입 ${fmtTime(u.created)} · 저장 ${fmtTime(u.updated)}${u.size?` · ${Math.round(u.size/1024)}KB`:""}</small></span><span><button class="mebtn sm" data-rst="${u.code}">비번 초기화</button> <button class="mebtn danger sm" data-udel="${u.code}">삭제</button></span></div>`).join("")||`<p class="sknote">아직 없어요.</p>`}</div>
+  const ACT={create_user:"계정 추가",login:"로그인",login_fail:"로그인 실패",password_change:"비밀번호 변경",allow_add:"명단 추가",allow_remove:"명단 삭제",reset_password:"비밀번호 초기화",delete_user:"계정 삭제"};
+  const us=d.users.filter(u=>!u.is_admin);
+  root.innerHTML=`<div class="mecard"><div class="mehd"><span class="adm">관리자</span> 계정 추가</div>
+      <div class="loginbox"><label>트레이너 코드 (12자리)<input id="alCode" inputmode="numeric" placeholder="1234 5678 9012"></label><div class="err" id="alErr"></div><button class="mebtn main" id="alAdd">계정 만들기</button>
+      <p class="sknote">바로 계정이 생기고 첫 비밀번호는 <b>hello</b>예요. 친구가 처음 로그인하면 새 비밀번호로 바꾸게 돼요. 만들고 나면 친구에게 바로 알려 주세요.</p></div></div>
+    <div class="mecard"><div class="mehd">사용자 ${us.length}명</div>
+      ${us.map(u=>`<div class="adrow"><span><b>${fmtCode(u.code)}</b><br><small>${u.must_change?'<span style="color:var(--amber)">첫 로그인 대기</span>':"사용 중"} · 만든 날 ${fmtTime(u.created)} · 저장 ${fmtTime(u.updated)}${u.size?` · ${Math.round(u.size/1024)}KB`:""}</small></span><span><button class="mebtn sm" data-rst="${u.code}">비번 초기화</button> <button class="mebtn danger sm" data-udel="${u.code}">삭제</button></span></div>`).join("")||`<p class="sknote">아직 없어요.</p>`}</div>
     <div class="mecard"><div class="mehd">관리 기록 (최근 30개)</div>${d.logs.map(l=>`<div class="adlog">${fmtTime(l.ts)} · ${ACT[l.action]||l.action}${l.target?" · "+fmtCode(l.target):""}${l.ip&&l.ip!=="local"?` · ${esc(l.ip)}`:""}</div>`).join("")||`<p class="sknote">없어요.</p>`}</div>`;
   const re=()=>renderAdmin();
   root.querySelector("#alAdd").onclick=async()=>{ const code=root.querySelector("#alCode").value.replace(/\D/g,""), err=root.querySelector("#alErr"); if(code.length!==12){ err.textContent="트레이너 코드는 숫자 12자리예요."; return; }
-    try{ await api("admin/allow",{method:"POST",body:JSON.stringify({code,note:root.querySelector("#alNote").value})}); re(); }catch(e){ err.textContent=e.message; } };
-  root.querySelectorAll("[data-alrm]").forEach(b=>b.onclick=()=>confirmBox(`${fmtCode(b.dataset.alrm)}를 명단에서 뺄까요? (이미 가입한 계정은 그대로예요)`,async()=>{ await api("admin/allow",{method:"DELETE",body:JSON.stringify({code:b.dataset.alrm})}).catch(e=>alertBox(e.message)); re(); }));
-  root.querySelectorAll("[data-rst]").forEach(b=>b.onclick=()=>confirmBox(`${fmtCode(b.dataset.rst)}의 비밀번호를 초기화할까요?`,async()=>{ try{ const j=await api("admin/reset",{method:"POST",body:JSON.stringify({code:b.dataset.rst})}); alertBox(`임시 비밀번호: ${j.temp}\n\n지금 한 번만 보여요. 친구에게 알려 주면, 로그인할 때 새 비밀번호로 바꾸게 돼요.`); re(); }catch(e){ alertBox(e.message); } }));
+    try{ await api("admin/create",{method:"POST",body:JSON.stringify({code})}); alertBox(`${fmtCode(code)} 계정을 만들었어요.\n첫 비밀번호: hello`); re(); }catch(e){ err.textContent=e.message; } };
+  root.querySelectorAll("[data-rst]").forEach(b=>b.onclick=()=>confirmBox(`${fmtCode(b.dataset.rst)}의 비밀번호를 초기화할까요?`,async()=>{ try{ const j=await api("admin/reset",{method:"POST",body:JSON.stringify({code:b.dataset.rst})}); alertBox(`비밀번호를 ${j.temp}(으)로 초기화했어요.\n친구가 로그인하면 새 비밀번호로 바꾸게 돼요.`); re(); }catch(e){ alertBox(e.message); } }));
   root.querySelectorAll("[data-udel]").forEach(b=>b.onclick=()=>confirmBox(`${fmtCode(b.dataset.udel)} 계정과 저장된 데이터를 모두 지울까요?`,async()=>{ await api("admin/user",{method:"DELETE",body:JSON.stringify({code:b.dataset.udel})}).catch(e=>alertBox(e.message)); re(); }));
 }
 api("me").then(j=>{ setMe(j); return syncDown(); }).then(()=>{ const v=location.hash.slice(1); if(v.startsWith("box")) renderBox(v); if(v==="me") renderMe(); if(v==="admin") renderAdmin(); }).catch(()=>{});

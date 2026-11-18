@@ -1,7 +1,7 @@
 // PYOkemongo 서버 (Cloudflare Worker)
 // - /api/* 만 이 코드가 처리하고, 나머지는 site/ 정적 파일(ASSETS)을 그대로 보여 줌
 // - 계정: 트레이너 코드(12자리, 그대로 저장) + 비밀번호(PBKDF2-SHA256 해시만 저장, 사람마다 다른 salt)
-// - 가입: 관리자가 허용 명단(allow)에 넣은 트레이너 코드만 가능 (화이트리스트)
+// - 가입 없음: 관리자가 트레이너 코드를 추가하면 바로 계정이 생김 (초기 비밀번호 INITIAL_PW, 첫 로그인 때 꼭 바꿔야 함)
 // - 관리자: users.is_admin = 1 인 특별 계정. 서버 코드에는 관리자 계정 이름을 적지 않음(공개 저장소라서).
 //   관리자 계정은 D1 콘솔에서 한 번만 만들고, 첫 로그인 때 비밀번호를 꼭 바꿔야 관리 기능이 열림
 // - 세션: 무작위 토큰을 HttpOnly 쿠키로 주고, 서버에는 토큰의 SHA-256 해시만 저장
@@ -15,13 +15,13 @@ const ADMIN_FAILS = 3, ADMIN_LOCK_MIN = 60; // 관리자: 3번 틀리면 60분 �
 const IP_MAX = 30, IP_WINDOW_MIN = 15; // 같은 IP에서 15분에 30번 넘게 실패하면 잠시 막음
 const MAX_BODY = 400 * 1024;           // 박스 데이터 최대 400KB
 const COOKIE = "pyo_s";
+const INITIAL_PW = "hello"; // 관리자가 만든 계정의 첫 비밀번호 (must_change=1 이라 로그인 후 바꾸기 전엔 아무 기능도 못 씀)
 
 const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS users (code TEXT PRIMARY KEY, pw_hash TEXT NOT NULL, salt TEXT NOT NULL, iter INTEGER NOT NULL, created INTEGER NOT NULL, fails INTEGER NOT NULL DEFAULT 0, lock_until INTEGER NOT NULL DEFAULT 0, is_admin INTEGER NOT NULL DEFAULT 0, must_change INTEGER NOT NULL DEFAULT 0)`,
   `CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, code TEXT NOT NULL, expires INTEGER NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS boxes (code TEXT PRIMARY KEY, data TEXT NOT NULL, updated INTEGER NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS ip_fails (ip TEXT PRIMARY KEY, count INTEGER NOT NULL, since INTEGER NOT NULL)`,
-  `CREATE TABLE IF NOT EXISTS allow (code TEXT PRIMARY KEY, note TEXT NOT NULL DEFAULT '', added INTEGER NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS admin_log (ts INTEGER NOT NULL, admin TEXT NOT NULL, action TEXT NOT NULL, target TEXT NOT NULL DEFAULT '', ip TEXT NOT NULL DEFAULT '')`,
 ];
 let schemaReady = false;
@@ -108,22 +108,6 @@ async function api(req, env, path) {
     return json(u ? userInfo(u) : { code: null });
   }
 
-  if (path === "register" && method === "POST") {
-    if (await ipBlocked(db, ip)) return fail("잠시 후 다시 시도해 주세요.", 429);
-    let b; try { b = await readJson(req); } catch { return fail("잘못된 요청이에요."); }
-    const code = String(b.code || "").replace(/\D/g, "");
-    if (!validCode(code)) return fail("트레이너 코드는 숫자 12자리예요.");
-    const ok = await db.prepare("SELECT 1 FROM allow WHERE code = ?").bind(code).first();
-    if (!ok) { await ipFail(db, ip); return fail("아직 가입이 허용되지 않은 트레이너 코드예요. 관리자에게 문의해 주세요.", 403); }
-    if (!validPw(b.password)) return fail("비밀번호는 8~128자예요.");
-    const exists = await db.prepare("SELECT 1 FROM users WHERE code = ?").bind(code).first();
-    if (exists) return fail("이미 가입된 트레이너 코드예요.", 409);
-    const salt = randBytes(16);
-    await db.prepare("INSERT INTO users (code, pw_hash, salt, iter, created) VALUES (?, ?, ?, ?, ?)")
-      .bind(code, await pbkdf2(b.password, salt, PBKDF2_ITER), b64(salt), PBKDF2_ITER, now()).run();
-    return json({ code, admin: false, mustChange: false }, 200, { "set-cookie": await newSession(db, code, false) });
-  }
-
   if (path === "login" && method === "POST") {
     if (await ipBlocked(db, ip)) return fail("잠시 후 다시 시도해 주세요.", 429);
     let b; try { b = await readJson(req); } catch { return fail("잘못된 요청이에요."); }
@@ -192,28 +176,25 @@ async function api(req, env, path) {
     if (!me.is_admin) return fail("없는 주소예요.", 404); // 관리자 기능이 있다는 것도 드러내지 않음
     const sub = path.slice(6);
     if (sub === "overview" && method === "GET") {
-      const allow = (await db.prepare("SELECT a.code, a.note, a.added, u.created FROM allow a LEFT JOIN users u ON u.code = a.code ORDER BY a.added DESC").all()).results;
-      const users = (await db.prepare("SELECT u.code, u.created, u.is_admin, b.updated, length(b.data) AS size FROM users u LEFT JOIN boxes b ON b.code = u.code ORDER BY u.created DESC").all()).results;
+      const users = (await db.prepare("SELECT u.code, u.created, u.is_admin, u.must_change, b.updated, length(b.data) AS size FROM users u LEFT JOIN boxes b ON b.code = u.code ORDER BY u.created DESC").all()).results;
       const logs = (await db.prepare("SELECT ts, action, target, ip FROM admin_log ORDER BY ts DESC LIMIT 30").all()).results;
-      return json({ allow, users, logs });
+      return json({ users, logs });
     }
     let b; try { b = await readJson(req); } catch { return fail("잘못된 요청이에요."); }
     const target = String(b.code || "").replace(/\D/g, "");
-    if (sub === "allow" && method === "POST") {
+    if (sub === "create" && method === "POST") { // 계정 바로 만들기: 비밀번호 INITIAL_PW, 첫 로그인 때 변경 필수
       if (!validCode(target)) return fail("트레이너 코드는 숫자 12자리예요.");
-      await db.prepare("INSERT OR REPLACE INTO allow (code, note, added) VALUES (?, ?, ?)").bind(target, String(b.note || "").slice(0, 40), now()).run();
-      await log(db, code, "allow_add", target, ip);
-      return json({ ok: true });
-    }
-    if (sub === "allow" && method === "DELETE") {
-      await db.prepare("DELETE FROM allow WHERE code = ?").bind(target).run();
-      await log(db, code, "allow_remove", target, ip);
+      if (await db.prepare("SELECT 1 FROM users WHERE code = ?").bind(target).first()) return fail("이미 있는 계정이에요.", 409);
+      const salt = randBytes(16);
+      await db.prepare("INSERT INTO users (code, pw_hash, salt, iter, created, must_change) VALUES (?, ?, ?, ?, ?, 1)")
+        .bind(target, await pbkdf2(INITIAL_PW, salt, PBKDF2_ITER), b64(salt), PBKDF2_ITER, now()).run();
+      await log(db, code, "create_user", target, ip);
       return json({ ok: true });
     }
     if (sub === "reset" && method === "POST") { // 비밀번호 초기화: 임시 비밀번호를 한 번만 보여 줌, 그 사람의 로그인은 모두 끊김
       const u = await db.prepare("SELECT is_admin FROM users WHERE code = ?").bind(target).first();
       if (!u || u.is_admin) return fail("초기화할 수 없는 계정이에요.");
-      const temp = Array.from(randBytes(10), x => "abcdefghjkmnpqrstuvwxyz23456789"[x % 31]).join("");
+      const temp = INITIAL_PW;
       const salt = randBytes(16);
       await db.prepare("UPDATE users SET pw_hash = ?, salt = ?, iter = ?, fails = 0, lock_until = 0, must_change = 1 WHERE code = ?").bind(await pbkdf2(temp, salt, PBKDF2_ITER), b64(salt), PBKDF2_ITER, target).run();
       await db.prepare("DELETE FROM sessions WHERE code = ?").bind(target).run();
