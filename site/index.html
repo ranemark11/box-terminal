@@ -494,7 +494,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.17</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v1.18</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -506,7 +506,6 @@ td.num.sorted{color:var(--amber)}
 
     <!-- ===== 홈 ===== -->
     <section class="view" id="v-home">
-      <div class="devnote">이 페이지는 현재 개발중인 미완성 페이지입니다. 좋은 의견을 주시면 반영토록 하겠습니다.<br>의견은 <a href="mailto:hhhpyoxx@gmail.com">hhhpyoxx@gmail.com</a>으로 남겨주세요! :)</div>
       <div class="clock"><h1>지금 포켓몬고</h1><span id="today"></span></div>
       <div class="panel hot" style="margin-top:0">
         <h3>지금 잡을 포켓몬 <span class="vlegend"><span class="vt vmust">필수</span>SS·S <span class="vt vrec">추천</span>A·B</span></h3>
@@ -1690,13 +1689,12 @@ function renderIntro(){
   const cap=withDemo(()=>{ CAPS=[{id:"gardevoir",a:12,d:15,h:14,lv:40},{id:"metagross",a:14,d:15,h:15,lv:40},{id:"garchomp",a:15,d:13,h:15,lv:40}].filter(c=>CARDS[c.id]); return boxCap().replace(/<form[\s\S]*?<\/form><div class="sugg csugg"><\/div>/,"").replace('<div class="bxsec">은뚜껑 후보 추가</div>',""); });
   const list=withDemo(()=>{ Object.assign(LISTST,{q:"",sort:"cp",n:5}); return boxList(); });
   const card=(t,d,demo)=>`<div class="icard"><h3>${t}</h3><p>${d}</p>${demo?`<div class="demo" inert>${demo}</div>`:""}</div>`;
-  const member=ME&&!ME.mustChange;
   root.innerHTML=`<p class="intro-top"><b>회원 기능</b>은 내 포켓몬 리스트를 올려 두고, <b>내가 가진 포켓몬 기준</b>으로 추천을 받는 기능이에요. 아래는 예시 포켓몬으로 만든 화면이에요.</p>
     ${card("파티 추천","상대 포켓몬을 고르면 내 포켓몬 중에서 레이드 딜러 6마리, 다이맥스 파티, 배틀리그 3마리를 골라 줘요. 상성표에서도 '내 포켓몬으로 보기'로 바로 볼 수 있어요.",party)}
     ${card("강화 효율","별의모래를 어느 포켓몬에 쓰면 가장 많이 강해지는지 순서대로 보여 줘요.",dust)}
     ${card("은뚜껑 추천","고민 중인 포켓몬의 개체값을 넣으면 공격·방어·HP 중 무엇을 올릴지 알려 줘요.",cap)}
     ${card("내 포켓몬","올린 포켓몬을 검색·정렬해서 보고, 잘못 읽힌 정보는 눌러서 바로 고쳐요. 일정에서는 이미 가진 포켓몬인지도 표시돼요.",list)}
-    <div class="empty">${member?`회원기능 ▾ 메뉴에서 바로 써 보세요.<br><button class="upbtn" data-go="boxparty">파티 추천 가기 ›</button>`:`지금은 초대받은 사람만 회원 기능을 이용할 수 있어요.<br><button class="upbtn" data-go="me">로그인 ›</button>`}</div>`;
+    <div class="devnote">지금은 개발중인 페이지로, 서비스가 준비되면 기능을 제공할게요. 개선 의견을 주시거나 베타테스터가 되어주시려면 <a href="mailto:hhhpyoxx@gmail.com">hhhpyoxx@gmail.com</a>으로 메일주세요.</div>`;
 }
 // ===== 도감 (지방별, 도감번호 순) =====
 const REGIONS=[["관동",1,151],["성도",152,251],["호연",252,386],["신오",387,493],["하나",494,649],["칼로스",650,721],["알로라",722,809],["가라르",810,905],["팔데아",906,1025]];
