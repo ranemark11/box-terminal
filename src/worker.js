@@ -15,6 +15,8 @@ const ADMIN_FAILS = 3, ADMIN_LOCK_MIN = 60; // 관리자: 3번 틀리면 60분 �
 const IP_MAX = 30, IP_WINDOW_MIN = 15; // 같은 IP에서 15분에 30번 넘게 실패하면 잠시 막음
 const MAX_BODY = 400 * 1024;           // 박스 데이터 최대 400KB
 const COOKIE = "pyo_s";
+const BACK_COOKIE = "pyo_a";              // 관리자가 회원으로 들어갔을 때 돌아올 관리자 세션
+const IMP_MIN = 60;                       // 회원으로 들어간 세션은 60분만
 // 관리자가 만든 계정·초기화한 계정의 첫 비밀번호: 무작위(헷갈리는 글자 뺌), 관리자 화면에 한 번만 보여 줌. must_change=1 이라 바꾸기 전엔 아무 기능도 못 씀
 const tempPw = () => { const a = "abcdefghjkmnpqrstuvwxyz23456789", r = randBytes(8); let s = ""; for (let i = 0; i < 8; i++) s += a[r[i] % a.length] + (i === 3 ? "-" : ""); return s; };
 
@@ -23,6 +25,7 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, code TEXT NOT NULL, expires INTEGER NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS boxes (code TEXT PRIMARY KEY, data TEXT NOT NULL, updated INTEGER NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS ip_fails (ip TEXT PRIMARY KEY, count INTEGER NOT NULL, since INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS imp_sessions (token_hash TEXT PRIMARY KEY, admin TEXT NOT NULL, expires INTEGER NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS admin_log (ts INTEGER NOT NULL, admin TEXT NOT NULL, action TEXT NOT NULL, target TEXT NOT NULL DEFAULT '', ip TEXT NOT NULL DEFAULT '')`,
 ];
 let schemaReady = false;
@@ -53,8 +56,10 @@ const json = (obj, status = 200, headers = {}) => new Response(JSON.stringify(ob
 });
 const fail = (msg, status = 400) => json({ error: msg }, status);
 const now = () => Date.now();
-const cookieOf = req => (req.headers.get("cookie") || "").split(/;\s*/).map(x => x.split("=")).find(([k]) => k === COOKIE)?.[1] || "";
-const setCookie = (token, maxAge) => `${COOKIE}=${token}; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}`;
+const cookieOf = (req, name = COOKIE) => (req.headers.get("cookie") || "").split(/;\s*/).map(x => x.split("=")).find(([k]) => k === name)?.[1] || "";
+const setCookie = (token, maxAge, name = COOKIE) => `${name}=${token}; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}`;
+const newToken = () => b64(randBytes(32)).replace(/[+/=]/g, c => ({ "+": "-", "/": "_", "=": "" }[c]));
+const json2 = (obj, cookies) => { const r = json(obj); for (const c of cookies) r.headers.append("set-cookie", c); return r; };
 
 async function readJson(req) {
   const len = +(req.headers.get("content-length") || 0);
@@ -67,10 +72,14 @@ async function currentUser(req, db) {
   const tok = cookieOf(req); if (!tok) return null;
   const s = await db.prepare("SELECT code, expires FROM sessions WHERE token_hash = ?").bind(await sha256(tok)).first();
   if (!s || s.expires < now()) return null;
-  return await db.prepare("SELECT code, is_admin, must_change FROM users WHERE code = ?").bind(s.code).first();
+  const u = await db.prepare("SELECT code, is_admin, must_change FROM users WHERE code = ?").bind(s.code).first();
+  if (!u) return null;
+  // 관리자가 "이 회원으로 들어가기"로 만든 세션이면 imp 표시 (비밀번호 바꾸기·탈퇴는 막고, 첫 로그인 전 계정도 내용은 볼 수 있게)
+  const imp = await db.prepare("SELECT admin FROM imp_sessions WHERE token_hash = ?").bind(await sha256(tok)).first();
+  return imp ? { ...u, must_change: 0, imp: imp.admin } : u;
 }
 async function newSession(db, code, admin) {
-  const token = b64(randBytes(32)).replace(/[+/=]/g, c => ({ "+": "-", "/": "_", "=": "" }[c]));
+  const token = newToken();
   const life = admin ? ADMIN_SESSION_H * 3600e3 : SESSION_DAYS * 864e5;
   await db.prepare("INSERT INTO sessions (token_hash, code, expires) VALUES (?, ?, ?)").bind(await sha256(token), code, now() + life).run();
   await db.prepare("DELETE FROM sessions WHERE expires < ?").bind(now()).run(); // 오래된 세션 정리
@@ -88,7 +97,7 @@ async function ipFail(db, ip) {
 const validCode = c => /^\d{12}$/.test(c);           // 트레이너 코드
 const validLogin = c => /^\d{10,20}$/.test(c);        // 로그인 아이디 (관리자 계정 포함)
 const validPw = (p, admin) => typeof p === "string" && p.length >= (admin ? 10 : 8) && p.length <= 128;
-const userInfo = u => ({ code: u.code, admin: !!u.is_admin, mustChange: !!u.must_change });
+const userInfo = u => ({ code: u.code, admin: !!u.is_admin, mustChange: !!u.must_change, ...(u.imp ? { imp: true } : {}) });
 const log = (db, admin, action, target, ip) => db.prepare("INSERT INTO admin_log (ts, admin, action, target, ip) VALUES (?, ?, ?, ?, ?)").bind(now(), admin, action, target || "", ip || "").run();
 
 // 박스 데이터 검사: 포켓몬 id(영문 소문자·숫자·_)와 숫자·참거짓 칸만 남기고 나머지는 버림
@@ -154,8 +163,22 @@ async function api(req, env, path) {
 
   if (path === "logout" && method === "POST") {
     const tok = cookieOf(req);
-    if (tok) await db.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(await sha256(tok)).run();
-    return json({ ok: true }, 200, { "set-cookie": setCookie("", 0) });
+    if (tok) { const h = await sha256(tok); await db.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(h).run(); await db.prepare("DELETE FROM imp_sessions WHERE token_hash = ?").bind(h).run(); }
+    return json2({ ok: true }, [setCookie("", 0), setCookie("", 0, BACK_COOKIE)]);
+  }
+
+  // 회원으로 들어갔던 관리자가 관리자 계정으로 돌아가기
+  if (path === "unimpersonate" && method === "POST") {
+    const tok = cookieOf(req), back = cookieOf(req, BACK_COOKIE);
+    if (!tok || !back) return fail("돌아갈 관리자 로그인이 없어요. 다시 로그인해 주세요.", 401);
+    const h = await sha256(tok);
+    const imp = await db.prepare("SELECT admin FROM imp_sessions WHERE token_hash = ?").bind(h).first();
+    const bs = await db.prepare("SELECT code, expires FROM sessions WHERE token_hash = ?").bind(await sha256(back)).first();
+    const au = bs && bs.expires > now() ? await db.prepare("SELECT * FROM users WHERE code = ?").bind(bs.code).first() : null;
+    await db.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(h).run();
+    await db.prepare("DELETE FROM imp_sessions WHERE token_hash = ?").bind(h).run();
+    if (!imp || !au || !au.is_admin || au.code !== imp.admin) return json2({ error: "돌아갈 관리자 로그인이 만료됐어요. 다시 로그인해 주세요." }, [setCookie("", 0), setCookie("", 0, BACK_COOKIE)]);
+    return json2(userInfo(au), [setCookie(back, Math.floor((bs.expires - now()) / 1000)), setCookie("", 0, BACK_COOKIE)]);
   }
 
   // 여기부터는 로그인 필요
@@ -163,6 +186,7 @@ async function api(req, env, path) {
   if (!me) return fail("로그인이 필요해요.", 401);
   const code = me.code;
 
+  if (me.imp && (path === "password" || path === "account")) return fail("관리자로 들어온 상태에서는 할 수 없어요.", 403);
   if (path === "password" && method === "POST") { // 비밀번호 바꾸기 (지금 비밀번호 필요) → 다른 기기 세션 모두 로그아웃
     let b; try { b = await readJson(req); } catch { return fail("잘못된 요청이에요."); }
     const u = await db.prepare("SELECT * FROM users WHERE code = ?").bind(code).first();
@@ -236,6 +260,17 @@ async function api(req, env, path) {
       await db.prepare("INSERT INTO boxes (code, data, updated) VALUES (?, ?, ?) ON CONFLICT(code) DO UPDATE SET data = excluded.data, updated = excluded.updated").bind(target, JSON.stringify(data), t).run();
       await log(db, code, "put_box", target, ip);
       return json({ ok: true, count: data.box.rows.length, updated: t });
+    }
+    if (sub === "impersonate" && method === "POST") { // 비밀번호 없이 그 회원으로 들어가기 (60분, 관리 기록에 남음)
+      const u = await db.prepare("SELECT is_admin FROM users WHERE code = ?").bind(target).first();
+      if (!u || u.is_admin) return fail("들어갈 수 없는 계정이에요.");
+      const token = newToken(), h = await sha256(token), exp = now() + IMP_MIN * 6e4;
+      await db.prepare("INSERT INTO sessions (token_hash, code, expires) VALUES (?, ?, ?)").bind(h, target, exp).run();
+      await db.prepare("INSERT INTO imp_sessions (token_hash, admin, expires) VALUES (?, ?, ?)").bind(h, code, exp).run();
+      await db.prepare("DELETE FROM imp_sessions WHERE expires < ?").bind(now()).run();
+      await log(db, code, "impersonate", target, ip);
+      const back = cookieOf(req);
+      return json2({ code: target, admin: false, mustChange: false, imp: true }, [setCookie(token, IMP_MIN * 60), setCookie(back, ADMIN_SESSION_H * 3600, BACK_COOKIE)]);
     }
     if (sub === "user" && method === "DELETE") {
       const u = await db.prepare("SELECT is_admin FROM users WHERE code = ?").bind(target).first();
