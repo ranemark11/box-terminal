@@ -429,6 +429,12 @@ details[open].mecard summary{margin-bottom:8px}
 .drow .k{font-size:12.5px;padding-top:4px}
 .forms{display:flex;flex-direction:column;gap:4px}
 .form{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--dim)}
+.form.tl,.sumc.tl{cursor:pointer}
+.form.tl u{text-decoration:underline dotted;text-underline-offset:3px;color:var(--ink)}
+.tlgo{font-style:normal;color:var(--ink);font-size:10px;margin-left:1px}
+.sumc.tl .w::after{content:" ▸";color:var(--ink);font-size:10px}
+tr.flash td{animation:flashrow 2.2s ease-out}
+@keyframes flashrow{0%,40%{background:rgba(255,211,107,.28)}100%{background:transparent}}
 .form .tb{min-width:28px;height:24px;font-size:19px}
 .form b{color:var(--ink);font-weight:700}
 .cfoot{display:flex;justify-content:space-between;padding:6px 12px 8px;font-family:VT323,monospace;font-size:13px;color:var(--dim);border-top:1px solid rgba(111,179,154,.15)}
@@ -525,7 +531,7 @@ td.num.sorted{color:var(--amber)}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.4</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v2.5</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button><div class="vents"><i></i><i></i><i></i></div></div>
   <nav class="nav" id="nav">
     <button data-go="pokemon">포켓몬 카드</button>
     <button data-go="tier">티어리스트</button>
@@ -899,11 +905,20 @@ const hasShadow=c=>c.shadow||(!c.final&&c.evo[c.evo.length-1].some(id=>CARDS[id]
 const PLUS_TXT=" (플러스 기술)", plusOf=t=>t.includes(PLUS_TXT), noPlus=t=>t.replace(PLUS_TXT,"");
 const PTAG='<span class="tag p">+기술MAX</span>';
 function noteOf(x){ if(["일반","다이맥스","그림자"].includes(x.f)) return x.w; if(x.f.includes(x.w)) return x.f; return `${x.f} · ${x.w}`; }
-function sumCell(label, res){
+// 티어 줄·요약 칸을 누르면 그 타입(리그) 티어리스트로 이동 + 그 포켓몬 줄을 반짝 표시
+const tlAttr=(m,x)=>` data-tm="${m}" data-tw="${esc(x.w)}" data-tid="${esc(x.fid||CUR_ID||"")}" data-tsh="${/그림자/.test(x.f)?1:""}" data-tg="${/거다이맥스/.test(x.f)?1:""}"`;
+function goTier(m,w,id,sh,g){ const B=BOARDS[m]; if(!B) return;
+  const k=m==="pvp"?(LEAGUES.find(l=>l[1]===w)||[])[0]:(TYPES.find(t=>TN[t[0]]===w)||[])[0]; if(!k) return;
+  if(m==="dmax") B.st.role="deal"; B.st.sel=k; B.st.tab="all"; save(); go(m);
+  setTimeout(()=>{ const root=$("#p-"+m); if(!root) return; renderBoard(m);
+    const trs=[...root.querySelectorAll("tbody tr")].filter(tr=>tr.querySelector(`[data-poke="${CSS.escape(id)}"]`));
+    const tr=trs.find(t=>!!t.querySelector(".tag.s")===!!sh&&(!g||t.querySelector(".tag.g")))||trs[0];
+    if(tr){ tr.scrollIntoView({block:"center",behavior:"smooth"}); tr.classList.add("flash"); setTimeout(()=>tr.classList.remove("flash"),2200); } },120); }
+function sumCell(label, res, m){
   const b=res.list[0];
-  return `<div class="sumc"><div class="m">${label}</div>${b?`${TB(b.t)}<div class="w">${esc(noPlus(noteOf(b)))}${plusOf(b.f)?PTAG:""}</div>`:`${TB(null)}<div class="w">순위권 밖</div>`}</div>`;
+  return `<div class="sumc${b?" tl":""}"${b?tlAttr(m,b):""}><div class="m">${label}</div>${b?`${TB(b.t)}<div class="w">${esc(noPlus(noteOf(b)))}${plusOf(b.f)?PTAG:""}</div>`:`${TB(null)}<div class="w">순위권 밖</div>`}</div>`;
 }
-function formLine(x){ const where=x.f.includes(x.w)?"":` · ${esc(x.w)}`; return `<div class="form">${TB(x.t)}<span><b>${esc(noPlus(x.f))}</b>${plusOf(x.f)?PTAG:""}${where} ${x.r}위 (${x.p}%)</span></div>`; }
+function formLine(x,m){ const where=x.f.includes(x.w)?"":` · ${esc(x.w)}`; return `<div class="form tl"${tlAttr(m,x)}>${TB(x.t)}<span><b>${esc(noPlus(x.f))}</b>${plusOf(x.f)?PTAG:""}${where} <u>${x.r}위</u> (${x.p}%) <i class="tlgo">▸</i></span></div>`; }
 // 기술 추천 (최종 진화형): 레이드 최고 티어 타입 기준. 가장 강한 조합을 먼저, 그게 레거시·이벤트 기술이면 아래에 "또는 일반 조합"
 function skillHTML(c){
   if(!c.final){ // 진화 전: 최종 진화로 안내
@@ -972,7 +987,7 @@ function openCard(id, keepShadow){
   const color=sh?"#7b3fb0":(TC[c.types[0]]||"#6fb39a");
   const R=Object.fromEntries(MODES.map(([m])=>[m,tiersFor(c,m,sh)]));
   const evo=c.evo.map((stage,i)=>(i?'<span class="arw">›</span>':"")+`<div class="stage">${stage.map(s=>`<button class="${s===id?"cur":""}" data-n2="${esc(s)}">${esc(CARDS[s]?.ko||s)}</button>`).join("")}${stage.length>1?'<span class="branch">분기 진화</span>':""}</div>`).join("");
-  const detail=(label,res)=>`<div class="drow"><div class="k">${label}</div><div class="forms">${res.via?`<div class="via">최종 진화 ${esc(res.via.join(" · "))} 기준</div>`:""}${res.list.length?res.list.map(formLine).join(""):`<div class="form">${TB(null)}<span>순위권 밖</span></div>`}</div></div>`;
+  const detail=(label,res,m)=>`<div class="drow"><div class="k">${label}</div><div class="forms">${res.via?`<div class="via">최종 진화 ${esc(res.via.join(" · "))} 기준</div>`:""}${res.list.length?res.list.map(x=>formLine(x,m)).join(""):`<div class="form">${TB(null)}<span>순위권 밖</span></div>`}</div></div>`;
   const s=c.stats;
   const tree=c.evo.flat(), how=tree.flatMap(t=>(CARDS[t]?.how||[]).filter(h=>tree.includes(h.from)).map(h=>({...h,to:t})));
   const howHTML=how.length?`<div class="how">${how.map(h=>`<div><b>${esc(CARDS[h.from]?.ko||h.from)} → ${esc(CARDS[h.to].ko)}</b>${h.c?` · <span class="cdy">사탕 ${h.c}</span>`:""}${h.x.length?" · "+h.x.map(esc).join(" · "):""}</div>`).join("")}</div>`:"";
@@ -986,7 +1001,7 @@ function openCard(id, keepShadow){
       <div>
         <div class="cname">${sh?"그림자 ":""}${esc(c.ko)}<small>#${c.dex}</small>${hasShadow(c)?`<button class="shbtn${sh?" on":""}" id="shBtn">${sh?"그림자 ON":"그림자"}</button>`:""}</div>
         <div class="ctype">${c.types.map(t=>`<span class="tchip" style="--tc:${TC[t]}">${svg(t,"#fff")}${TN[t]}</span>`).join("")}</div>
-        <div class="sum">${MODES.map(([m,l])=>sumCell(l,R[m])).join("")}</div>
+        <div class="sum">${MODES.map(([m,l])=>sumCell(l,R[m],m)).join("")}</div>
       </div>
     </div>
     <div class="cbody">
@@ -995,7 +1010,7 @@ function openCard(id, keepShadow){
       <div class="sec">100% CP</div>
       ${cpHTML}
       <div class="sec">TIER DETAIL</div>
-      ${MODES.map(([m,l])=>detail(l,R[m])).join("")}
+      ${MODES.map(([m,l])=>detail(l,R[m],m)).join("")}
       ${skillHTML(c)}
     </div>
     <div class="cfoot"><span>공 ${s[0]} · 방 ${s[1]} · 체 ${s[2]}</span><span>${esc(c.en)}</span></div>
@@ -1004,6 +1019,7 @@ function openCard(id, keepShadow){
   $("#cardOut").querySelectorAll("[data-n2]").forEach(b=>b.onclick=()=>openCard(b.dataset.n2,true));
   $("#saveBtn").onclick=()=>saveCardImage(c,sh);
   const sb=$("#shBtn"); if(sb) sb.onclick=()=>{ SHADOW=!SHADOW; openCard(id,true); };
+  $("#cardOut").querySelectorAll("[data-tm]").forEach(el=>el.onclick=()=>goTier(el.dataset.tm,el.dataset.tw,el.dataset.tid,el.dataset.tsh,el.dataset.tg));
 }
 
 // ===== 티어 보드 =====
