@@ -687,7 +687,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.6</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.7</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -1243,7 +1243,7 @@ function dmaxTankRows(T,tab,gauge){
 const BOARDS={
  raid:{ title:"전체 티어 또는 타입별 순위", sels:()=>[ALL_SEL,...typeSels(k=>DEX.raid[k]?.length)], defSel:"all", ref:()=>TIER_RULE.ref.raid, tabs:[["all","메가·그림자 포함"],["base","기본만"]],
    cols:[["er","ER",1],["dps","DPS",1],["tdo","TDO",0]], tierCol:"er",
-   pick:"위에서 포켓몬 타입을 골라 주세요.", rows:(s,t)=>(s==="all"?DEX.tl?.raid||[]:DEX.raid[s]||[]).filter(r=>t!=="base"||!r.tg.length), head:s=>s==="all"?"레이드 전체 티어":`${TN[s]} 타입 딜러 순위`,
+   pick:"위에서 포켓몬 타입을 골라 주세요.", tierKey:"ert", rows:(s,t)=>(s==="all"?DEX.tl?.raid||[]:DEX.raid[s]||[]).filter(r=>t!=="base"||!r.tg.length).map(r=>({...r,ert:rawEr(r)})), head:s=>s==="all"?"레이드 전체 티어":`${TN[s]} 타입 딜러 순위`,
    st:{sel:null,tab:"all",sort:"er"}, note:NOTE_RAID },
  dmax:{ roles:[["deal","다이맥스 딜러"],["tank","다이맥스 탱커"]],
    st:{role:"deal",gauge:false,sel:null,tab:"all",sort:"score"}, note:NOTE_DMAX,
@@ -1838,7 +1838,7 @@ function boxPvp(){
 // ---------- 2) 강화 효율 ----------
 function useOf(m,lv,a=m.a,d=m.d,h=m.h,mode){ // 그 포켓몬이 가장 쓸모 있는 타입에서 1위(Lv40·100%) 대비 %(p) + 티어 기준 점수 대비 %(abs)
   const r=ratio(m,lv,a,d,h); let b=null;
-  if(mode==="raid"){ for(const x of myRaidRows(m)){ const top=DEX.raid[x.t2][0].er, p=x.er*r.A*Math.pow(r.D*r.H,0.25)/top*100; if(!b||p>b.p) b={p,t:x.t2,mv:x.mv,abs:p*top/TIER_RULE.ref.raid}; } }
+  if(mode==="raid"){ for(const x of myRaidRows(m)){ const top=DEX.raid[x.t2][0].er, p=x.er*r.A*Math.pow(r.D*r.H,0.25)/top*100; if(!b||p>b.p) b={p,t:x.t2,mv:x.mv,abs:rawEr(x)*r.A*Math.pow(r.D*r.H,0.25)/TIER_RULE.ref.raid*100}; } }
   else if(mode==="deal"){ for(const x of myDmaxRows(m)){ const top=DEX.dmax[x.t2][0].max, p=x.max*r.A/top*100; if(!b||p>b.p) b={p,t:x.t2,mv:x.mv,abs:p*top/TIER_RULE.ref.dmax}; } }
   else{ const row=myDmaxRows(m)[0]; if(row){ const c=CARDS[m.id]; for(const [T] of TYPES){ const top=TANK_TOP(T), val=row.bulk*r.D*r.H/Math.max(eff(T,c.types),0.01), p=val/top*100; if(!b||p>b.p) b={p,t:T,mv:"상대 "+TN[T]+" 공격",abs:Math.sqrt(val)/TANK_REF(false)*100}; } } }
   return b;

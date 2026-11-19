@@ -41,13 +41,14 @@ const TIER_RULE = { names: ["S+", "S", "S-", "A+", "A", "A-", "B+", "B", "B-", "
 const gradeOf = pct => { const i = TIER_RULE.minPct.findIndex(m => pct >= m); return i < 0 ? null : TIER_RULE.names[i]; };
 const formKey = r => r.n + "|" + r.tg.filter(x => x !== "p").join();
 // lists: {타입: 정렬된 행들}. 반환 = 모습별 최고 행(점수 내림차순, w = 타입)
-function assignAbs(lists, metric, mode) {
+// tv = 티어용 값(레이드는 받는 상성을 뺀 원래 ER — 받는 상성은 상대 타입에 따라 달라서 순위에만 넣음, v3.6), metric = 순위용 값
+function assignAbs(lists, metric, mode, tv = r => r[metric]) {
   const best = new Map();
-  for (const [w, rows] of Object.entries(lists)) for (const r of rows) { const k = formKey(r), b = best.get(k); if (!b || r[metric] > b.r[metric]) best.set(k, { r, w }); }
-  const all = [...best.values()].sort((a, b) => b.r[metric] - a.r[metric]);
-  const ref = all.length ? all[Math.min(TIER_RULE.refRank, all.length) - 1].r[metric] : 1;
+  for (const [w, rows] of Object.entries(lists)) for (const r of rows) { const k = formKey(r), b = best.get(k); if (!b || tv(r) > tv(b.r)) best.set(k, { r, w }); }
+  const all = [...best.values()].sort((a, b) => tv(b.r) - tv(a.r));
+  const ref = all.length ? tv(all[Math.min(TIER_RULE.refRank, all.length) - 1].r) : 1;
   TIER_RULE.ref[mode] = ref;
-  for (const rows of Object.values(lists)) { const top = rows[0]?.[metric] || 1; for (const r of rows) { r.p = Math.round(r[metric] / top * 100); r.t = gradeOf(r[metric] / ref * 100); } }
+  for (const rows of Object.values(lists)) { const top = rows[0]?.[metric] || 1; for (const r of rows) { r.p = Math.round(r[metric] / top * 100); r.t = gradeOf(tv(r) / ref * 100); } }
   return all.filter(x => x.r.t).map(x => ({ ...x.r, w: x.w }));
 }
 function assignCount(rows, metric) { // 배틀: 개수 상한만
@@ -453,7 +454,7 @@ async function main() {
   }
   // 전체 티어리스트(모습별 한 줄, 가장 잘하는 타입 기준)
   const slim = ({ p, ft, fs, ...r }) => r;
-  const tl = { raid: assignAbs(raid, "er", "raid").map(slim), dmax: assignAbs(dmax, "score", "dmax").map(slim) };
+  const tl = { raid: assignAbs(raid, "er", "raid", r => r.er / (r.dk || 1)).map(slim), dmax: assignAbs(dmax, "score", "dmax").map(slim) };
 
   // ---- 카드별 티어 (n: 일반+메가, s: 그림자) ----
   const ORDER = Object.fromEntries(TIER_RULE.names.map((n, i) => [n, i]));
@@ -462,7 +463,7 @@ async function main() {
       const c = cards[r.id]; if (!c || !r.t) return;
       const side = r.tg.includes("s") ? "s" : "n", form = formOf(r, key);
       const arr = ((c.tiers[mode] ||= {})[side] ||= []);
-      const e = { f: form, t: r.t, p: r.p, w: whereOf(key), r: i + 1 }, v = r.er ?? r.score;
+      const e = { f: form, t: r.t, p: r.p, w: whereOf(key), r: i + 1 }, v = r.er != null ? r.er / (r.dk || 1) : r.score;
       Object.defineProperty(e, "_v", { value: v, writable: true, enumerable: false }); // 같은 모습이면 점수가 가장 높은 타입 하나만
       const ex = arr.find(x => x.f === form);
       if (!ex) arr.push(e); else if (v > ex._v) { Object.assign(ex, e); ex._v = v; }
