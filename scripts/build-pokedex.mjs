@@ -24,6 +24,13 @@ const KO = 3; // PokeAPI 한국어 language id
 
 // ---------- 계산 상수 (사이트 설명과 동일) ----------
 const CPM40 = 0.7903, BOSS_DEF = 180, SE = 1.6, SURV_K = 900;
+// 타입 상성 (공격 → 받는 쪽). 레이드 타입별 점수에 "그 타입에 약한 상대에게 받는 피해"를 넣을 때 씀 (v3.6)
+const CH_SE = {normal:[],fire:["grass","ice","bug","steel"],water:["fire","ground","rock"],grass:["water","ground","rock"],electric:["water","flying"],ice:["grass","ground","flying","dragon"],fighting:["normal","ice","rock","dark","steel"],poison:["grass","fairy"],ground:["fire","electric","poison","rock","steel"],flying:["grass","fighting","bug"],psychic:["fighting","poison"],bug:["grass","psychic","dark"],rock:["fire","ice","flying","bug"],ghost:["psychic","ghost"],dragon:["dragon"],dark:["psychic","ghost"],steel:["ice","rock","fairy"],fairy:["fighting","dragon","dark"]};
+const CH_NV = {normal:["rock","steel"],fire:["fire","water","rock","dragon"],water:["water","grass","dragon"],grass:["fire","grass","poison","flying","bug","dragon","steel"],electric:["electric","grass","dragon"],ice:["fire","water","ice","steel"],fighting:["poison","flying","psychic","bug","fairy"],poison:["poison","ground","rock","ghost"],ground:["grass","bug"],flying:["electric","rock","steel"],psychic:["psychic","steel"],bug:["fire","fighting","poison","flying","ghost","steel","fairy"],rock:["fighting","ground","steel"],ghost:["dark"],dragon:["steel"],dark:["fighting","dark","fairy"],steel:["fire","water","electric","steel"],fairy:["fire","poison","steel"]};
+const CH_IM = {normal:["ghost"],electric:["ground"],fighting:["ghost"],poison:["steel"],ground:["flying"],psychic:["dark"],ghost:["normal"],dragon:["fairy"]};
+const effOf = (a, ts) => ts.reduce((m, t) => m * (CH_SE[a].includes(t) ? 1.6 : (CH_IM[a] || []).includes(t) ? 0.390625 : CH_NV[a].includes(t) ? 0.625 : 1), 1);
+// t 타입 딜러가 상대할 포켓몬 = t에 약한 타입들. 그 타입 기술이 나에게 주는 배율의 기하평균 (노말은 약한 타입이 없어서 1)
+const incAvg = (t, myTypes) => { const foes = CH_SE[t]; if (!foes.length) return 1; return Math.exp(foes.reduce((s, f) => s + Math.log(effOf(f, myTypes)), 0) / foes.length); };
 const MAX_POWER = 350, GMAX_POWER = 450;
 // 티어 규칙 (v3.5): 타입을 가리지 않는 절대 등급. 모드마다 "모습(포켓몬 + 메가/그림자/거다이맥스)"별 최고 점수로 줄을 세우고
 // refRank위(5위) 점수를 100%로 잡아 % 구간으로 S+ ~ C-. (1위는 메가뮤츠Y처럼 혼자 튀어서 기준으로 쓰지 않음)
@@ -348,9 +355,11 @@ async function main() {
           if (moveType(f) === t) { if (!pve[f]) missingPve.add(f); if (!pve[c]) missingPve.add(c); }
           const r = raidCalc(p, f, c, shadow, t); if (r && (!best || r.er > best.er)) best = { ...r, f, c };
         } return best; };
+      // 받는 상성(v3.6): t에 약한 상대에게 맞는 평균 배율 inc → TDO ÷ inc, ER × (1/inc)^¼ (dk = 곱한 값, 사이트가 상대별 계산 때 되돌림)
+      const inc = incAvg(t, types(p)), dk = Math.pow(1 / inc, 0.25);
       const row = (best, plus) => ({ id: card.id, n: isMega(p) ? koName(p) : card.ko,
         tg: [isMega(p) ? "m" : "", shadow ? "s" : "", plus ? "p" : ""].filter(Boolean),
-        mv: `${mvName(p, best.f)} · ${mvName(p, best.c)}`, er: +best.er.toFixed(2), dps: +best.dps.toFixed(2), tdo: +best.tdo.toFixed(1),
+        mv: `${mvName(p, best.f)} · ${mvName(p, best.c)}`, er: +(best.er * dk).toFixed(2), dps: +best.dps.toFixed(2), tdo: +(best.tdo / inc).toFixed(1), ...(Math.abs(dk - 1) > 0.0005 ? { dk: +dk.toFixed(4) } : {}),
         // 노말기 타입이 다른(섞인) 조합: ft = 노말기 타입, fs = 전체 데미지 중 노말기 몫 → 사이트가 상대별 상성을 기술마다 따로 곱함
         ...(moveType(best.f) !== t ? { ft: moveType(best.f), fs: +best.fs.toFixed(2) } : {}) });
       const cs = p.chargedMoves || [];

@@ -687,7 +687,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.5</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.6</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -1346,12 +1346,14 @@ const fmtX=x=>x>=2.5?"2.56":x>=1.5?"1.6":x>=0.99?"1":x>=0.6?"0.63":x>=0.39?"0.39
 const BOSS={id:null,opp:[],q:""};
 let TMODE="raid";
 // 기술 상성 배율(÷1.6 기준). 노말기 타입이 다른 조합(ft·fs)은 노말기 몫엔 노말기 타입 상성을, 스페셜어택 몫에만 그 타입 상성을 곱함
+// 타입별 점수에는 '그 타입에 약한 상대에게 받는 평균 상성'(dk)이 들어 있음 → 상대가 정해지면 빼고 그 상대 기준으로 다시 곱함
+const rawEr=r=>r.er/(r.dk||1), rawTdo=r=>r.tdo/Math.pow(r.dk||1,4);
 const effMix=(r,t,opp)=>r.ft?r.fs*eff(r.ft,opp)+(1-r.fs)*eff(t,opp)/1.6:eff(t,opp)/1.6;
 function bossRaidRows(opp){ // ER × (내 기술 상성 ÷ 1.6) × (1 ÷ 상대 기술이 나에게 주는 배율)^¼
   const best={};
   for(const [t,rows] of Object.entries(DEX.raid)){
     for(const r of rows){ const c=CARDS[r.id]; if(!c) continue;
-      const inc=Math.max(...opp.map(o=>eff(o,c.types))), v=r.er*effMix(r,t,opp)*Math.pow(1/inc,0.25), k=r.id+r.tg.join()+r.n;
+      const inc=Math.max(...opp.map(o=>eff(o,c.types))), v=rawEr(r)*effMix(r,t,opp)*Math.pow(1/inc,0.25), k=r.id+r.tg.join()+r.n;
       if(!best[k]||v>best[k].v) best[k]={...r,v:+v.toFixed(2),mt:t};
     } }
   return Object.values(best);
@@ -1707,13 +1709,13 @@ const INV0=IN_KAKAO?null:(location.hash.match(/^#invite=(.+)$/)||[])[1]; if(INV0
 // 상대(opp) 기준 내 포켓몬 순위 — 파티 추천에서 씀
 function myRaidBest(opp,rows=BOX.rows){ const best=[]; // 개체마다 가장 좋은 타입 하나
   rows.forEach((m,ix)=>{ if(!CARDS[m.id]) return; const r=ratio(m); const inc=Math.max(...opp.map(o=>eff(o,CARDS[m.id].types)));
-    let b=null; for(const x of myRaidRows(m)){ const v=x.er*r.A*Math.pow(r.D*r.H,0.25)*effMix(x,x.t2,opp)*Math.pow(1/inc,0.25); if(!b||v>b.v) b={m,ix,x,v}; } if(b) best.push(b); });
+    let b=null; for(const x of myRaidRows(m)){ const v=rawEr(x)*r.A*Math.pow(r.D*r.H,0.25)*effMix(x,x.t2,opp)*Math.pow(1/inc,0.25); if(!b||v>b.v) b={m,ix,x,v}; } if(b) best.push(b); });
   return best.sort((a,b)=>b.v-a.v); }
 // 메가진화: 내 포켓몬(그림자 제외) 중 메가가 있는 것의 메가 행으로 계산 (개체값·레벨 비율은 기본 모습 기준으로 근사)
 function myMegaBest(opp,rows=BOX.rows){ const best=[];
   rows.forEach((m,ix)=>{ const c=CARDS[m.id]; if(!c||m.sh) return; const r=ratio(m), inc=Math.max(...opp.map(o=>eff(o,c.types))); let b=null;
     for(const [t,list] of Object.entries(DEX.raid)) for(const x of list){ if(x.id!==m.id||!x.tg.includes("m")) continue;
-      const v=x.er*r.A*Math.pow(r.D*r.H,0.25)*effMix(x,t,opp)*Math.pow(1/inc,0.25); if(!b||v>b.v) b={m,ix,x:{...x,t2:t},v}; }
+      const v=rawEr(x)*r.A*Math.pow(r.D*r.H,0.25)*effMix(x,t,opp)*Math.pow(1/inc,0.25); if(!b||v>b.v) b={m,ix,x:{...x,t2:t},v}; }
     if(b) best.push(b); });
   return best.sort((a,b)=>b.v-a.v); }
 function myDmaxBest(opp,unk,rows=BOX.rows){ const deal=[],tank=[];
@@ -1729,7 +1731,7 @@ const SOLO_EFF=1; // 최대 딜 100% 기준 (팀파워·날씨를 넣으면 더 
 const guessTier=c=>c.evo.length===1&&c.stats[0]+c.stats[1]+c.stats[2]>=600?5:3;
 function soloCalc(bid,opp,best,tk){ const c=CARDS[bid], R=RAID_T[tk], bDef=(c.stats[1]+15)*R.cpm, bAtk=(c.stats[0]+15)*R.cpm;
   const team=best.slice(0,6).map(b=>{ const r=ratio(b.m), inc=Math.max(...opp.map(o=>eff(o,CARDS[b.m.id].types)));
-    return {dps:b.x.dps*r.A*180/bDef*effMix(b.x,b.x.t2,opp), life:Math.max(1,b.x.tdo/b.x.dps*r.D*r.H/(bAtk/209*inc))}; });
+    return {dps:b.x.dps*r.A*180/bDef*effMix(b.x,b.x.t2,opp), life:Math.max(1,rawTdo(b.x)/b.x.dps*r.D*r.H/(bAtk/209*inc))}; });
   let t=0,dmg=0,clear=null; const need=R.hp/SOLO_EFF;
   outer: while(t<R.t){ for(const m of team){ const dt=Math.min(m.life,R.t-t); if(clear==null&&dmg+m.dps*dt>=need) clear=t+(need-dmg)/m.dps; dmg+=m.dps*dt; t+=dt; if(t>=R.t) break outer; } t+=15; }
   return {pct:dmg*SOLO_EFF/R.hp*100,clear,R}; }
