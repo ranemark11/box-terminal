@@ -124,7 +124,9 @@ button{font:inherit;color:inherit}
 .mc .spr{width:40px;height:40px}
 .mc{position:relative}
 .mc .tb.mct{position:absolute;left:2px;top:2px;min-width:22px;height:17px;padding:0 3px;border-radius:5px;font-size:15px}
-.mc .mcr{position:absolute;right:3px;top:2px;font-size:9px;color:var(--dim);font-style:normal}
+.mc .tb.mct.sp{font-family:inherit;font-size:10.5px;font-weight:700;background:#8ef0b0;letter-spacing:-.5px}
+.plsub{font-size:11px;color:var(--dim);margin:8px 0 4px}
+.plh+.plsub{margin-top:0}
 .mc span{font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .dmust summary{list-style:none;cursor:pointer}
 .dmust summary::-webkit-details-marker{display:none}
@@ -696,7 +698,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.10</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.11</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -1009,11 +1011,14 @@ function dmaxPickTier(id){
 function renderPickLists(now){
   const box=$("#pickLists"); if(!box) return;
   const lists=(PICKS?.lists||[]).filter(l=>(!l.start||P(l.start)<=now)&&(!l.end||now<P(l.end)));
-  box.innerHTML=lists.map(l=>{ const mx=/맥스/.test(l.title||""), ids=(l.names||[]).map(n=>{ const id=n2id(n); return [n,id,mx&&id?dmaxPickTier(id):null]; });
+  const tile=(n,id,badge)=>id?`<button class="mc" data-poke="${esc(id)}">${badge||""}${SPRITE(id)}<span>${esc(CARDS[id].ko)}</span></button>`:`<span class="mc"><span>${esc(n)}</span></span>`;
+  box.innerHTML=lists.map(l=>{ const mx=/맥스/.test(l.title||""), sp=l.special||[];
+    const ids=(l.names||[]).filter(n=>!sp.includes(n)).map(n=>{ const id=n2id(n); return [n,id,mx&&id?dmaxPickTier(id):null]; });
     const nm=x=>x[1]?CARDS[x[1]].ko:x[0];
     ids.sort((a,b)=>(mx?ORDER(a[2]?.t)-ORDER(b[2]?.t):0)||nm(a).localeCompare(nm(b),"ko"));
+    const spBox=sp.length?`<div class="plsub">특별 · 수집 추천</div><div class="mini">${sp.map(n=>tile(n,n2id(n),'<span class="tb mct sp">특별</span>')).join("")}</div>`:"";
     return `<div class="plist"><div class="plh">${esc(l.title)}${l.end?` <span>· ~${fmtD(kst(P(l.end)))}</span>`:""}</div>
-      <div class="mini">${ids.map(([n,id,d])=>id?`<button class="mc" data-poke="${esc(id)}">${d?`${TB(d.t).replace('class="tb','class="tb mct')}<i class="mcr">${d.r}</i>`:""}${SPRITE(id)}<span>${esc(CARDS[id].ko)}</span></button>`:`<span class="mc"><span>${esc(n)}</span></span>`).join("")}</div></div>`; }).join("");
+      ${spBox}${sp.length&&ids.length?`<div class="plsub">${mx?"다이맥스 티어순":"그 밖의 포켓몬"}</div>`:""}<div class="mini">${ids.map(([n,id,d])=>tile(n,id,d?TB(d.t).replace('class="tb','class="tb mct'):"")).join("")}</div></div>`; }).join("");
 }
 function renderHome(){
   const today=()=>{ const k=kst(new Date()); $("#today").textContent=`${k.getFullYear()}.${String(k.getMonth()+1).padStart(2,"0")}.${String(k.getDate()).padStart(2,"0")}`; };
