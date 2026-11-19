@@ -687,7 +687,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.8</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.9</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -1063,25 +1063,27 @@ const MODES=[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀"]];
 // 다이맥스: 딜러(모습별) + 탱커(종합) 줄을 함께, 티어 높은 순 → 카드 요약엔 둘 중 높은 쪽 (v3.8)
 function tiersFor(c, mode, sh){
   const r=tiersFor0(c,mode,sh); if(mode!=="dmax"||sh) return r;
-  const tb=tankBest(), ids=c.final?[c.id]:c.evo[c.evo.length-1].filter(id=>CARDS[id]);
-  const tanks=ids.map(fid=>tb[fid]&&{...tb[fid],f:(c.final?"":CARDS[fid].ko+" ")+"탱커",tank:1,fid}).filter(Boolean);
+  const tb=tankBest(), ids=c.final?[c.id]:c.evo[c.evo.length-1].filter(id=>CARDS[id]), multi=ids.length>1;
+  // 이름 규칙(모든 모드 같게): [분기 진화일 때만 "최종진화 "] + 모습(다이맥스/거다이맥스) + 역할(딜러/탱커)
+  const tanks=ids.map(fid=>{ const t=tb[fid]; if(!t) return null; const e=dmaxTankPool().find(x=>x.id===fid);
+    return {...t,f:(multi?CARDS[fid].ko+" ":"")+(e&&!e.d?"거다이맥스":"다이맥스")+" 탱커",tank:1,fid}; }).filter(Boolean);
   const deal=r.list.map(x=>({...x,f:x.f+" 딜러"}));
   return {list:[...deal,...tanks].sort((a,b)=>ORDER(a.t)-ORDER(b.t)||b.p-a.p), via:r.via};
 }
 function tiersFor0(c, mode, sh){
   const side=sh?"s":"n", own=TL(c,mode,side);
   if(c.final||(mode==="pvp"&&own.length)) return {list:own, via:null};
-  const finals=c.evo[c.evo.length-1].filter(id=>CARDS[id]);
+  const finals=c.evo[c.evo.length-1].filter(id=>CARDS[id]), multi=finals.length>1;
+  // 진화 전 카드도 최종 진화 카드와 같은 이름(일반/그림자/다이맥스/메가○○ …). 분기 진화일 때만 앞에 "최종진화 "를 붙여 구분
   const list=finals.flatMap(fid=>{ const f=CARDS[fid];
-    return TL(f,mode,side).map(x=>({...x,
-      f: x.f==="일반"||x.f==="다이맥스" ? f.ko : x.f==="그림자" ? `그림자 ${f.ko}` : x.f==="거다이맥스" ? `거다이맥스 ${f.ko}` : mode==="pvp" ? `${f.ko} · ${x.f}` : x.f, fid}));
+    return TL(f,mode,side).map(x=>({...x, f:(multi&&!x.f.includes(f.ko)?`${f.ko} `:"")+x.f, fid}));
   }).sort((a,b)=>ORDER(a.t)-ORDER(b.t)||b.p-a.p);
   return {list, via:finals.map(id=>CARDS[id].ko)};
 }
 const hasShadow=c=>c.shadow||(!c.final&&c.evo[c.evo.length-1].some(id=>CARDS[id]?.shadow));
 const PLUS_TXT=" (플러스 기술)", plusOf=t=>t.includes(PLUS_TXT), noPlus=t=>t.replace(PLUS_TXT,"");
 const PTAG='<span class="tag p">+기술MAX</span>';
-function noteOf(x){ if(["일반","다이맥스","그림자"].includes(x.f)) return x.w; if(x.f.includes(x.w)) return x.f; return `${x.f} · ${x.w}`; }
+function noteOf(x){ if(["일반","그림자"].includes(x.f)) return x.w; if(x.f.includes(x.w)) return x.f; return `${x.f} · ${x.w}`; }
 // 티어 줄·요약 칸을 누르면 그 타입(리그) 티어리스트로 이동 + 그 포켓몬 줄을 반짝 표시
 const tlAttr=(m,x)=>` data-tm="${m}"${x.tank?' data-trole="tank"':""} data-tw="${esc(x.w)}" data-tid="${esc(x.fid||CUR_ID||"")}" data-tsh="${/그림자/.test(x.f)?1:""}" data-tg="${/거다이맥스/.test(x.f)?1:""}"`;
 function goTier(m,w,id,sh,g,role){ const B=BOARDS[m]; if(!B) return;
