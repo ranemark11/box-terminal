@@ -349,6 +349,8 @@ details[open].mecard summary{margin-bottom:8px}
 .legend{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 4px;font-size:11.5px;color:var(--dim)}
 .legend span{display:flex;align-items:center;gap:4px}
 .legend .tb{min-width:24px;height:22px;font-size:18px}
+.mobnote{font-size:11px;color:var(--dim);opacity:.8;padding:6px 2px 0}
+.rkask{padding:14px 6px}
 .note{margin-top:14px;border-top:1px dashed var(--faint);padding-top:10px;font-size:11.5px;color:var(--dim);line-height:1.6}
 .note b{color:var(--ink)}
 .panel{margin-top:12px;border:1px solid var(--faint);border-radius:12px;padding:10px 11px;background:rgba(0,0,0,.22)}
@@ -661,7 +663,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.1</small></button><span class="nbbadge" id="nbBadge" hidden>뉴비모드</span><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.2</small></button><span class="nbbadge" id="nbBadge" hidden>뉴비모드</span><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -715,6 +717,7 @@ body{padding-bottom:86px}
     <section class="view" id="v-rocket"></section>
     <section class="view" id="v-guide"></section>
     <section class="view" id="v-more"></section>
+    <div class="mobnote">이 페이지는 모바일 환경에 최적화 되어있습니다.</div>
 
   </div>
 </div>
@@ -2064,11 +2067,12 @@ function rkLineupHTML(g,label){
       const weak=TYPES.map(([k])=>({k,x:eff(k,c.types)})).filter(a=>a.x>1.5).sort((a,b)=>b.x-a.x);
       return `<div class="rkmon">${SPRITE(id)}<div><div class="rkn"><a data-poke="${esc(id)}">${esc(c.ko)}</a>${enc?'<i class="rkenc" title="이기면 잡을 수 있어요">★</i>':""}</div><div class="rkw"><span>약점</span>${weak.map(a=>chip(a.k,a.x>2.5)).join("")||"없음"}</div></div></div>`; }).join("")}</div></div>`;
   const best=rkBest(g.s), top=best[0]?.v||1;
-  const rec=best.map((a,i)=>`<div class="bxrow"><span class="rk">${i+1}</span>${SPRITE(a.r.id)}<div class="inf"><div class="nm"><a data-poke="${esc(a.r.id)}">${esc(a.r.n)}</a>${rkTags(a.r)}</div><div class="sub">${chip(a.r.mt)} ${esc(a.r.mv)}</div></div><div class="val">${(a.v/top*100).toFixed(0)}%</div></div>`).join("");
-  let mine="";
+  // 전체 추천 목록은 보여 주지 않음(v3.2). %는 전체 최상 조합 대비.
+  let mine;
   if(ME&&!ME.mustChange&&hasBox()){ const my=rkMine(g.s);
-    mine=`<div class="bxsec">내 포켓몬 추천 3마리</div>`+(my.map((a,i)=>mRow(i+1,a.m,`${ivTxt(a.m)}<br>${chip(a.x.t2)} ${esc(a.x.mv)}`,(a.v/top*100).toFixed(0)+"%","최상 대비")).join("")||`<div class="empty">맞는 포켓몬이 없어요.</div>`); }
-  return `${label?`<div class="rklab">${label}</div>`:""}${g.s.map(slot).join("")}${mine}<div class="bxsec">추천 포켓몬</div>${rec}`;
+    mine=my.map((a,i)=>mRow(i+1,a.m,`${ivTxt(a.m)}<br>${chip(a.x.t2)} ${esc(a.x.mv)}`,(a.v/top*100).toFixed(0)+"%","최상 대비")).join("")||`<div class="empty">맞는 포켓몬이 없어요.</div>`; }
+  else mine=`<div class="empty rkask">내 포켓몬 정보를 입력하면 추천받을 수 있어요.<br><button class="upbtn" data-go="me">${ME?"등록하기":"로그인하기"} ›</button></div>`;
+  return `${label?`<div class="rklab">${label}</div>`:""}${g.s.map(slot).join("")}<div class="bxsec">내 포켓몬 추천</div>${mine}`;
 }
 function renderRocket(){
   const root=$("#v-rocket"); if(!root) return;
@@ -2083,7 +2087,7 @@ function renderRocket(){
     ${RK_ETC.map(([k,n,q,c])=>item(k,c,face(k==="male"?"♂":k==="female"?"♀":"?"),n,q)).join("")}
     <div class="rksec">간부 · 비주기</div>
     ${RK_LEAD.map(([k,n])=>item(k,k==="giovanni"?"#ff5d5d":"#b45bd1",face("R"),n,"")).join("")}
-    <div class="rklegend"><i class="rkenc">★</i> 이기면 잡을 수 있는 포켓몬 · 추천은 상대 3마리를 고르게 상대하는 기준</div>
+    <div class="rklegend"><i class="rkenc">★</i> 이기면 잡을 수 있는 포켓몬 · 추천은 상대 3마리를 고르게 상대하는 기준(회원)</div>
     <div class="note">갱신 <b>${esc(ROCKET.updated||"")}</b> · 출처: ${esc(ROCKET.source||"LeekDuck (ScrapedDuck)")}</div>`;
   root.querySelectorAll("[data-rk]").forEach(b=>b.onclick=()=>{ const k=b.dataset.rk; RKST.open=RKST.open===k?null:k; renderRocket();
     const el=root.querySelector(".rk.open"); if(el) el.scrollIntoView({block:"start",behavior:"smooth"}); });
@@ -2117,11 +2121,11 @@ function renderGuide(){
       <div class="gpw"><span class="gpb">강화</span>${itemImg("stardust_painted","xs")}1,900 ${itemImg("pokemon_details_candy","xs")}2</div>
       <div class="gpw"><span class="gpb ev">진화</span>${itemImg("pokemon_details_candy","xs")}50</div></div>
       <div class="gitems">${it("stardust_painted","별의모래","강화에 꼭 필요")}${it("pokemon_details_candy","사탕","강화 · 진화")}${it("LV40_XLCandy_RGB_PSD","사탕XL","레벨 40 넘게 강화")}${it("Item_1301","이상한사탕","아무 사탕으로 변신")}</div></div>`,
-    go("card","포켓몬 검색"))}
+    go("tier","티어리스트 바로보기"))}
   ${sec(3,"개체값 — 같은 포켓몬도 타고난 능력이 달라요",[
     "공격 · 방어 · HP가 각각 <b>0~15</b>예요. 포켓몬 화면에서 <b>조사하기</b>를 누르면 볼 수 있어요.",
     "별 3개면 82% 이상, <b>빨간 별 3개</b>는 100%예요.",
-    "레이드는 공격이 높은 게 중요해요. 별 3개면 충분히 키울 만해요."],
+    "티어가 높으면서, 개체값이 100에 가까운 포켓몬을 키우는게 좋아요. 특히 레이드는 공격이 높은 게 중요해요."],
     `<div class="gfig"><div class="gappr">${pika}<div class="gapr">${bar("공격",15)}${bar("방어",13)}${bar("HP",14)}<div class="gstar">★★★ <small>93%</small></div></div></div></div>`)}
   ${sec(4,"기술 — 노말기와 스페셜어택",[
     "<b>노말기</b>는 화면을 누르면 나가고, 쓰면서 <b>게이지</b>가 차요. 게이지가 다 차면 <b>스페셜어택</b>을 쓸 수 있어요.",
@@ -2150,7 +2154,7 @@ function renderGuide(){
     "검게 변한 포켓스톱이나 풍선에서 만나요. <b>하는 말</b>을 보면 어떤 타입을 쓰는지 알 수 있어요.",
     "이기면 <b>그림자 포켓몬</b>을 잡을 수 있어요."],"",
     go("rocket","로켓단 공략"))}
-  ${sec(9,"이 사이트 쓰는 법",[
+  ${sec(9,"표켓몬고 잘 활용하는법",[
     "맨 위 <b>검색창</b>에 이름을 넣으면 그 포켓몬의 티어 · 추천 스킬 · 100% CP가 나와요.",
     "<b>티어</b>에서 타입별로 누가 강한지 봐요. SS가 가장 높아요.",
     "<b>더보기 → 뉴비모드</b>를 켜면 메가 · 그림자 · 거다이맥스를 빼고 보여 줘요."],"",
