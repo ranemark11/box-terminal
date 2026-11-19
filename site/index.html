@@ -122,6 +122,9 @@ button{font:inherit;color:inherit}
 .mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:4px}
 .mc{appearance:none;border:1px solid var(--faint);background:rgba(0,0,0,.25);border-radius:8px;padding:2px 2px 4px;display:flex;flex-direction:column;align-items:center;cursor:pointer;color:var(--ink);min-width:0}
 .mc .spr{width:40px;height:40px}
+.mc{position:relative}
+.mc .tb.mct{position:absolute;left:2px;top:2px;min-width:22px;height:17px;padding:0 3px;border-radius:5px;font-size:15px}
+.mc .mcr{position:absolute;right:3px;top:2px;font-size:9px;color:var(--dim);font-style:normal}
 .mc span{font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .dmust summary{list-style:none;cursor:pointer}
 .dmust summary::-webkit-details-marker{display:none}
@@ -626,6 +629,12 @@ body{padding-bottom:86px}
 .gcard li b{color:#fff}
 .gc.g{color:#5fe08a}.gc.o{color:#ffa94d}.gc.r{color:#ff6b6b}
 .gbtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.gev h3 em{margin-left:auto;font-style:normal;font-size:11px;font-weight:700;border:1px solid var(--amber);color:var(--amber);border-radius:999px;padding:1px 8px}
+.gev .gwhen{font-size:12.5px;color:var(--amber);margin:-4px 0 7px;font-weight:700}
+.gev.flash{animation:gflash 1.6s ease-out}
+@keyframes gflash{0%,40%{box-shadow:0 0 0 2px var(--amber);background:rgba(255,200,90,.14)}100%{box-shadow:none}}
+.ggrp{font-size:12px;color:var(--dim);margin:14px 2px 6px;font-weight:700}
+.evq{appearance:none;border:1px solid var(--dim);background:none;color:var(--dim);border-radius:50%;width:18px;height:18px;padding:0;font:inherit;font-size:11px;font-weight:700;line-height:16px;cursor:pointer;margin-left:5px;vertical-align:1px;flex:none}
 .gbtns button{appearance:none;border:1px solid var(--ink);background:none;color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
 .gfig{margin:0 0 10px;display:grid;gap:8px}
 .gfig.three{grid-template-columns:repeat(3,1fr)}
@@ -687,7 +696,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.9</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.10</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -860,12 +869,15 @@ function show(){
   $("#acctBtn").classList.toggle("on",v==="me");
   if(v==="card"&&CUR_ID&&location.hash!=="#p="+CUR_ID){ try{ history.replaceState(null,"","#p="+CUR_ID); }catch(e){} }
   window.scrollTo(0,0);
+  if(v==="guide"&&GUIDE_FOCUS) guideFocus();
 }
 function go(v){ if(GROUPS[v]&&!VIEWS.includes(v)) v=GROUPS[v].last; if(hv()===v) show(); else location.hash=v; }
 document.addEventListener("click",e=>{
   if(!e.target.closest(".hsearch")) closeMenu();
   if(!e.target.closest("#tabbar")) closeMore();
   const nb=e.target.closest("[data-nav]"); if(nb){ const k=nb.dataset.nav; if(k==="more"){ toggleMore(); return; } closeMore(); go(k==="my"?(!isMem()&&GROUPS.my.last==="me"?"boxparty":GROUPS.my.last):k); return; }
+  const gk=e.target.closest("[data-gk]"); if(gk){ GUIDE_TAB="ev"; GUIDE_FOCUS=gk.dataset.gk; go("guide"); return; }
+  const gt=e.target.closest("[data-gt]"); if(gt){ GUIDE_TAB=gt.dataset.gt; GUIDE_FOCUS=null; renderGuide(); window.scrollTo(0,0); return; }
   const g=e.target.closest("[data-go]"); if(g){ go(g.dataset.go); return; }
   const bo=e.target.closest("[data-boss]"); if(bo){ openBoss(bo.dataset.boss,bo.dataset.bm); return; }
   const p=e.target.closest("[data-poke]"); if(p){ openCard(p.dataset.poke); go("card"); }
@@ -918,7 +930,7 @@ function evHTML(e,now,isNow){
   const meta=isNow?`<span class="left">${leftText(b-now)}</span>`:`<span class="left">${untilText(a-now)}</span>`;
   const links=pokeLinks(pk);
   return `<div class="ev" style="--ec:${cc}"><div class="dt">${fmtRange(a,b)}</div><div>
-    <div class="t"><span class="cat">${cl}</span>${esc(t)}${meta}</div>
+    <div class="t"><span class="cat">${cl}</span>${esc(t)}${evKind(cat,t)?`<button class="evq" data-gk="${evKind(cat,t)}" aria-label="이 이벤트 설명">?</button>`:""}${meta}</div>
     ${desc||links?`<div class="s">${esc(desc)}${desc&&links?" · ":""}${links?"카드 보기: "+links:""}</div>`:""}</div></div>`;
 }
 // ===== 잡을 포켓몬 판정 (필수 = S 등급(S+·S·S-), 추천 = A 등급) =====
@@ -984,14 +996,24 @@ function eventPicks(list,skip){
   return out.sort((a,b)=>vo(a)-vo(b));
 }
 let EV_ALL={now:false,next:false,soon:false}, PICKS=null;
-// 사람이 고르는 추천 목록 (data/picks.json): 기간 안에만 표시
+// 추천 목록용 다이맥스 티어 (거다이맥스 제외): 최종 진화형의 다이맥스 딜러·탱커 중 높은 쪽
+function dmaxPickTier(id){
+  const c=CARDS[id]; if(!c||!DEX) return null;
+  const finals=c.final?[id]:c.evo[c.evo.length-1].filter(f=>CARDS[f]), tb=tankBest(), pool=dmaxTankPool(); let best=null;
+  const add=(t,r)=>{ if(t&&(!best||ORDER(t)<ORDER(best.t))) best={t,r}; };
+  for(const f of finals){ for(const x of TL(CARDS[f],"dmax","n")) if(!/거다이/.test(x.f)) add(x.t,"딜러");
+    if(tb[f]&&pool.find(p=>p.id===f)?.d) add(tb[f].t,"탱커"); }
+  return best;
+}
+// 사람이 고르는 추천 목록 (data/picks.json): 기간 안에만 표시. 제목에 "맥스"가 있으면 다이맥스 티어 표시 + 티어순
 function renderPickLists(now){
   const box=$("#pickLists"); if(!box) return;
   const lists=(PICKS?.lists||[]).filter(l=>(!l.start||P(l.start)<=now)&&(!l.end||now<P(l.end)));
-  box.innerHTML=lists.map(l=>{ const ids=(l.names||[]).map(n=>[n,n2id(n)]);
-    ids.sort((a,b)=>(a[1]?CARDS[a[1]].ko:a[0]).localeCompare(b[1]?CARDS[b[1]].ko:b[0],"ko"));
+  box.innerHTML=lists.map(l=>{ const mx=/맥스/.test(l.title||""), ids=(l.names||[]).map(n=>{ const id=n2id(n); return [n,id,mx&&id?dmaxPickTier(id):null]; });
+    const nm=x=>x[1]?CARDS[x[1]].ko:x[0];
+    ids.sort((a,b)=>(mx?ORDER(a[2]?.t)-ORDER(b[2]?.t):0)||nm(a).localeCompare(nm(b),"ko"));
     return `<div class="plist"><div class="plh">${esc(l.title)}${l.end?` <span>· ~${fmtD(kst(P(l.end)))}</span>`:""}</div>
-      <div class="mini">${ids.map(([n,id])=>id?`<button class="mc" data-poke="${esc(id)}">${SPRITE(id)}<span>${esc(CARDS[id].ko)}</span></button>`:`<span class="mc"><span>${esc(n)}</span></span>`).join("")}</div></div>`; }).join("");
+      <div class="mini">${ids.map(([n,id,d])=>id?`<button class="mc" data-poke="${esc(id)}">${d?`${TB(d.t).replace('class="tb','class="tb mct')}<i class="mcr">${d.r}</i>`:""}${SPRITE(id)}<span>${esc(CARDS[id].ko)}</span></button>`:`<span class="mc"><span>${esc(n)}</span></span>`).join("")}</div></div>`; }).join("");
 }
 function renderHome(){
   const today=()=>{ const k=kst(new Date()); $("#today").textContent=`${k.getFullYear()}.${String(k.getMonth()+1).padStart(2,"0")}.${String(k.getDate()).padStart(2,"0")}`; };
@@ -2127,8 +2149,63 @@ function renderRocket(){
 // 게임 화면 그림은 사진이 아니라 직접 그린 것(예시 포켓몬은 항상 피카츄). 아이템 그림은 게임 이미지(PokeMiners).
 const ITEM=n=>`https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Items/${n}.png`;
 const itemImg=(n,cls="")=>`<img class="gitem ${cls}" src="${ITEM(n)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`;
+// ===== 이벤트 종류 (왕초보 가이드 안, v3.10) — 시간은 한국 시간, 2026-11 기준 =====
+let GUIDE_TAB="basic", GUIDE_FOCUS=null;
+const EV_KINDS=[
+  ["매주",[
+    ["spot","스포트라이트 아워","매주","목요일 저녁 6~7시",["한 시간 동안 포켓몬 한 종류(가끔 여러 종류)가 <b>아주 많이</b> 나와요.","보너스가 하나 붙어요. (잡을 때 사탕 2배 · 별의모래 2배 · 경험치 2배 등)","준비: 몬스터볼 넉넉히. 색이 다른 <b>이로치</b>를 찾기도 좋아요."],[]],
+    ["hour","레이드 아워","매주","수요일 저녁 6~7시",["거의 모든 체육관에 그 주의 <b>5성 레이드</b>가 열려요.","준비: 레이드패스(리모트 레이드패스), 상대 약점을 찌르는 딜러 6마리."],[["type","상대 공략"],["raid","레이드 티어"]]],
+    ["maxmon","맥스 먼데이","매주","월요일 아침 6시 ~ 밤 9시",["그 주의 <b>다이맥스 포켓몬</b>이 맥스배틀에 나오고, 파워스폿이 평소보다 많아요.","준비: 맥스파티클, 다이맥스 딜러 · 탱커."],[["dmax","다이맥스 티어"]]]]],
+  ["매달",[
+    ["cday","커뮤니티 데이","매달","한 달에 한 번, 주말 오후 2~5시",["한 포켓몬이 <b>아주 많이</b> 나오고, 이로치도 잘 나와요.","정해진 시간 안에 진화시키면 그날만 배울 수 있는 <b>특별 기술</b>을 배워요.","사탕 · 별의모래 · 경험치 보너스가 있고, 향로가 3시간 가요.","준비: 몬스터볼 · 나무열매, 진화할 사탕, 행복의알."],[]],
+    ["pass","GO 패스","매달","한 달 내내",["잡기 · 레이드 등을 하면 포인트가 쌓이고, 단계마다 <b>보상</b>을 받아요.","무료로도 받을 수 있고, 유료(디럭스)는 보상이 더 많아요."],[]]]],
+  ["가끔",[
+    ["cdc","커뮤니티 데이 클래식","가끔","주말 오후 2~5시",["예전 커뮤니티 데이 포켓몬이 다시 나와요.","놓쳤던 <b>특별 기술</b>을 배울 기회예요."],[]],
+    ["raidday","레이드 데이","가끔","주말 오후 2~5시",["체육관 대부분에 <b>같은 포켓몬 레이드</b>가 열려요. 포켓스톱에서 무료 레이드패스를 더 받아요.","슈퍼 메가 레이드 데이 · 그림자 레이드 데이도 있어요.","준비: 딜러 파티 여러 개, 회복약, 같이 할 친구."],[["type","상대 공략"]]],
+    ["maxday","맥스배틀 데이 · 맥스배틀 이벤트","가끔","맥스배틀 데이는 주말 오후 2~5시",["모든 파워스폿에 <b>같은 다이맥스 · 거다이맥스 포켓몬</b>이 나와요. (다이맥스 트레일처럼 일주일 넘게 하는 이벤트도 있어요.)","준비: 맥스파티클을 미리 모아 두기. 거다이맥스는 여럿이 함께 해야 해요."],[["dmax","다이맥스 티어"]]],
+    ["rocket","GO 로켓단 이벤트","가끔","며칠 동안",["로켓단이 더 자주 나오고, <b>비주기 · 간부</b>를 만나는 리서치를 받아요.","이기면 그림자 포켓몬을 잡을 수 있어요."],[["rocket","로켓단 공략"]]],
+    ["big","큰 행사 (GO 페스트 · GO 투어 · 와일드 에어리어)","가끔","1년에 몇 번",["새로운 포켓몬이 <b>처음 나오는</b> 경우가 많아요.","현장 행사와 전 세계 온라인 행사가 있어요. (유료 티켓)"],[]]]],
+  ["늘",[
+    ["raid5","5성 레이드","늘","1~2주마다 상대가 바뀜",["체육관에서 <b>전설 포켓몬</b>과 싸워요. 이기면 잡을 기회가 와요.","처음 나온 전설은 이때만 잡을 수 있는 경우가 많아요."],[["type","상대 공략"],["raid","레이드 티어"]]],
+    ["mega","메가 레이드","늘","1~2주마다 상대가 바뀜",["이기면 <b>메가에너지</b>를 받아요. 메가에너지로 내 포켓몬을 메가진화해요.","메가진화한 포켓몬은 함께 싸우는 모두의 공격을 올려 줘요."],[["raid","레이드 티어"]]],
+    ["shadow","그림자 레이드","늘","주로 주말에 많이",["그림자 포켓몬과 레이드해요. 이기면 <b>그림자 포켓몬</b>(공격 1.2배)을 잡을 수 있어요.","상대가 화나면 <b>정화의 보석</b>으로 가라앉혀요."],[["type","상대 공략"]]]]]];
+// 일정 제목 → 이벤트 종류
+function evKind(cat,t){
+  t=String(t||"");
+  if(/스포트라이트/.test(t)) return "spot";
+  if(/레이드 ?아워/.test(t)) return "hour";
+  if(/맥스 ?먼데이/.test(t)) return "maxmon";
+  if(/커뮤니티 ?데이 ?클래식/.test(t)) return "cdc";
+  if(/커뮤니티 ?데이/.test(t)||cat==="cday") return "cday";
+  if(/레이드 ?데이/.test(t)) return "raidday";
+  if(/로켓단/.test(t)) return "rocket";
+  if(/GO ?페스트|GO ?투어|와일드 ?에어리어|GO ?Fest|GO ?Tour|Wild Area/i.test(t)) return "big";
+  if(cat==="pass") return "pass";
+  if(cat==="max") return "maxday";
+  if(cat==="shadow") return "shadow";
+  if(cat==="mega") return "mega";
+  if(cat==="raid") return "raid5";
+  if(cat==="hour") return "hour";
+  if(cat==="spot") return "spot";
+  return null;
+}
+function guideFocus(){
+  const k=GUIDE_FOCUS; GUIDE_FOCUS=null; const el=document.getElementById("gk-"+k); if(!el) return;
+  setTimeout(()=>{ const y=el.getBoundingClientRect().top+window.scrollY-(($(".hdr")?.offsetHeight)||0)-10; window.scrollTo({top:Math.max(0,y),behavior:"smooth"}); el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); },60);
+}
 function renderGuide(){
-  const root=$("#v-guide"); if(!root||root.dataset.ready) return; root.dataset.ready="1";
+  const root=$("#v-guide"); if(!root) return;
+  if(!root.dataset.ready){ root.dataset.ready="1"; root.innerHTML=`<div class="seg gseg2"><button data-gt="basic">기초</button><button data-gt="ev">이벤트 종류</button></div><div id="gBasic"></div><div id="gEvent"></div>`; renderGuideBasic($("#gBasic")); renderGuideEvents($("#gEvent")); }
+  root.querySelectorAll("[data-gt]").forEach(b=>b.classList.toggle("on",b.dataset.gt===GUIDE_TAB));
+  $("#gBasic").hidden=GUIDE_TAB!=="basic"; $("#gEvent").hidden=GUIDE_TAB!=="ev";
+}
+function renderGuideEvents(root){
+  const btn=(v,l)=>`<button data-go="${v}">${l} ›</button>`;
+  root.innerHTML=`<p class="intro-top">포켓몬고에는 <b>정해진 때마다 열리는 이벤트</b>가 있어요. 시간은 모두 한국 시간이에요. 가끔 요일 · 시간이 바뀌니 정확한 때는 일정에서 확인하세요.</p>
+  ${EV_KINDS.map(([g,list])=>`<div class="ggrp">${g}</div>`+list.map(([k,t,badge,when,lines,btns])=>`<div class="gcard gev" id="gk-${k}"><h3>${t}<em>${badge}</em></h3><div class="gwhen">${when}</div><ul>${lines.map(l=>`<li>${l}</li>`).join("")}</ul>${btns.length?`<div class="gbtns">${btns.map(([v,l])=>btn(v,l)).join("")}</div>`:""}</div>`).join("")).join("")}
+  <div class="gbtns" style="margin-bottom:12px">${btn("home","일정 보기")}</div>`;
+}
+function renderGuideBasic(root){
   const pika=`<img class="gpika" src="${ART(25)}" alt="피카츄" loading="lazy" onerror="this.style.visibility='hidden'">`;
   const chip=k=>`<span class="tchip sm" style="--tc:${TC[k]}">${svg(k,"#fff")}${TN[k]}</span>`;
   const sec=(no,t,lines,fig,btn)=>`<div class="gcard"><h3><span>${no}</span>${t}</h3>${fig||""}<ul>${lines.map(l=>`<li>${l}</li>`).join("")}</ul>${btn?`<div class="gbtns">${btn}</div>`:""}</div>`;
