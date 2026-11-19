@@ -25,22 +25,27 @@ const KO = 3; // PokeAPI 한국어 language id
 // ---------- 계산 상수 (사이트 설명과 동일) ----------
 const CPM40 = 0.7903, BOSS_DEF = 180, SE = 1.6, SURV_K = 900;
 const MAX_POWER = 350, GMAX_POWER = 450;
-// 티어 규칙: ER(점수) 순으로 내려가며, 남은 자리(티어별 상한)가 있고 최소 %를 넘는 가장 높은 티어.
-// 바로 앞 포켓몬과 1% 이내로 거의 같으면 같은 티어(상한 초과 허용). 나머지는 순위권 밖(null).
-const TIER_RULE = { names: ["SS", "S", "A", "B", "C"], caps: [3, 4, 5, 10, 18], minPct: [95, 88, 80, 70, 55], tie: 0.01 };
-function assignTiers(rows, metric, usePct = true) {
-  // usePct=false(배틀): % 조건·동점 규칙 없이 개수 상한만
-  const R = TIER_RULE; if (!rows.length) return;
-  const top = rows[0][metric]; let level = 0, n = 0, boundary = null;
-  for (const r of rows) {
-    const v = r[metric], pct = v / top * 100;
-    r.p = Math.round(pct);
-    // 동점 규칙: 상한이 찼지만 이 티어 마지막 포켓몬과 1% 이내면 같은 티어
-    if (usePct && level < 5 && n >= R.caps[level] && boundary != null && v >= boundary * (1 - R.tie) && pct >= R.minPct[level]) { r.t = R.names[level]; n++; continue; }
-    while (level < 5 && (n >= R.caps[level] || (usePct && pct < R.minPct[level]))) { level++; n = 0; boundary = null; }
-    r.t = level < 5 ? R.names[level] : null;
-    if (r.t) { n++; boundary = v; }
-  }
+// 티어 규칙 (v3.5): 타입을 가리지 않는 절대 등급. 모드마다 "모습(포켓몬 + 메가/그림자/거다이맥스)"별 최고 점수로 줄을 세우고
+// refRank위(5위) 점수를 100%로 잡아 % 구간으로 S+ ~ C-. (1위는 메가뮤츠Y처럼 혼자 튀어서 기준으로 쓰지 않음)
+// 타입별 표의 각 줄도 같은 기준(그 줄 점수 ÷ 기준 점수)으로 등급을 받고, p = 그 타입 1위 대비 %(순위용).
+// 배틀은 PvPoke 점수가 촘촘해서 개수(pvpCaps)로만 나눔.
+const TIER_RULE = { names: ["S+", "S", "S-", "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-"], minPct: [95, 88, 82, 76, 70, 64, 58, 52, 46, 40, 34, 28],
+  refRank: 5, pvpCaps: [3, 3, 4, 5, 5, 5, 5, 5, 5, 0, 0, 0], ref: {} };
+const gradeOf = pct => { const i = TIER_RULE.minPct.findIndex(m => pct >= m); return i < 0 ? null : TIER_RULE.names[i]; };
+const formKey = r => r.n + "|" + r.tg.filter(x => x !== "p").join();
+// lists: {타입: 정렬된 행들}. 반환 = 모습별 최고 행(점수 내림차순, w = 타입)
+function assignAbs(lists, metric, mode) {
+  const best = new Map();
+  for (const [w, rows] of Object.entries(lists)) for (const r of rows) { const k = formKey(r), b = best.get(k); if (!b || r[metric] > b.r[metric]) best.set(k, { r, w }); }
+  const all = [...best.values()].sort((a, b) => b.r[metric] - a.r[metric]);
+  const ref = all.length ? all[Math.min(TIER_RULE.refRank, all.length) - 1].r[metric] : 1;
+  TIER_RULE.ref[mode] = ref;
+  for (const rows of Object.values(lists)) { const top = rows[0]?.[metric] || 1; for (const r of rows) { r.p = Math.round(r[metric] / top * 100); r.t = gradeOf(r[metric] / ref * 100); } }
+  return all.filter(x => x.r.t).map(x => ({ ...x.r, w: x.w }));
+}
+function assignCount(rows, metric) { // 배틀: 개수 상한만
+  let level = 0, n = 0; const R = TIER_RULE, top = rows[0]?.[metric] || 1;
+  for (const r of rows) { r.p = Math.round(r[metric] / top * 100); while (level < R.names.length && n >= R.pvpCaps[level]) { level++; n = 0; } r.t = level < R.names.length ? R.names[level] : null; if (r.t) n++; }
 }
 const TYPES = ["normal","fire","water","grass","electric","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"];
 const TYPE_KO = {normal:"노말",fire:"불꽃",water:"물",grass:"풀",electric:"전기",ice:"얼음",fighting:"격투",poison:"독",ground:"땅",flying:"비행",psychic:"에스퍼",bug:"벌레",rock:"바위",ghost:"고스트",dragon:"드래곤",dark:"악",steel:"강철",fairy:"페어리"};
@@ -317,7 +322,7 @@ async function main() {
     const y = SURV_K / def, x = 0.5 * C.energy + 0.5 * F.energy;
     const dps = Math.max(FDPS, dps0 + (CDPS - FDPS) / (CEPS + FEPS) * (0.5 - x / hp) * y);
     const tdo = dps * hp / y; // = DPS × 체력 × 방어 / 900
-    return { dps, tdo, er: Math.pow(dps ** 3 * tdo, 0.25) };
+    return { dps, tdo, er: Math.pow(dps ** 3 * tdo, 0.25), fs: FDPS * CEPS / (FDPS * CEPS + CDPS * FEPS) };
   }
   // 기술 조합 후보: 둘 다 t 타입이거나, (노말기만 다른 타입이고) 스페셜어택이 t 타입이면서 포켓몬 자신도 t 타입(자속)일 때.
   // 예: 두드리짱(페어리·강철) 요정의바람 + 거대해머 → 강철 딜러. 뮤츠 + 화염방사처럼 자속이 아닌 조합은 넣지 않음(범용 딜러가 타입 목록을 덮지 않게).
@@ -345,7 +350,9 @@ async function main() {
         } return best; };
       const row = (best, plus) => ({ id: card.id, n: isMega(p) ? koName(p) : card.ko,
         tg: [isMega(p) ? "m" : "", shadow ? "s" : "", plus ? "p" : ""].filter(Boolean),
-        mv: `${mvName(p, best.f)} · ${mvName(p, best.c)}`, er: +best.er.toFixed(2), dps: +best.dps.toFixed(2), tdo: +best.tdo.toFixed(1) });
+        mv: `${mvName(p, best.f)} · ${mvName(p, best.c)}`, er: +best.er.toFixed(2), dps: +best.dps.toFixed(2), tdo: +best.tdo.toFixed(1),
+        // 노말기 타입이 다른(섞인) 조합: ft = 노말기 타입, fs = 전체 데미지 중 노말기 몫 → 사이트가 상대별 상성을 기술마다 따로 곱함
+        ...(moveType(best.f) !== t ? { ft: moveType(best.f), fs: +best.fs.toFixed(2) } : {}) });
       const cs = p.chargedMoves || [];
       const best = pick(cs);
       if (best) raid[t].push(row(best, false));
@@ -427,18 +434,17 @@ async function main() {
       return { id: card.id, n: card.ko, tg: isShadow(p) ? ["s"] : [], mv: ms.map(m => mvName(p, m)).join(" · "),
         score: +(+r.score).toFixed(1), sp: r.stats?.product ? Math.round(r.stats.product) : null, rating: r.rating ?? null };
     }).sort((a, b) => b.score - a.score).slice(0, LIMIT_PVP);
-    assignTiers(pvp[lg], "score", false);
+    assignCount(pvp[lg], "score");
   });
 
-  // ---- 레이드·다이맥스: 최종진화만, 정렬, 티어 ----
+  // ---- 레이드·다이맥스: 최종진화만, 정렬, 티어(절대 등급) ----
   for (const t of TYPES) {
     raid[t] = raid[t].filter(r => isFinal(r.id)).sort((a, b) => b.er - a.er);
-    assignTiers(raid[t], "er");
-    const base = raid[t].filter(r => !r.tg.length).slice(0, LIMIT_RAID);
-    raid[t] = [...new Map([...raid[t].slice(0, LIMIT_RAID), ...base].map(r => [r.id + r.tg.join() + r.n, r])).values()];
     dmax[t] = dmax[t].filter(r => isFinal(r.id)).sort((a, b) => b.score - a.score || b.fdps - a.fdps);
-    assignTiers(dmax[t], "score");
   }
+  // 전체 티어리스트(모습별 한 줄, 가장 잘하는 타입 기준)
+  const slim = ({ p, ft, fs, ...r }) => r;
+  const tl = { raid: assignAbs(raid, "er", "raid").map(slim), dmax: assignAbs(dmax, "score", "dmax").map(slim) };
 
   // ---- 카드별 티어 (n: 일반+메가, s: 그림자) ----
   const ORDER = Object.fromEntries(TIER_RULE.names.map((n, i) => [n, i]));
@@ -447,16 +453,22 @@ async function main() {
       const c = cards[r.id]; if (!c || !r.t) return;
       const side = r.tg.includes("s") ? "s" : "n", form = formOf(r, key);
       const arr = ((c.tiers[mode] ||= {})[side] ||= []);
-      const e = { f: form, t: r.t, p: r.p, w: whereOf(key), r: i + 1 };
+      const e = { f: form, t: r.t, p: r.p, w: whereOf(key), r: i + 1 }, v = r.er ?? r.score;
+      Object.defineProperty(e, "_v", { value: v, writable: true, enumerable: false }); // 같은 모습이면 점수가 가장 높은 타입 하나만
       const ex = arr.find(x => x.f === form);
-      if (!ex) arr.push(e); else if (ORDER[e.t] < ORDER[ex.t] || (e.t === ex.t && e.p > ex.p)) Object.assign(ex, e);
+      if (!ex) arr.push(e); else if (v > ex._v) { Object.assign(ex, e); ex._v = v; }
     });
   }
   attach("raid", raid, k => TYPE_KO[k], r => r.tg.includes("m") ? r.n + (r.tg.includes("p") ? " (플러스 기술)" : "") : r.tg.includes("s") ? "그림자" : "일반");
   attach("dmax", dmax, k => TYPE_KO[k], r => r.tg.includes("g") ? "거다이맥스" : "다이맥스");
   attach("pvp", pvp, k => LEAGUES.find(l => l[0] === k)[2], (r, k) => LEAGUES.find(l => l[0] === k)[2]);
   for (const c of Object.values(cards)) for (const m in c.tiers) for (const side in c.tiers[m])
-    c.tiers[m][side].sort((a, b) => ORDER[a.t] - ORDER[b.t] || b.p - a.p);
+    c.tiers[m][side].sort((a, b) => ORDER[a.t] - ORDER[b.t] || (m === "pvp" ? b.p - a.p : b._v - a._v));
+  // 카드 티어를 붙인 뒤에 타입별 표를 자름 (표에는 상위 LIMIT_RAID + 기본 포켓몬 상위 LIMIT_RAID)
+  for (const t of TYPES) {
+    const base = raid[t].filter(r => !r.tg.length).slice(0, LIMIT_RAID);
+    raid[t] = [...new Map([...raid[t].slice(0, LIMIT_RAID), ...base].map(r => [r.id + r.tg.join() + r.n, r])).values()];
+  }
 
   // ---- 기술 추천 (최종 진화형 카드) ----
   // 레이드 최고 티어의 타입 기준. 일반 기술머신으로 배우는 조합 / 레거시·이벤트(대단한 기술머신) 포함 최고 조합 / 메가 플러스 기술
@@ -500,10 +512,19 @@ async function main() {
     c.rec = { t: T, n: fmt(n), e: e && (!n || e.f !== n.f || e.c !== n.c) ? fmt(e) : null, plus: plus.length ? plus : undefined, s2 };
   }
 
+  // ---- 배틀(로켓단 추천)용 기술 요약: pv = [[노말기: 타입번호, 턴당 위력, 턴당 에너지], [스페셜어택: 타입번호, 위력, 에너지]] ----
+  for (const c of Object.values(cards)) {
+    const p = byId[c.id]; if (!p) continue;
+    const ti = id => TYPES.indexOf(moveType(id));
+    const f = (p.fastMoves || []).map(id => { const m = pvpMove[id]; const turns = m && (m.turns || Math.round((m.cooldown || 500) / 500)); return m && ti(id) >= 0 && turns ? [ti(id), +(m.power / turns).toFixed(2), +(m.energyGain / turns).toFixed(2)] : null; }).filter(Boolean);
+    const ch = (p.chargedMoves || []).map(id => { const m = pvpMove[id]; return m && ti(id) >= 0 && m.energy > 0 ? [ti(id), m.power, m.energy] : null; }).filter(Boolean);
+    if (f.length && ch.length) c.pv = [f, ch];
+  }
+
   const out = {
     updated: new Date().toISOString().slice(0, 10),
     sources: "PvPoke gamemaster·rankings, PokeMiners game master, PokeAPI (한국어 이름)",
-    tierRule: TIER_RULE, cards: Object.values(cards), raid, dmax, pvp
+    tierRule: TIER_RULE, cards: Object.values(cards), tl, raid, dmax, pvp
   };
   report.tierCounts = Object.fromEntries(Object.entries({ raid, dmax, pvp }).map(([m, lists]) => [m,
     Object.fromEntries(Object.entries(lists).map(([k, rows]) => [k, TIER_RULE.names.map(n => rows.filter(r => r.t === n).length).join("/")]))]));

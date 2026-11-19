@@ -120,9 +120,7 @@ function cleanBox(b) {
     if (!c || !okId(c.id)) continue;
     caps.push({ id: c.id, a: Math.round(num(c.a, 0, 15)), d: Math.round(num(c.d, 0, 15)), h: Math.round(num(c.h, 0, 15)), lv: Number(c.lv) === 50 ? 50 : 40 });
   }
-  // 화면 설정 (지금은 뉴비모드 켜짐/꺼짐만)
-  const prefs = b && b.prefs && typeof b.prefs === "object" ? { nb: !!b.prefs.nb } : undefined;
-  return prefs ? { box, caps, prefs } : { box, caps };
+  return { box, caps };
 }
 
 async function api(req, env, path) {
@@ -258,8 +256,8 @@ async function api(req, env, path) {
       const u = await db.prepare("SELECT is_admin FROM users WHERE code = ?").bind(target).first();
       if (!u || u.is_admin) return fail("포켓몬을 넣을 수 없는 계정이에요.");
       const old = await db.prepare("SELECT data FROM boxes WHERE code = ?").bind(target).first();
-      let caps = [], prefs; try { const o = old ? JSON.parse(old.data) : {}; caps = o.caps || []; prefs = o.prefs; } catch {}
-      const data = cleanBox({ box: b.box, caps, prefs });
+      let caps = []; try { caps = old ? JSON.parse(old.data).caps || [] : []; } catch {}
+      const data = cleanBox({ box: b.box, caps });
       if (!data.box || !data.box.rows.length) return fail("넣을 포켓몬이 없어요.");
       const t = now();
       await db.prepare("INSERT INTO boxes (code, data, updated) VALUES (?, ?, ?) ON CONFLICT(code) DO UPDATE SET data = excluded.data, updated = excluded.updated").bind(target, JSON.stringify(data), t).run();
