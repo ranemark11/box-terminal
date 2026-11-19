@@ -687,7 +687,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.7</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.8</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -928,10 +928,10 @@ const bestOf=list=>list.reduce((m,x)=>!m||ORDER(x.t)<ORDER(m.t)?x:m,null);
 let TANK_BEST=null;
 // 탱커 티어 기준: 종합(모든 공격 타입 평균) 5위의 값 (게이지 반영 여부마다 따로)
 const TANK_REFS={}; const TANK_REF=g=>TANK_REFS[g?1:0]??=(()=>{ const v=dmaxTankRows("all","all",g).map(r=>r.tr).sort((a,b)=>b-a); return v[Math.min(TIER_RULE.refRank,v.length)-1]||1; })();
-function tankBest(){ // 다이맥스 탱커: 포켓몬별 가장 높은 티어 (상대 공격 타입 기준)
+function tankBest(){ // 다이맥스 탱커 티어: "종합"(모든 공격 타입 평균) 내구 기준, 제곱근 없이 (v3.8)
   if(TANK_BEST) return TANK_BEST; const m={};
-  for(const [T] of TYPES){ const rows=dmaxTankRows(T,"all",false).sort((a,b)=>b.tr-a.tr); assignTiers(rows,"tr",TANK_REF(false));
-    for(const r of rows) if(r._t&&(!m[r.id]||ORDER(r._t)<ORDER(m[r.id].t))) m[r.id]={t:r._t,w:TN[T]}; }
+  const rows=dmaxTankRows("all","all",false).sort((a,b)=>b.tr-a.tr); assignTiers(rows,"tr",TANK_REF(false));
+  rows.forEach((r,i)=>{ if(r._t) m[r.id]={t:r._t,w:"종합",r:i+1,p:Math.round(r.tr/rows[0].tr*100)}; });
   return TANK_BEST=m;
 }
 // mode: "max" = 다이맥스, "shadow" = 그림자 레이드, 그 외 = 레이드
@@ -945,7 +945,7 @@ function judge(id,mode){
     for(const f of finals){ const F=CARDS[f], pre=f!==id?`${esc(F.ko)} `:"";
       const d=bestOf(TL(F,"dmax","n")), k=tb[f];
       add(d?.t,`${pre}딜러 <b>${d?.t}</b> ${esc(d?.w||"")}`);
-      add(k?.t,`${pre}탱커 <b>${k?.t}</b> ${esc(k?.w||"")} 상대`);
+      add(k?.t,`${pre}탱커 <b>${k?.t}</b>`);
     }
     if(!parts.length&&!finals.some(f=>CARDS[f].dmx||dmaxTankPool().some(e=>e.id===f))) parts.push("다이맥스 정보 아직 없음");
   }else{
@@ -1060,7 +1060,15 @@ const ART=dex=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites
 let SHADOW=false, CUR_ID=null;
 const MODES=[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀"]];
 // 카드에 보여줄 티어 목록: 최종진화는 자기 것, 진화 전은 최종진화형의 것(배틀은 자기 순위가 있으면 자기 것)
+// 다이맥스: 딜러(모습별) + 탱커(종합) 줄을 함께, 티어 높은 순 → 카드 요약엔 둘 중 높은 쪽 (v3.8)
 function tiersFor(c, mode, sh){
+  const r=tiersFor0(c,mode,sh); if(mode!=="dmax"||sh) return r;
+  const tb=tankBest(), ids=c.final?[c.id]:c.evo[c.evo.length-1].filter(id=>CARDS[id]);
+  const tanks=ids.map(fid=>tb[fid]&&{...tb[fid],f:(c.final?"":CARDS[fid].ko+" ")+"탱커",tank:1,fid}).filter(Boolean);
+  const deal=r.list.map(x=>({...x,f:x.f+" 딜러"}));
+  return {list:[...deal,...tanks].sort((a,b)=>ORDER(a.t)-ORDER(b.t)||b.p-a.p), via:r.via};
+}
+function tiersFor0(c, mode, sh){
   const side=sh?"s":"n", own=TL(c,mode,side);
   if(c.final||(mode==="pvp"&&own.length)) return {list:own, via:null};
   const finals=c.evo[c.evo.length-1].filter(id=>CARDS[id]);
@@ -1075,10 +1083,10 @@ const PLUS_TXT=" (플러스 기술)", plusOf=t=>t.includes(PLUS_TXT), noPlus=t=>
 const PTAG='<span class="tag p">+기술MAX</span>';
 function noteOf(x){ if(["일반","다이맥스","그림자"].includes(x.f)) return x.w; if(x.f.includes(x.w)) return x.f; return `${x.f} · ${x.w}`; }
 // 티어 줄·요약 칸을 누르면 그 타입(리그) 티어리스트로 이동 + 그 포켓몬 줄을 반짝 표시
-const tlAttr=(m,x)=>` data-tm="${m}" data-tw="${esc(x.w)}" data-tid="${esc(x.fid||CUR_ID||"")}" data-tsh="${/그림자/.test(x.f)?1:""}" data-tg="${/거다이맥스/.test(x.f)?1:""}"`;
-function goTier(m,w,id,sh,g){ const B=BOARDS[m]; if(!B) return;
-  const k=m==="pvp"?(LEAGUES.find(l=>l[1]===w)||[])[0]:(TYPES.find(t=>TN[t[0]]===w)||[])[0]; if(!k) return;
-  if(m==="dmax") B.st.role="deal"; B.st.sel=k; B.st.tab="all"; save(); go(m);
+const tlAttr=(m,x)=>` data-tm="${m}"${x.tank?' data-trole="tank"':""} data-tw="${esc(x.w)}" data-tid="${esc(x.fid||CUR_ID||"")}" data-tsh="${/그림자/.test(x.f)?1:""}" data-tg="${/거다이맥스/.test(x.f)?1:""}"`;
+function goTier(m,w,id,sh,g,role){ const B=BOARDS[m]; if(!B) return;
+  const k=role==="tank"?"all":m==="pvp"?(LEAGUES.find(l=>l[1]===w)||[])[0]:(TYPES.find(t=>TN[t[0]]===w)||[])[0]; if(!k) return;
+  if(m==="dmax") B.st.role=role==="tank"?"tank":"deal"; B.st.sel=k; B.st.tab="all"; save(); go(m);
   setTimeout(()=>{ const root=$("#p-"+m); if(!root) return; renderBoard(m);
     const trs=[...root.querySelectorAll("tbody tr")].filter(tr=>tr.querySelector(`[data-poke="${CSS.escape(id)}"]`));
     const tr=trs.find(t=>!!t.querySelector(".tag.s")===!!sh&&(!g||t.querySelector(".tag.g")))||trs[0];
@@ -1192,7 +1200,7 @@ function openCard(id, keepShadow){
   $("#saveBtn").onclick=()=>saveCardImage(c,sh);
   const sb=$("#shBtn"); if(sb) sb.onclick=()=>{ SHADOW=!SHADOW; openCard(id,true); };
   if(hv()==="card"&&location.hash!=="#p="+id){ try{ history.replaceState(null,"","#p="+id); }catch(e){} }
-  $("#cardOut").querySelectorAll("[data-tm]").forEach(el=>el.onclick=()=>goTier(el.dataset.tm,el.dataset.tw,el.dataset.tid,el.dataset.tsh,el.dataset.tg));
+  $("#cardOut").querySelectorAll("[data-tm]").forEach(el=>el.onclick=()=>goTier(el.dataset.tm,el.dataset.tw,el.dataset.tid,el.dataset.tsh,el.dataset.tg,el.dataset.trole));
 }
 
 // ===== 티어 보드 =====
@@ -1236,8 +1244,8 @@ function dmaxTankRows(T,tab,gauge){
     const lab=T==="all"?`약점 ${TYPES.filter(([k])=>eff(k,tp)>1.5).length} · 반감 ${TYPES.filter(([k])=>eff(k,tp)<0.99).length}`:x<0.6?"이중반감":x<0.99?"반감":x>2.5?"이중약점":x>1.5?"약점":"보통";
     const onlyG=e.g&&!e.d;
     const score=gauge?+Math.pow(eb**3*e.fdps,0.25).toFixed(2):eb;
-    // 티어 판정용(tr): 내구는 곱셈값이라 격차가 커서 제곱근으로 완화 (순위는 그대로)
-    return {id:e.id, n:(onlyG?"거다이맥스 ":"")+e.n, tg:onlyG?["g"]:[], mv:`${lab} · ${e.fast}`, eb, fdps:e.fdps, score, tr:Math.sqrt(score)};
+    // 티어 판정용(tr) = 점수 그대로 (v3.8: 5위 기준 절대 등급이라 제곱근 완화를 없앰)
+    return {id:e.id, n:(onlyG?"거다이맥스 ":"")+e.n, tg:onlyG?["g"]:[], mv:`${lab} · ${e.fast}`, eb, fdps:e.fdps, score, tr:score};
   });
 }
 const BOARDS={
@@ -1368,7 +1376,7 @@ function bossDmaxRows(opp,role,gauge){
     const c=CARDS[e.id], worst=Math.max(...opp.map(o=>eff(o,c?.types||[]))), eb=Math.round(e.bulk/worst);
     const lab=worst<0.6?"이중반감":worst<0.99?"반감":worst>2.5?"이중약점":worst>1.5?"약점":"보통", onlyG=e.g&&!e.d;
     const v=gauge?+Math.pow(eb**3*e.fdps,0.25).toFixed(2):eb;
-    return {id:e.id,n:(onlyG?"거다이맥스 ":"")+e.n,tg:onlyG?["g"]:[],mv:`${lab} · ${e.fast}`,v,tr:Math.sqrt(v)};
+    return {id:e.id,n:(onlyG?"거다이맥스 ":"")+e.n,tg:onlyG?["g"]:[],mv:`${lab} · ${e.fast}`,v,tr:v};
   });
 }
 function renderType(){
@@ -1840,7 +1848,7 @@ function useOf(m,lv,a=m.a,d=m.d,h=m.h,mode){ // 그 포켓몬이 가장 쓸모 �
   const r=ratio(m,lv,a,d,h); let b=null;
   if(mode==="raid"){ for(const x of myRaidRows(m)){ const top=DEX.raid[x.t2][0].er, p=x.er*r.A*Math.pow(r.D*r.H,0.25)/top*100; if(!b||p>b.p) b={p,t:x.t2,mv:x.mv,abs:rawEr(x)*r.A*Math.pow(r.D*r.H,0.25)/TIER_RULE.ref.raid*100}; } }
   else if(mode==="deal"){ for(const x of myDmaxRows(m)){ const top=DEX.dmax[x.t2][0].max, p=x.max*r.A/top*100; if(!b||p>b.p) b={p,t:x.t2,mv:x.mv,abs:p*top/TIER_RULE.ref.dmax}; } }
-  else{ const row=myDmaxRows(m)[0]; if(row){ const c=CARDS[m.id]; for(const [T] of TYPES){ const top=TANK_TOP(T), val=row.bulk*r.D*r.H/Math.max(eff(T,c.types),0.01), p=val/top*100; if(!b||p>b.p) b={p,t:T,mv:"상대 "+TN[T]+" 공격",abs:Math.sqrt(val)/TANK_REF(false)*100}; } } }
+  else{ const row=myDmaxRows(m)[0]; if(row){ const c=CARDS[m.id]; for(const [T] of TYPES){ const top=TANK_TOP(T), val=row.bulk*r.D*r.H/Math.max(eff(T,c.types),0.01), p=val/top*100; if(!b||p>b.p) b={p,t:T,mv:"상대 "+TN[T]+" 공격",abs:row.bulk*r.D*r.H/avgInc(c.types)/TANK_REF(false)*100}; } } }
   return b;
 }
 let TANK_TOPS=null; const TANK_TOP=T=>{ if(!TANK_TOPS){ TANK_TOPS={}; for(const [k] of TYPES) TANK_TOPS[k]=Math.max(...dmaxTankPool().map(e=>e.bulk/eff(k,CARDS[e.id]?.types||[]))); } return TANK_TOPS[T]; };
