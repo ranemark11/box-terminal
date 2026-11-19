@@ -302,13 +302,14 @@ async function main() {
 
   // ---- 레이드 ----
   const stab = (t, p) => types(p).includes(t) ? 1.2 : 1;
-  const hit = (power, atk, mt, p) => Math.floor(0.5 * power * atk / BOSS_DEF * stab(mt, p) * SE) + 1;
-  function raidCalc(p, f, c, shadow) {
+  // T(공격 타입)를 주면 그 타입 기술만 효과굉장(1.6), 다른 타입 기술은 1배로 계산 (노말기·스페셜어택 타입이 섞인 조합용)
+  const hit = (power, atk, mt, p, T) => Math.floor(0.5 * power * atk / BOSS_DEF * stab(mt, p) * (T && mt !== T ? 1 : SE)) + 1;
+  function raidCalc(p, f, c, shadow, T) {
     const F = pve[f], C = pve[c]; if (!F || !C || !F.energy || !C.energy) return null;
     const atk = (p.baseStats.atk + 15) * CPM40 * (shadow ? 1.2 : 1);
     const def = (p.baseStats.def + 15) * CPM40 * (shadow ? 5 / 6 : 1);
     const hp = Math.floor((p.baseStats.hp + 15) * CPM40);
-    const FD = hit(F.power, atk, F.type, p), CD = hit(C.power, atk, C.type, p);
+    const FD = hit(F.power, atk, F.type, p, T), CD = hit(C.power, atk, C.type, p, T);
     // 맞으면서 얻는 에너지 포함 (GamePress 방식): 상대에게 받는 초당 피해 y = 900/방어, 잃은 체력 1당 에너지 0.5,
     // 쓰러질 때 남아 버려지는 에너지 x = (스페셜 에너지 + 노말 에너지)/2
     const FDPS = FD / F.dur, FEPS = F.energy / F.dur, CDPS = CD / C.dur, CEPS = C.energy / C.dur;
@@ -318,6 +319,10 @@ async function main() {
     const tdo = dps * hp / y; // = DPS × 체력 × 방어 / 900
     return { dps, tdo, er: Math.pow(dps ** 3 * tdo, 0.25) };
   }
+  // 기술 조합 후보: 둘 다 t 타입이거나, (노말기만 다른 타입이고) 스페셜어택이 t 타입이면서 포켓몬 자신도 t 타입(자속)일 때.
+  // 예: 두드리짱(페어리·강철) 요정의바람 + 거대해머 → 강철 딜러. 뮤츠 + 화염방사처럼 자속이 아닌 조합은 넣지 않음(범용 딜러가 타입 목록을 덮지 않게).
+  // 잠재파워는 개체마다 타입이 무작위라 t 타입일 때만 씀
+  const mixOk = (f, c, t, p) => moveType(c) === t && (moveType(f) === t || (types(p).includes(t) && !/^HIDDEN_POWER/.test(f)));
   const elite = p => new Set([...(p.eliteMoves || []), ...(p.legacyMoves || [])]);
   const mvName = (p, id) => moveKo(id) + (elite(p).has(id) ? "*" : "");
   const raid = Object.fromEntries(TYPES.map(t => [t, []]));
@@ -330,16 +335,18 @@ async function main() {
     const plusId = isMega(p) && (p.extraChargedMoves || []).find(m => /_PLUS$/.test(m) && plusPve[p.speciesId]);
     if (plusId) { pve[plusId] = plusPve[p.speciesId]; plusUsed[p.speciesId] = plusId; }
     for (const t of TYPES) {
-      const fs = (p.fastMoves || []).filter(m => moveType(m) === t);
+      // 후보 조건은 mixOk (다른 타입 노말기는 1배로 계산)
+      const fs = p.fastMoves || [];
       const pick = cs => { let best = null;
         for (const f of fs) for (const c of cs) {
-          if (!pve[f]) missingPve.add(f); if (!pve[c]) missingPve.add(c);
-          const r = raidCalc(p, f, c, shadow); if (r && (!best || r.er > best.er)) best = { ...r, f, c };
+          if (!mixOk(f, c, t, p)) continue;
+          if (moveType(f) === t) { if (!pve[f]) missingPve.add(f); if (!pve[c]) missingPve.add(c); }
+          const r = raidCalc(p, f, c, shadow, t); if (r && (!best || r.er > best.er)) best = { ...r, f, c };
         } return best; };
       const row = (best, plus) => ({ id: card.id, n: isMega(p) ? koName(p) : card.ko,
         tg: [isMega(p) ? "m" : "", shadow ? "s" : "", plus ? "p" : ""].filter(Boolean),
         mv: `${mvName(p, best.f)} · ${mvName(p, best.c)}`, er: +best.er.toFixed(2), dps: +best.dps.toFixed(2), tdo: +best.tdo.toFixed(1) });
-      const cs = (p.chargedMoves || []).filter(m => moveType(m) === t);
+      const cs = p.chargedMoves || [];
       const best = pick(cs);
       if (best) raid[t].push(row(best, false));
       if (plusId && plusPve[p.speciesId].type === t) {
@@ -457,9 +464,10 @@ async function main() {
   const bestCombo = (p, T, allowElite) => {
     const el = elite(p), ok = m => allowElite || !el.has(m);
     let best = null;
-    for (const f of (p.fastMoves || []).filter(m => moveType(m) === T && ok(m)))
-      for (const c of (p.chargedMoves || []).filter(m => moveType(m) === T && ok(m))) {
-        const r = raidCalc(p, f, c, false); if (r && (!best || r.er > best.er)) best = { f, c, er: r.er };
+    for (const f of (p.fastMoves || []).filter(ok))
+      for (const c of (p.chargedMoves || []).filter(ok)) {
+        if (!mixOk(f, c, T, p)) continue;
+        const r = raidCalc(p, f, c, false, T); if (r && (!best || r.er > best.er)) best = { f, c, er: r.er };
       }
     return best;
   };

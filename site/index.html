@@ -684,7 +684,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.3</small></button><span class="nbbadge" id="nbBadge" hidden>뉴비모드</span><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.4</small></button><span class="nbbadge" id="nbBadge" hidden>뉴비모드</span><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -1507,11 +1507,13 @@ const fmtCode=c=>String(c).length===12?String(c).replace(/(\d{4})(\d{4})(\d{4})/
 const fmtTime=t=>{ if(!t) return "-"; const d=new Date(t); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
 let syncTimer=null;
 function syncUp(now){ if(!ME||ME.mustChange) return Promise.resolve(); clearTimeout(syncTimer);
-  const go=()=>api("box",{method:"PUT",body:JSON.stringify({box:BOX,caps:CAPS})}).then(j=>{ ME_UPDATED=j.updated; if(location.hash==="#me") renderMe(); });
+  const go=()=>api("box",{method:"PUT",body:JSON.stringify({box:BOX,caps:CAPS,prefs:{nb:NEWBIE}})}).then(j=>{ ME_UPDATED=j.updated; if(location.hash==="#me") renderMe(); });
   if(now) return go(); syncTimer=setTimeout(()=>go().catch(()=>{}),800); return Promise.resolve(); }
 async function syncDown(){ if(!ME||ME.mustChange) return; const j=await api("box");
-  if(j.data){ BOX=j.data.box||null; CAPS=Array.isArray(j.data.caps)?j.data.caps:[]; try{ localStorage.setItem("pyo-box",JSON.stringify(BOX)); localStorage.setItem("pyo-caps",JSON.stringify(CAPS)); }catch(e){} ME_UPDATED=j.updated; }
-  else if(BOX||CAPS.length) await syncUp(true); }
+  if(j.data){ BOX=j.data.box||null; CAPS=Array.isArray(j.data.caps)?j.data.caps:[]; try{ localStorage.setItem("pyo-box",JSON.stringify(BOX)); localStorage.setItem("pyo-caps",JSON.stringify(CAPS)); }catch(e){} ME_UPDATED=j.updated;
+    // 회원의 뉴비모드는 서버 값을 따름 (다른 기기와 같게). 예전 데이터라 값이 없으면 지금 값을 올림
+    if(j.data.prefs&&typeof j.data.prefs.nb==="boolean"){ if(j.data.prefs.nb!==NEWBIE) setNewbie(j.data.prefs.nb,true); } else syncUp(); }
+  else await syncUp(true); }
 function setMe(j){ ME=j&&j.code?{code:j.code,admin:!!j.admin,mustChange:!!j.mustChange,imp:!!j.imp}:null; renderImpBar(); const b=$("#acctBtn"); if(b){ const mem=ME&&!ME.mustChange; b.textContent=mem?"내 정보":"로그인"; b.dataset.go="me"; } if(document.getElementById("tabbar")&&typeof VIEWS!=="undefined") show(); }
 function confirmBox(msg,ok){ const m=document.createElement("div"); m.className="shotmodal"; m.innerHTML=`<div class="shotbox"><p>${msg}</p><div class="shotbtns"><button data-share data-ok>확인</button><button data-x>취소</button></div></div>`; document.body.appendChild(m); m.onclick=e=>{ if(e.target.closest("[data-ok]")){ m.remove(); ok(); } else if(e.target===m||e.target.closest("[data-x]")) m.remove(); }; }
 // 관리자가 회원으로 들어간 동안 화면 위에 띠 + "관리자로 돌아가기"
@@ -2053,7 +2055,7 @@ function nbIndex(mode){ if(NB_T[mode]) return NB_T[mode]; const m={}; if(!DEX) r
   for(const id in m) m[id].sort((a,b)=>ORDER(a.t)-ORDER(b.t)||b.p-a.p);
   return NB_T[mode]=m; }
 const TL=(c,mode,side)=>NEWBIE?(side==="s"?[]:(nbIndex(mode)[c.id]||[])):(c.tiers?.[mode]?.[side]||[]);
-function setNewbie(on){ NEWBIE=!!on; try{ localStorage.setItem("pyo-newbie",NEWBIE?"1":"0"); }catch(e){} applyNewbie(); }
+function setNewbie(on,fromServer){ NEWBIE=!!on; try{ localStorage.setItem("pyo-newbie",NEWBIE?"1":"0"); }catch(e){} applyNewbie(); if(!fromServer&&ME&&!ME.mustChange) syncUp(); }  // 회원은 서버에도 저장
 function applyNewbie(){ const b=$("#nbBadge"); if(b) b.hidden=!NEWBIE; NB_T={}; TANK_BEST=null;
   if(!DEX) return;
   ["raid","dmax","pvp"].forEach(id=>{ $("#p-"+id).dataset.ready=""; renderBoard(id); });
