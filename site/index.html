@@ -553,6 +553,27 @@ body{padding-bottom:86px}
 .subtabs button{white-space:nowrap;flex:1 0 auto;padding-left:10px;padding-right:10px}
 #v-card .sugg{margin-top:0}
 .oldmv{font-size:9.5px;font-weight:700;color:#0b2124;background:var(--amber);border-radius:4px;padding:0 4px;margin-left:3px;vertical-align:1px}
+/* ---- 더보기 메뉴 (아래 탭 위로 펼침) ---- */
+.tabbar{flex-direction:column;align-items:center}
+.moremenu{pointer-events:auto;width:100%;max-width:760px;display:flex;flex-direction:column;align-items:flex-end;margin-bottom:6px}
+.moremenu[hidden]{display:none}
+.mmbox{width:min(300px,100%);background:#1b2130;border:1px solid #5d6680;border-radius:14px;overflow:hidden;box-shadow:0 12px 26px rgba(0,0,0,.6)}
+.mmbox .mmrow{appearance:none;display:block;width:100%;box-sizing:border-box;text-align:left;border:0;border-bottom:1px solid #343c50;border-radius:0;background:none;color:#e6ebf5;font:inherit;padding:11px 14px;cursor:pointer;text-decoration:none;box-shadow:none}
+.mmbox .mmrow b{display:block;font-size:14px;color:#e6ebf5}
+.mmbox .mmrow span{display:block;font-size:11px;color:#98a2b8;margin-top:2px}
+.mmbox .mmrow.on{background:#22303a;box-shadow:inset 3px 0 0 var(--ink)}
+.mmbox .mmrow.on b{color:var(--ink)}
+.mmbox .mmrow em{font-style:normal;font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 7px;margin-left:5px;background:#3a4256;color:#c8d0e0;vertical-align:1px}
+.mmbox .mmrow em.on{background:var(--amber);color:#0b2124}
+.mmbox .fan{padding:9px 14px 10px;font-size:10.5px;color:#8a93a8}
+.moremenu .stale{width:min(300px,100%);box-sizing:border-box;margin:0 0 6px;background:#1b2130}
+.tabbar.mopen .tabbar-in button[data-nav=more]{color:#0b2124;background:var(--ink)}
+.gcard li .nbbadge{color:#0b2124}
+.nbcard{border:1px solid var(--faint);border-radius:12px;background:rgba(0,0,0,.25);margin-bottom:12px}
+.nbsw{position:relative;padding:14px 76px 14px 14px}
+.nbsw b{display:block;font-size:16px}
+.nbsw span{display:block;font-size:12px;color:var(--dim);margin-top:3px}
+.nbsw .swt{position:absolute;right:14px;top:50%;transform:translateY(-50%)}
 /* ---- 더보기 ---- */
 .mlist{border:1px solid var(--faint);border-radius:12px;overflow:hidden;margin-bottom:12px;background:rgba(0,0,0,.25)}
 .mrowb{appearance:none;width:100%;border:0;border-bottom:1px solid var(--faint);background:none;color:var(--ink);font:inherit;text-align:left;padding:13px 40px 12px 14px;cursor:pointer;display:block;position:relative;text-decoration:none}
@@ -663,7 +684,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.2</small></button><span class="nbbadge" id="nbBadge" hidden>뉴비모드</span><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.3</small></button><span class="nbbadge" id="nbBadge" hidden>뉴비모드</span><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -716,12 +737,12 @@ body{padding-bottom:86px}
     <section class="view" id="v-admin"></section>
     <section class="view" id="v-rocket"></section>
     <section class="view" id="v-guide"></section>
-    <section class="view" id="v-more"></section>
+    <section class="view" id="v-newbie"></section>
     <div class="mobnote">이 페이지는 모바일 환경에 최적화 되어있습니다.</div>
 
   </div>
 </div>
-<nav class="tabbar" id="tabbar"><div class="tabbar-in">
+<nav class="tabbar" id="tabbar"><div class="moremenu" id="moremenu" hidden></div><div class="tabbar-in">
   <button data-nav="pokemon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M9 17h6"/></svg>카드</button>
   <button data-nav="tier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>티어</button>
   <button data-nav="strat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>공략</button>
@@ -804,25 +825,26 @@ const LEAGUE_ICON={
 const lgSvg=(k,c)=>`<svg viewBox="0 0 24 24" style="color:${c}" aria-hidden="true">${LEAGUE_ICON[k]}</svg>`;
 
 // ===== 라우팅 =====
-const VIEWS=["home","card","dex","type","rocket","raid","dmax","pvp","boxparty","boxdust","boxcap","boxlist","intro","guide","more","me","admin"];
+const VIEWS=["home","card","dex","type","rocket","raid","dmax","pvp","boxparty","boxdust","boxcap","boxlist","intro","guide","newbie","me","admin"];
 // 아래 탭(5개) → 하위 탭 묶음 (마지막으로 본 하위 탭을 기억). 새 기능은 공략·더보기 안에 넣는다.
 const GROUPS={ pokemon:{subs:[["card","포켓몬 검색"],["dex","도감"]],last:"card"},
                tier:{subs:[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀리그"]],last:"raid"},
                strat:{subs:[["type","상성표"],["rocket","로켓단"]],last:"type"},
                my:{subs:[["boxparty","파티 추천"],["boxdust","강화 효율"],["boxcap","은뚜껑 추천"],["boxlist","내 포켓몬"],["me","내 정보"]],last:"boxparty"},
-               more:{subs:[["more","더보기"],["home","일정"],["guide","왕초보 가이드"],["intro","회원 기능 소개"]],last:"more"} };
+               more:{subs:[["home","일정"],["guide","왕초보 가이드"],["intro","회원 기능 소개"],["newbie","뉴비모드"]],last:"home"} };  // 더보기: 하위 탭 없이 위로 펼치는 메뉴(toggleMore)
 const GUEST_SUBS=GROUPS.my.subs.filter(([k])=>k!=="me"); // 비회원: 내 정보(로그인) 탭 없음 — 로그인은 맨 위 버튼으로
 const isMem=()=>!!(ME&&!ME.mustChange);
 // 주소 #p=포켓몬id 는 포켓몬 카드 화면 (카드 링크를 보내면 그 포켓몬이 바로 열림)
 const hv=()=>{ const h=location.hash.slice(1); return h.startsWith("p=")?"card":h; };
 function closeMenu(){ const h=$("#hsugg"); if(h) h.innerHTML=""; }
-const groupOf=v=>v==="admin"?"more":Object.keys(GROUPS).find(g=>GROUPS[g].subs.some(([k])=>k===v));
+const groupOf=v=>v==="admin"?"my":Object.keys(GROUPS).find(g=>GROUPS[g].subs.some(([k])=>k===v));
 function show(){
   let v=hv(); if(GROUPS[v]&&!VIEWS.includes(v)) v=GROUPS[v].last; if(!VIEWS.includes(v)) v="card";
   let g=groupOf(v), subs=g?GROUPS[g].subs:[];
   if(!isMem()&&v==="me"){ g=null; subs=[]; }   // 비회원 로그인 화면: 하위 탭 없이 따로
   else if(!isMem()&&g==="my"){ GROUPS.my.last=v; subs=GUEST_SUBS; }   // 비회원: 회원 기능 탭은 보이되 내용은 안내만
-  else if(g){ if(v!=="admin") GROUPS[g].last=v; if(g==="more"&&ME&&ME.admin) subs=subs.concat([["admin","관리자"]]); }
+  else if(g==="more") subs=[];   // 더보기 안 화면은 각각 따로 된 페이지
+  else if(g){ if(v!=="admin") GROUPS[g].last=v; }
   VIEWS.forEach(x=>$("#v-"+x).classList.toggle("on",x===v));
   document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("on",b.dataset.nav===g));
   $("#subnav").innerHTML=subs.map(([k,l])=>`<button data-go="${k}" class="${k===v?"on":""}">${l}</button>`).join("");
@@ -836,7 +858,8 @@ function show(){
   if(v==="intro") renderIntro();
   if(v==="rocket") renderRocket();
   if(v==="guide") renderGuide();
-  if(v==="more") renderMore();
+  if(v==="newbie") renderNewbie();
+  closeMore();
   $("#acctBtn").classList.toggle("on",v==="me");
   if(v==="card"&&CUR_ID&&location.hash!=="#p="+CUR_ID){ try{ history.replaceState(null,"","#p="+CUR_ID); }catch(e){} }
   window.scrollTo(0,0);
@@ -844,7 +867,8 @@ function show(){
 function go(v){ if(GROUPS[v]&&!VIEWS.includes(v)) v=GROUPS[v].last; if(hv()===v) show(); else location.hash=v; }
 document.addEventListener("click",e=>{
   if(!e.target.closest(".hsearch")) closeMenu();
-  const nb=e.target.closest("[data-nav]"); if(nb){ const k=nb.dataset.nav; go(k==="my"?(!isMem()&&GROUPS.my.last==="me"?"boxparty":GROUPS.my.last):k==="more"?"more":k); return; }
+  if(!e.target.closest("#tabbar")) closeMore();
+  const nb=e.target.closest("[data-nav]"); if(nb){ const k=nb.dataset.nav; if(k==="more"){ toggleMore(); return; } closeMore(); go(k==="my"?(!isMem()&&GROUPS.my.last==="me"?"boxparty":GROUPS.my.last):k); return; }
   const g=e.target.closest("[data-go]"); if(g){ go(g.dataset.go); return; }
   const bo=e.target.closest("[data-boss]"); if(bo){ openBoss(bo.dataset.boss,bo.dataset.bm); return; }
   const p=e.target.closest("[data-poke]"); if(p){ openCard(p.dataset.poke); go("card"); }
@@ -1534,7 +1558,7 @@ function renderMe(){
   const pg=root.querySelector("#pwGo"); if(pg) pg.onclick=async()=>{ const o=root.querySelector("#pwOld")?.value||"",n=root.querySelector("#pwNew").value,err=root.querySelector("#pwErr"),first=ME.mustChange;
     if(n!==root.querySelector("#pwNew2").value){ err.textContent="새 비밀번호 확인이 달라요."; return; }
     try{ setMe(await api("password",{method:"POST",body:JSON.stringify({old:o,password:n})})); await syncDown(); renderMe(); alertBox(first?"비밀번호를 정했어요. 이제 회원기능을 쓸 수 있어요.":"비밀번호를 바꿨어요. 다른 기기는 로그아웃됐어요."); }catch(e){ err.textContent=e.message; } };
-  const lo=root.querySelector("#lgOut"); if(lo) lo.onclick=()=>{ api("logout",{method:"POST",body:"{}"}).catch(()=>{}); setMe(null); renderMe(); };
+  const lo=root.querySelector("#lgOut"); if(lo) lo.onclick=()=>{ api("logout",{method:"POST",body:"{}"}).catch(()=>{}); setMe(null); renderMe(); alertBox("로그아웃되었습니다."); };
   const da=root.querySelector("#delAcct"); if(da) da.onclick=()=>confirmBox("탈퇴하면 서버에 저장된 계정과 포켓몬 데이터가 모두 지워져요. 계속할까요?",async()=>{ try{ await api("account",{method:"DELETE",body:"{}"}); setMe(null); renderMe(); }catch(e){ alertBox(e.message); } });
   bindBoxSection(root);
 }
@@ -2158,26 +2182,41 @@ function renderGuide(){
     "맨 위 <b>검색창</b>에 이름을 넣으면 그 포켓몬의 티어 · 추천 스킬 · 100% CP가 나와요.",
     "<b>티어</b>에서 타입별로 누가 강한지 봐요. SS가 가장 높아요.",
     "<b>더보기 → 뉴비모드</b>를 켜면 메가 · 그림자 · 거다이맥스를 빼고 보여 줘요."],"",
-    go("tier","티어리스트")+go("more","더보기"))}
+    go("tier","티어리스트")+go("newbie","뉴비모드"))}
   <div class="note">아이템 그림: PokeMiners · 포켓몬 그림: PokeAPI</div>`;
 }
 
-// ===== 더보기 =====
+// ===== 더보기 (아래 탭 → 위로 펼치는 메뉴, v3.3) =====
+// 더보기 안의 화면(일정·가이드·회원 기능 소개·뉴비모드)은 하위 탭 없이 각각 따로 된 페이지.
 const daysOld=d=>{ const t=Date.parse(d); return isNaN(t)?0:Math.floor((Date.now()-t)/864e5); };
-function renderMore(){
-  const root=$("#v-more"); if(!root) return;
-  const row=(v,t,d)=>`<button class="mrowb" data-go="${v}"><b>${t}</b><span>${d}</span><i>›</i></button>`;
+function closeMore(){ const m=$("#moremenu"); if(m){ m.hidden=true; m.innerHTML=""; } $("#tabbar")?.classList.remove("mopen"); }
+function toggleMore(){
+  const m=$("#moremenu"); if(!m) return; if(!m.hidden){ closeMore(); return; }
+  const v=hv(), row=(k,t,d)=>`<button class="mmrow${v===k?" on":""}" data-go="${k}"><b>${t}</b><span>${d}</span></button>`;
   const stale=[]; if(DEX&&daysOld(DEX.updated)>10) stale.push("도감 · 티어"); if(EVENTS&&FEED_UPDATED&&daysOld(FEED_UPDATED)>3) stale.push("일정");
-  root.innerHTML=`${stale.length?`<div class="stale">${stale.join(" · ")} 정보가 오래됐을 수 있어요.</div>`:""}
-    <div class="mlist">
-      ${row("home","일정","지금 잡을 포켓몬 · 진행 중인 이벤트")}
-      ${row("guide","왕초보 가이드","처음 시작했다면 이것만")}
-      ${row("intro","회원 기능 소개","내 포켓몬 기준 추천 기능")}
-      ${ME&&ME.admin?row("admin","관리자 페이지","계정 · 회원 관리"):""}
-    </div>
-    <div class="mlist"><div class="mrowb sw"><b>뉴비모드</b><span>메가 · 그림자 · 거다이맥스를 빼고 보여 줘요</span><button class="swt${NEWBIE?" on":""}" id="nbSw" role="switch" aria-checked="${NEWBIE}"><i></i></button></div></div>
-    <div class="mlist"><a class="mrowb" href="mailto:hhhpyoxx@gmail.com?subject=${encodeURIComponent("PYOkemongo 의견")}"><b>의견 보내기</b><span>고쳤으면 하는 점이나 틀린 정보를 알려 주세요</span><i>›</i></a></div>
-    <div class="fan">PYOkemongo는 개인이 만든 비공식 팬 사이트예요. 포켓몬 · Pokémon GO의 이름과 그림에 대한 권리는 각 권리자에게 있어요.</div>`;
+  m.innerHTML=`${stale.length?`<div class="stale">${stale.join(" · ")} 정보가 오래됐을 수 있어요.</div>`:""}<div class="mmbox">
+    ${row("home","일정","지금 잡을 포켓몬 · 진행 중인 이벤트")}
+    ${row("guide","왕초보 가이드","처음 시작했다면 이것만")}
+    ${row("intro","회원 기능 소개","내 포켓몬 기준 추천 기능")}
+    ${row("newbie",`뉴비모드 <em class="${NEWBIE?"on":""}">${NEWBIE?"켜짐":"꺼짐"}</em>`,"메가 · 그림자 · 거다이맥스를 빼고 보기")}
+    <a class="mmrow" href="mailto:hhhpyoxx@gmail.com?subject=${encodeURIComponent("PYOkemongo 의견")}"><b>의견 보내기</b><span>고쳤으면 하는 점이나 틀린 정보를 알려 주세요</span></a>
+    <div class="fan">PYOkemongo는 개인이 만든 비공식 팬 사이트예요. 포켓몬 · Pokémon GO의 이름과 그림에 대한 권리는 각 권리자에게 있어요.</div></div>`;
+  m.hidden=false; $("#tabbar").classList.add("mopen");
+}
+// 뉴비모드 설명 + 켜고 끄기
+function renderNewbie(){
+  const root=$("#v-newbie"); if(!root) return;
+  root.innerHTML=`<div class="head"><h2>뉴비모드</h2></div>
+    <div class="nbcard"><div class="nbsw"><div><b>뉴비모드</b><span>${NEWBIE?"켜져 있어요":"꺼져 있어요"}</span></div><button class="swt${NEWBIE?" on":""}" id="nbSw" role="switch" aria-checked="${NEWBIE}" aria-label="뉴비모드"><i></i></button></div></div>
+    <div class="gcard"><h3><span>?</span>뉴비모드가 뭔가요?</h3><ul>
+      <li>포켓몬고를 막 시작한 분을 위해 <b>지금 바로 구하기 쉬운 포켓몬</b> 위주로 보여 주는 모드예요.</li>
+      <li>켜면 <b>메가 · 원시회귀 · 그림자 · 거다이맥스</b> 포켓몬을 빼고 티어를 다시 매겨요.</li>
+      <li>전설 · 환상 포켓몬과 레거시 기술은 그대로 보여 줘요.</li>
+      <li>어려운 말 몇 개를 쉽게 바꿔요. <b>ER → 점수</b>, <b>TDO → 총딜</b></li></ul></div>
+    <div class="gcard"><h3><span>✓</span>어디에 적용되나요?</h3><ul>
+      <li>포켓몬 카드 · 티어리스트 · 상성표 · 로켓단 · 일정 · 내 포켓몬 추천</li>
+      <li>켜 두면 화면 맨 위 로고 옆에 <span class="nbbadge" style="vertical-align:1px">뉴비모드</span> 표시가 떠요.</li>
+      <li>이 기기(브라우저)에 저장돼서 다음에 와도 그대로예요.</li></ul></div>`;
   $("#nbSw").onclick=()=>setNewbie(!NEWBIE);
 }
 
@@ -2195,7 +2234,7 @@ fetch("data/pokedex.json").then(r=>{ if(!r.ok) throw new Error(r.status); return
   if(location.hash.slice(1).startsWith("box")) renderBox(location.hash.slice(1));
   if(location.hash.slice(1)==="intro") renderIntro();
   if(hv()==="rocket") renderRocket();
-  if(hv()==="more") renderMore();
+  if(hv()==="newbie") renderNewbie();
   renderType();
   renderHome();
 }).catch(err=>{
