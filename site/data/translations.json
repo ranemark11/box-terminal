@@ -26,5 +26,11 @@
   "title": "아디다스 × 포켓몬 시간제한 리서치",
   "desc": "아디다스와 협업하여 진행하는 특별한 리서치입니다.",
   "pokemon": []
+ },
+ "pokemon-latin-america-international-championships-2027-timed-research-twitch-drops": {
+  "id": "pokemon-latin-america-international-championships-2027-timed-research-twitch-drops",
+  "title": "2027 포켓몬 라틴아메리카 인터내셔널 챔피언십 트위치 드롭스",
+  "desc": "대회 라이브 방송을 시청하고 시간제한 리서치 획득",
+  "pokemon": []
  }
 }
