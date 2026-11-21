@@ -32,5 +32,11 @@
   "title": "2027 포켓몬 라틴아메리카 인터내셔널 챔피언십 트위치 드롭스",
   "desc": "대회 라이브 방송을 시청하고 시간제한 리서치 획득",
   "pokemon": []
+ },
+ "december-communityday2026": {
+  "id": "december-communityday2026",
+  "title": "2026년 12월 커뮤니티 데이",
+  "desc": "2026년 12월 커뮤니티 데이 이벤트가 진행됩니다.",
+  "pokemon": []
  }
 }
