@@ -602,6 +602,9 @@ async function main() {
   else if (items.length) { if (log[0]?.d === today) log[0].items.push(...items); else log.unshift({ d: today, items }); }
   const waiting = (gm.pokemon || []).filter(p => isMega(p) && (p.extraChargedMoves || []).some(m => /_PLUS$/.test(m)) && !plusPve[p.speciesId])
     .map(p => ({ n: koName(p), m: p.extraChargedMoves.filter(m => /_PLUS$/.test(m)).map(mv).join(", ") }));
+  // 일반 기술도: 배우는 포켓몬은 있는데 레이드 수치가 없는 것 (예: 대도각참 도각참)
+  for (const id of missingPve) { const who = mons.filter(p => !isShadow(p) && !isMega(p) && [...(p.fastMoves || []), ...(p.chargedMoves || [])].includes(id)).map(koName);
+    if (who.length) waiting.push({ n: who.slice(0, 3).join(", ") + (who.length > 3 ? ` 외 ${who.length - 3}` : ""), m: mv(id) }); }
   await writeFile("site/data/changes.json", JSON.stringify({ checked: today, waiting, log: log.slice(0, 60) }, null, 1));
   await mkdir("scripts/state", { recursive: true });
   await writeFile("scripts/state/snapshot.json", JSON.stringify(snap));
