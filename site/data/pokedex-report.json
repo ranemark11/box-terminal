@@ -1,5 +1,7 @@
 {
- "warnings": [],
+ "warnings": [
+  "PvE 수치 없는 기술 1개: KOWTOW_CLEAVE"
+ ],
  "counts": {
   "plusMoves": {
    "raichu_mega_x": "VOLT_TACKLE_PLUS",
@@ -1276,7 +1278,7 @@
     "mv": "전기쇼크 · 더블펀처* · 폭발펀치",
     "score": 93.9,
     "sp": 1858,
-    "rating": 408,
+    "rating": 389,
     "p": 100,
     "t": "S+"
    },
@@ -1287,7 +1289,7 @@
     "mv": "용의숨결 · 문포스* · 화염방사",
     "score": 92.8,
     "sp": 2168,
-    "rating": 378,
+    "rating": 358,
     "p": 99,
     "t": "S+"
    },
@@ -1300,11 +1302,12 @@
     "mv": "불꽃세례* · 웨더볼(불꽃) · 에너지볼*",
     "score": 92.6,
     "sp": 1954,
-    "rating": 400,
+    "rating": 379,
     "p": 99,
     "t": "S+"
    }
   ]
  },
- "bytes": 857869
+ "changes": 41,
+ "bytes": 857891
 }
