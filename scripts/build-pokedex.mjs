@@ -588,10 +588,10 @@ async function main() {
   }
   // 티어 변동 (전체 티어리스트, 모습별)
   if (prevDex?.tl) for (const [mode, label] of [["raid", "레이드"], ["dmax", "다이맥스"]]) {
-    const key = r => r.n + ((r.tg || []).includes("p") ? "+" : "");
+    const key = r => [r.n, ...(r.tg || [])].join("|");
     const before = Object.fromEntries((prevDex.tl[mode] || []).map(r => [key(r), r.t]));
     const tv = [];
-    for (const r of tl[mode] || []) { const b = before[key(r)]; if (b !== r.t && (b || r.t)) tv.push({ k: "tier", id: r.id, txt: `${label} ${r.n}${(r.tg || []).includes("p") ? " (+기술MAX)" : ""}: ${b || "—"} → ${r.t || "—"}` }); }
+    for (const r of tl[mode] || []) { const b = before[key(r)]; if (b !== r.t && (b || r.t)) tv.push({ k: "tier", id: r.id, txt: `${label} ${(r.tg || []).includes("s") ? "그림자 " : ""}${r.n}${(r.tg || []).includes("p") ? " (+기술MAX)" : ""}: ${b || "—"} → ${r.t || "—"}` }); }
     items.push(...tv.slice(0, 40));
     if (tv.length > 40) items.push({ k: "tier", txt: `${label} 티어 변동 ${tv.length - 40}개 더` });
   }
