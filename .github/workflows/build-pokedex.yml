@@ -2,7 +2,7 @@ name: 포켓몬 도감 갱신
 
 on:
   schedule:
-    - cron: "47 19 * * 0"   # 매주 월요일 04:47 (한국 시간)
+    - cron: "47 19 * * *"   # 매일 04:47 (한국 시간). 바뀐 게 없으면 커밋하지 않음
   push:
     branches: [main]
     paths: ["scripts/build-pokedex.mjs", "scripts/dynamax.json"]
@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: data-commit
@@ -29,8 +30,16 @@ jobs:
         run: |
           git config user.name "box-terminal-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add site/data
+          git add site/data scripts/state
           git diff --cached --quiet && exit 0
           git commit -m "도감 데이터 갱신 $(date -u +%F)"
           git pull --rebase origin main
           git push
+      - name: 바뀐 기술·포켓몬이 있으면 알림(이슈)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          f="$RUNNER_TEMP/pyo-changes.md"
+          [ -f "$f" ] || exit 0
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "게임 데이터 변경 $(TZ=Asia/Seoul date +%F)" --body-file "$f" --assignee ranemark11 \
+            || gh issue create --repo "$GITHUB_REPOSITORY" --title "게임 데이터 변경 $(TZ=Asia/Seoul date +%F)" --body-file "$f"

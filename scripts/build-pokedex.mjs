@@ -545,6 +545,72 @@ async function main() {
   report.sample = { tyranitar: cards.tyranitar, raidDragonTop5: raid.dragon.slice(0, 5), dmaxFireTop3: dmax.fire.slice(0, 3), greatTop3: pvp.great.slice(0, 3) };
 
   await mkdir("site/data", { recursive: true });
+  // 지난번 도감과 내용이 같으면(날짜만 다르면) 파일을 그대로 둠 → 매일 돌아도 쓸데없는 커밋이 안 생김
+  const prevDex = await readFile("site/data/pokedex.json", "utf8").then(JSON.parse).catch(() => null);
+  if (prevDex && JSON.stringify({ ...prevDex, updated: 0 }) === JSON.stringify({ ...out, updated: 0 })) out.updated = prevDex.updated;
+
+  // ---- 바뀐 점 찾기 (업데이트 페이지 · 알림용) ----
+  const snap = {
+    mons: Object.fromEntries(mons.filter(p => !isShadow(p)).map(p => [p.speciesId, koName(p)])),
+    moves: Object.fromEntries(Object.keys(pvpMove).map(id => [id, { n: moveKo(id), t: moveType(id) || "", pvp: [pvpMove[id].power, pvpMove[id].energy || pvpMove[id].energyGain || 0],
+      raid: pve[id] ? [pve[id].power, pve[id].energy, pve[id].dur] : null }])),
+    learn: Object.fromEntries(mons.filter(p => !isShadow(p)).map(p => [p.speciesId, { f: p.fastMoves || [], c: p.chargedMoves || [], e: p.eliteMoves || [], x: (p.extraChargedMoves || []).filter(m => /_PLUS$/.test(m)) }])),
+    plusRaid: Object.fromEntries(Object.entries(plusPve).map(([k, v]) => [k, v.basePower]))
+  };
+  const prevSnap = await readFile("scripts/state/snapshot.json", "utf8").then(JSON.parse).catch(() => null);
+  const items = [], TK = t => TYPE_KO[t] || t;
+  const mn = id => snap.mons[id] || prevSnap?.mons?.[id] || id;
+  const mv = id => snap.moves[id]?.n || prevSnap?.moves?.[id]?.n || moveKo(id);
+  if (prevSnap) {
+    for (const id of Object.keys(snap.mons)) if (!prevSnap.mons[id]) items.push({ k: "mon", id: cards[id] ? id : baseIdOf({ speciesId: id }), txt: `새 포켓몬: ${mn(id)}` });
+    for (const [id, m] of Object.entries(snap.moves)) {
+      const o = prevSnap.moves[id];
+      if (!o) { items.push({ k: "move", txt: `새 기술: ${m.n}${m.t ? ` (${TK(m.t)})` : ""}${m.raid ? "" : " · 레이드 수치 아직 없음"}` }); continue; }
+      const ch = [];
+      const diff = (lab, a, b, names, unit = []) => { const d = names.map((nm, i) => a[i] !== b[i] ? `${nm} ${a[i]}→${b[i]}${unit[i] || ""}` : null).filter(Boolean); if (d.length) ch.push(`${lab} ${d.join(", ")}`); };
+      if (o.raid && m.raid) diff("레이드", o.raid, m.raid, ["위력", "에너지", "시간"], ["", "", "초"]);
+      if (!o.raid && m.raid) ch.push(`레이드 수치 생김 (위력 ${m.raid[0]})`);
+      diff("배틀", o.pvp, m.pvp, ["위력", "에너지"]);
+      if (ch.length) items.push({ k: "num", txt: `기술 수치 변경: ${m.n} — ${ch.join(" · ")}` });
+    }
+    for (const [id, l] of Object.entries(snap.learn)) {
+      const o = prevSnap.learn[id]; if (!o) continue;
+      const all = x => [...x.f, ...x.c], before = new Set(all(o)), now = new Set(all(l));
+      const add = [...now].filter(m => !before.has(m)), del = [...before].filter(m => !now.has(m));
+      const cid = cards[id] ? id : baseIdOf({ speciesId: id });
+      if (add.length) items.push({ k: "learn", id: cid, txt: `${mn(id)}: 새로 배우는 기술 ${add.map(m => mv(m) + (l.e.includes(m) ? "(레거시)" : "")).join(", ")}` });
+      if (del.length) items.push({ k: "learn", id: cid, txt: `${mn(id)}: 못 배우게 된 기술 ${del.map(mv).join(", ")}` });
+      const px = l.x.filter(m => !o.x.includes(m));
+      if (px.length) items.push({ k: "plus", id: cid, txt: `${mn(id)}: 메가 플러스 기술 ${px.map(mv).join(", ")} 추가${snap.plusRaid[id] ? "" : " · 레이드 수치 아직 없음"}` });
+    }
+    for (const [id, pw] of Object.entries(snap.plusRaid)) if (prevSnap.plusRaid[id] === undefined && snap.learn[id]?.x?.length)
+      items.push({ k: "ready", id: baseIdOf({ speciesId: id }), txt: `${mn(id)} ${snap.learn[id].x.map(mv).join(", ")}: 레이드 수치가 생겨서 티어에 반영됐어요` });
+  }
+  // 티어 변동 (전체 티어리스트, 모습별)
+  if (prevDex?.tl) for (const [mode, label] of [["raid", "레이드"], ["dmax", "다이맥스"]]) {
+    const key = r => r.n + ((r.tg || []).includes("p") ? "+" : "");
+    const before = Object.fromEntries((prevDex.tl[mode] || []).map(r => [key(r), r.t]));
+    const tv = [];
+    for (const r of tl[mode] || []) { const b = before[key(r)]; if (b !== r.t && (b || r.t)) tv.push({ k: "tier", id: r.id, txt: `${label} ${r.n}${(r.tg || []).includes("p") ? " (+기술MAX)" : ""}: ${b || "—"} → ${r.t || "—"}` }); }
+    items.push(...tv.slice(0, 40));
+    if (tv.length > 40) items.push({ k: "tier", txt: `${label} 티어 변동 ${tv.length - 40}개 더` });
+  }
+  const today = new Date(Date.now() + 9 * 36e5).toISOString().slice(0, 10);
+  const prevChg = await readFile("site/data/changes.json", "utf8").then(JSON.parse).catch(() => ({ log: [] }));
+  const log = prevChg.log || [];
+  if (!prevSnap) log.unshift({ d: today, items: [{ k: "start", txt: "게임 데이터 변경 추적을 시작했어요" }] });
+  else if (items.length) { if (log[0]?.d === today) log[0].items.push(...items); else log.unshift({ d: today, items }); }
+  const waiting = (gm.pokemon || []).filter(p => isMega(p) && (p.extraChargedMoves || []).some(m => /_PLUS$/.test(m)) && !plusPve[p.speciesId])
+    .map(p => ({ n: koName(p), m: p.extraChargedMoves.filter(m => /_PLUS$/.test(m)).map(mv).join(", ") }));
+  await writeFile("site/data/changes.json", JSON.stringify({ checked: today, waiting, log: log.slice(0, 60) }, null, 1));
+  await mkdir("scripts/state", { recursive: true });
+  await writeFile("scripts/state/snapshot.json", JSON.stringify(snap));
+  report.changes = items.length;
+  // 알림용 글 (Actions가 GitHub 이슈로 올림; 티어 변동만 있으면 알림 안 함)
+  const notable = items.filter(i => i.k !== "tier");
+  if (notable.length && process.env.RUNNER_TEMP)
+    await writeFile(process.env.RUNNER_TEMP + "/pyo-changes.md", `${today} 게임 데이터에서 바뀐 점이에요. 사이트 업데이트 페이지: https://pogo.hhhpyo.cloud/#updates\n\n` + items.map(i => "- " + i.txt).join("\n") + "\n");
+
   const json = JSON.stringify(out);
   await writeFile("site/data/pokedex.json", json);
   report.bytes = json.length;

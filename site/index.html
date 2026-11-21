@@ -635,6 +635,13 @@ body{padding-bottom:86px}
 .gev .gwhen{font-size:12.5px;color:var(--amber);margin:-4px 0 7px;font-weight:700}
 .gev.flash{animation:gflash 1.6s ease-out}
 @keyframes gflash{0%,40%{box-shadow:0 0 0 2px var(--amber);background:rgba(255,200,90,.14)}100%{box-shadow:none}}
+.upd h3{font-family:VT323,monospace;font-size:20px;color:var(--amber)}
+.upd .updk{font-size:12px;font-weight:700;color:var(--ink);margin:8px 0 3px}
+.upd .updk span{font-weight:400;color:var(--dim)}
+.upd li a{color:inherit;text-decoration:underline dotted;cursor:pointer}
+.upd.wait{border-color:var(--amber)}
+.updnote{font-size:11.5px;color:var(--dim);margin-top:6px;line-height:1.5}
+.updchk{font-size:11.5px;color:var(--dim);white-space:nowrap}
 .ggrp{font-size:12px;color:var(--dim);margin:14px 2px 6px;font-weight:700}
 .evq{appearance:none;border:1px solid var(--dim);background:none;color:var(--dim);border-radius:50%;width:18px;height:18px;padding:0;font:inherit;font-size:11px;font-weight:700;line-height:16px;cursor:pointer;margin-left:5px;vertical-align:1px;flex:none}
 .gbtns button{appearance:none;border:1px solid var(--ink);background:none;color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
@@ -698,7 +705,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.11</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.12</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -751,6 +758,7 @@ body{padding-bottom:86px}
     <section class="view" id="v-admin"></section>
     <section class="view" id="v-rocket"></section>
     <section class="view" id="v-guide"></section>
+    <section class="view" id="v-updates"></section>
     <div class="mobnote">이 페이지는 모바일 환경에 최적화 되어있습니다.</div>
 
   </div>
@@ -834,13 +842,13 @@ const LEAGUE_ICON={
 const lgSvg=(k,c)=>`<svg viewBox="0 0 24 24" style="color:${c}" aria-hidden="true">${LEAGUE_ICON[k]}</svg>`;
 
 // ===== 라우팅 =====
-const VIEWS=["home","card","dex","type","rocket","raid","dmax","pvp","boxparty","boxdust","boxcap","boxlist","intro","guide","me","admin"];
+const VIEWS=["home","card","dex","type","rocket","raid","dmax","pvp","boxparty","boxdust","boxcap","boxlist","intro","guide","updates","me","admin"];
 // 아래 탭(5개) → 하위 탭 묶음 (마지막으로 본 하위 탭을 기억). 새 기능은 공략·더보기 안에 넣는다.
 const GROUPS={ pokemon:{subs:[["card","포켓몬 검색"],["dex","도감"]],last:"card"},
                tier:{subs:[["raid","레이드"],["dmax","다이맥스"],["pvp","배틀리그"]],last:"raid"},
                strat:{subs:[["type","상성표"],["rocket","로켓단"]],last:"type"},
                my:{subs:[["boxparty","파티 추천"],["boxdust","강화 효율"],["boxcap","은뚜껑 추천"],["boxlist","내 포켓몬"],["me","내 정보"]],last:"boxparty"},
-               more:{subs:[["home","일정"],["guide","왕초보 가이드"],["intro","회원 기능 소개"]],last:"home"} };  // 더보기: 하위 탭 없이 위로 펼치는 메뉴(toggleMore)
+               more:{subs:[["home","일정"],["guide","왕초보 가이드"],["intro","회원 기능 소개"],["updates","업데이트"]],last:"home"} };  // 더보기: 하위 탭 없이 위로 펼치는 메뉴(toggleMore)
 const GUEST_SUBS=GROUPS.my.subs.filter(([k])=>k!=="me"); // 비회원: 내 정보(로그인) 탭 없음 — 로그인은 맨 위 버튼으로
 const isMem=()=>!!(ME&&!ME.mustChange);
 // 주소 #p=포켓몬id 는 포켓몬 카드 화면 (카드 링크를 보내면 그 포켓몬이 바로 열림)
@@ -867,6 +875,7 @@ function show(){
   if(v==="intro") renderIntro();
   if(v==="rocket") renderRocket();
   if(v==="guide") renderGuide();
+  if(v==="updates") renderUpdates();
   closeMore();
   $("#acctBtn").classList.toggle("on",v==="me");
   if(v==="card"&&CUR_ID&&location.hash!=="#p="+CUR_ID){ try{ history.replaceState(null,"","#p="+CUR_ID); }catch(e){} }
@@ -2274,6 +2283,26 @@ function renderGuideBasic(root){
   <div class="note">아이템 그림: PokeMiners · 포켓몬 그림: PokeAPI</div>`;
 }
 
+// ===== 업데이트 (게임 데이터 변경 기록, data/changes.json — 빌드 스크립트가 매일 비교해서 씀) =====
+let CHG=null, UPD_ALL=false, UPD_TIER={};
+const UPD_KIND=[["mon","새 포켓몬",/^새 포켓몬: /],["move","새 기술",/^새 기술: /],["plus","메가 플러스 기술",null],["ready","레이드 수치 생김",null],["learn","배우는 기술 변화",null],["num","기술 수치 변경",/^기술 수치 변경: /],["tier","티어 변동",null],["start","",null]];
+function renderUpdates(){
+  const root=$("#v-updates"); if(!root) return;
+  if(!CHG){ root.innerHTML='<div class="empty">불러오는 중…</div>'; return; }
+  const li=i=>`<li>${i.id&&CARDS[i.id]?`<a data-poke="${esc(i.id)}">${esc(i.txt.replace(UPD_KIND.find(k=>k[0]===i.k)?.[2]||/^$/,""))}</a>`:esc(i.txt.replace(UPD_KIND.find(k=>k[0]===i.k)?.[2]||/^$/,""))}</li>`;
+  const day=e=>`<div class="gcard upd"><h3>${esc(e.d)}</h3>${UPD_KIND.map(([k,lab])=>{ const its=e.items.filter(i=>i.k===k); if(!its.length) return "";
+      const many=k==="tier"&&its.length>5&&!UPD_TIER[e.d], shown=many?its.slice(0,5):its;
+      return `${lab?`<div class="updk">${lab}${its.length>1?` <span>${its.length}</span>`:""}</div>`:""}<ul>${shown.map(li).join("")}</ul>${many?`<button class="evmore" data-updt="${esc(e.d)}">티어 변동 ${its.length-5}개 더 보기</button>`:""}`; }).join("")}</div>`;
+  const log=CHG.log||[], shown=UPD_ALL?log:log.slice(0,10);
+  root.innerHTML=`<p class="intro-top">게임 데이터에서 <b>바뀐 점</b>을 모아 보여 줘요. 매일 새벽 자동으로 확인해요.${CHG.checked?` <span class="updchk">마지막 확인 ${esc(CHG.checked)}</span>`:""}</p>
+  ${CHG.waiting?.length?`<div class="gcard upd wait"><h3>레이드 수치 기다리는 기술</h3><ul>${CHG.waiting.map(w=>`<li>${esc(w.n)} · ${esc(w.m)}</li>`).join("")}</ul><div class="updnote">게임에 기술은 나왔지만 레이드 수치가 아직 공개되지 않았어요. 수치가 나오면 자동으로 티어에 들어가요.</div></div>`:""}
+  ${log.length?shown.map(day).join(""):'<div class="empty">아직 바뀐 점이 없어요.</div>'}
+  ${log.length>10?`<button class="evmore" id="updAll">${UPD_ALL?"접기":`지난 기록 모두 보기 (${log.length})`}</button>`:""}
+  <div class="note">출처: PvPoke · PokeMiners game master</div>`;
+  root.querySelectorAll("[data-updt]").forEach(b=>b.onclick=()=>{ UPD_TIER[b.dataset.updt]=1; renderUpdates(); });
+  const a=$("#updAll"); if(a) a.onclick=()=>{ UPD_ALL=!UPD_ALL; renderUpdates(); };
+}
+
 // ===== 더보기 (아래 탭 → 위로 펼치는 메뉴, v3.3) =====
 // 더보기 안의 화면(일정·가이드·회원 기능 소개)은 하위 탭 없이 각각 따로 된 페이지.
 const daysOld=d=>{ const t=Date.parse(d); return isNaN(t)?0:Math.floor((Date.now()-t)/864e5); };
@@ -2281,11 +2310,12 @@ function closeMore(){ const m=$("#moremenu"); if(m){ m.hidden=true; m.innerHTML=
 function toggleMore(){
   const m=$("#moremenu"); if(!m) return; if(!m.hidden){ closeMore(); return; }
   const v=hv(), row=(k,t,d)=>`<button class="mmrow${v===k?" on":""}" data-go="${k}"><b>${t}</b><span>${d}</span></button>`;
-  const stale=[]; if(DEX&&daysOld(DEX.updated)>10) stale.push("도감 · 티어"); if(EVENTS&&FEED_UPDATED&&daysOld(FEED_UPDATED)>3) stale.push("일정");
+  const stale=[]; if(DEX&&daysOld(CHG?.checked||DEX.updated)>10) stale.push("도감 · 티어"); if(EVENTS&&FEED_UPDATED&&daysOld(FEED_UPDATED)>3) stale.push("일정");
   m.innerHTML=`${stale.length?`<div class="stale">${stale.join(" · ")} 정보가 오래됐을 수 있어요.</div>`:""}<div class="mmbox">
     ${row("home","일정","지금 잡을 포켓몬 · 진행 중인 이벤트")}
     ${row("guide","왕초보 가이드","처음 시작했다면 이것만")}
     ${row("intro","회원 기능 소개","내 포켓몬 기준 추천 기능")}
+    ${row("updates","업데이트","새 기술 · 바뀐 기술 · 티어 변동")}
     <a class="mmrow" href="mailto:hhhpyoxx@gmail.com?subject=${encodeURIComponent("PYOkemongo 의견")}"><b>의견 보내기</b><span>고쳤으면 하는 점이나 틀린 정보를 알려 주세요</span></a>
     <div class="fan">PYOkemongo는 개인이 만든 비공식 팬 사이트예요. 포켓몬 · Pokémon GO의 이름과 그림에 대한 권리는 각 권리자에게 있어요.</div></div>`;
   m.hidden=false; $("#tabbar").classList.add("mopen");
@@ -2315,6 +2345,7 @@ fetch("data/events.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=
   renderHome();
 }).catch(()=>{ EVENTS=FALLBACK_EVENTS; renderHome(); });
 fetch("data/rocket.json",{cache:"no-cache"}).then(r=>r.ok?r.json():Promise.reject()).then(j=>{ ROCKET=j&&Array.isArray(j.list)?j:false; if(hv()==="rocket") renderRocket(); }).catch(()=>{ ROCKET=false; if(hv()==="rocket") renderRocket(); });
+fetch("data/changes.json",{cache:"no-cache"}).then(r=>r.json()).then(j=>{ CHG=j; if(hv()==="updates") renderUpdates(); }).catch(()=>{ CHG={log:[]}; if(hv()==="updates") renderUpdates(); });
 fetch("data/picks.json",{cache:"no-cache"}).then(r=>r.json()).then(j=>{ PICKS=j; renderHome(); }).catch(()=>{});
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f285f8b484c8414c91a5f88bce921438"}'></script><!-- End Cloudflare Web Analytics -->
