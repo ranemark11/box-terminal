@@ -1,14 +1,11 @@
 {
  "warnings": [],
- "gemini": [
-  "gemini-3.8-flash: 503 {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
-  "gemini-3.8-flash: 성공 1개"
- ],
+ "gemini": [],
  "dexNames": 954,
  "counts": {
   "events": 20,
   "byRule": 15,
-  "gemini": 1
+  "gemini": 0
  },
  "rocket": {
   "groups": 26
