@@ -849,7 +849,7 @@
     "type": "fairy",
     "power": 80,
     "energy": 50,
-    "ext": "moveId,name,abbreviation,type,power,energy,energyGain,cooldown,buffs,buffTarget,buffApplyChance,archetype,turns"
+    "ext": "moveId,name,abbreviation,type,power,energy,energyGain,cooldown,buffs,buffTarget,buffApplyChance,archetype,turns,isMegaMove"
    },
    {
     "id": "MYSTICAL_FIRE_PLUS",
