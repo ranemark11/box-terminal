@@ -1,6 +1,7 @@
 {
  "warnings": [
-  "PvE 수치 없는 기술 1개: KOWTOW_CLEAVE"
+  "PvE 수치 없는 기술 1개: KOWTOW_CLEAVE",
+  "일정의 맥스배틀 포켓몬 중 다이맥스 목록(dynamax.json)에 없는 것: 모래두지"
  ],
  "counts": {
   "plusMoves": {
@@ -978,7 +979,9 @@
   "missingTarget": 21,
   "unknownItems": []
  },
- "dynamaxNotListed": [],
+ "dynamaxNotListed": [
+  "모래두지"
+ ],
  "tierCounts": {
   "raid": {
    "normal": "0/1/0/1/0/2/2/4/6/14/25/16",
