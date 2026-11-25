@@ -38,5 +38,49 @@
   "title": "2026년 12월 커뮤니티 데이",
   "desc": "2026년 12월 커뮤니티 데이 이벤트가 진행됩니다.",
   "pokemon": []
+ },
+ "tropical-paradise-2026": {
+  "id": "tropical-paradise-2026",
+  "title": "트로피컬 파라다이스",
+  "desc": "",
+  "pokemon": []
+ },
+ "raidhour20261209": {
+  "id": "raidhour20261209",
+  "title": "레이드 아워",
+  "desc": "미공개 레이드 아워",
+  "pokemon": []
+ },
+ "unannounced-event-december-2026": {
+  "id": "unannounced-event-december-2026",
+  "title": "미공개 이벤트",
+  "desc": "",
+  "pokemon": []
+ },
+ "unannounced-pokemon-in-5-star-raid-battles-december-2026": {
+  "id": "unannounced-pokemon-in-5-star-raid-battles-december-2026",
+  "title": "전설 레이드배틀",
+  "desc": "미공개 포켓몬 5성 레이드배틀 등장",
+  "pokemon": []
+ },
+ "choose-your-path-daydream-destinations-2026-12-15": {
+  "id": "choose-your-path-daydream-destinations-2026-12-15",
+  "title": "갈림길: 백일몽의 여행지",
+  "desc": "",
+  "pokemon": []
+ },
+ "max-mondays-2026-12-21": {
+  "id": "max-mondays-2026-12-21",
+  "title": "맥스 먼데이",
+  "desc": "다이맥스 알로라 모래두지 등장",
+  "pokemon": [
+   "모래두지"
+  ]
+ },
+ "winter-holiday-2026": {
+  "id": "winter-holiday-2026",
+  "title": "윈터 홀리데이 2026",
+  "desc": "",
+  "pokemon": []
  }
 }
