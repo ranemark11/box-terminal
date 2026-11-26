@@ -82,5 +82,32 @@
   "title": "윈터 홀리데이 2026",
   "desc": "",
   "pokemon": []
+ },
+ "pokemon-champions-celebration-event-2026": {
+  "id": "pokemon-champions-celebration-event-2026",
+  "title": "포켓몬 챔피언스 축하 이벤트 2026",
+  "desc": "포켓몬 챔피언스를 기념하는 특별 이벤트가 진행됩니다.",
+  "pokemon": []
+ },
+ "pokemon-champions-celebration-5-star-raid-battles-december-2026": {
+  "id": "pokemon-champions-celebration-5-star-raid-battles-december-2026",
+  "title": "포켓몬 챔피언스 축하 5성 레이드배틀",
+  "desc": "전설의 포켓몬들이 5성 레이드배틀에 등장합니다.",
+  "pokemon": [
+   "라티아스",
+   "라티오스",
+   "히드런",
+   "코바르온",
+   "테라키온",
+   "비리디온",
+   "레지에레키",
+   "레지드래고"
+  ]
+ },
+ "hatch-day-december-2026": {
+  "id": "hatch-day-december-2026",
+  "title": "부화의 날",
+  "desc": "알 부화와 관련된 보너스가 주어지는 부화의 날 이벤트입니다.",
+  "pokemon": []
  }
 }
