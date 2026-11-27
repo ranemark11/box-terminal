@@ -705,7 +705,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.13</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.14</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -985,6 +985,8 @@ const CATN={raid:"레이드",mega:"메가 레이드",max:"맥스배틀",shadow:"
 // 잡을 포켓몬 한 줄
 function pickRow(id,cat,sub){
   const c=CARDS[id], j=judge(id,cat==="max"?"max":cat==="shadow"?"shadow":"raid"), color=CAT[cat]?.[1]||"#8ef0b0";
+  // picks.json "must": 티어와 상관없이 일정에서 필수로 표시할 포켓몬 이름(사용자 지정)
+  if(j&&(PICKS?.must||[]).includes(c.ko)) j.v="must";
   const name=(cat==="max"?"다이맥스 ":cat==="shadow"?"그림자 ":"")+c.ko;
   const evo=j?.to?.length?` <span style="font-weight:400;color:var(--dim);font-size:11.5px">→ ${esc(j.to.join("·"))}로 진화</span>`:"";
   return `<div class="pick${j&&!j.v?" dimmed":""}" style="--bc:${color}">${SPRITE(id)}<div class="pi">
