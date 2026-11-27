@@ -24,7 +24,7 @@
   두 워크플로는 `concurrency: data-commit`으로 겹치지 않게 되어 있음.
 
 ## 파일 구조
-- `site/index.html` — 사이트 전체(HTML·CSS·JS 한 파일). 페이지 제목 "표켓몬고 티어리스트(PYOkemongo) - 포켓몬고 정보 사이트", 화면 로고 "PYOkemongo v3.12"
+- `site/index.html` — 사이트 전체(HTML·CSS·JS 한 파일). 페이지 제목 "표켓몬고 티어리스트(PYOkemongo) - 포켓몬고 정보 사이트", 화면 로고 "PYOkemongo v3.13"
 - `src/worker.js` — 서버(Cloudflare Worker). `/api/*`만 처리(로그인·서버 저장·관리자), 나머지는 site/ 정적 파일. D1 `pyo-db`(바인딩 `DB`)
 - `wrangler.jsonc` — `main: src/worker.js`, assets `./site`(`run_worker_first: ["/api/*"]`), D1 database_id `48d803c7-…`
 - `site/_headers` — 정적 파일 보안 헤더(CSP·X-Frame-Options 등). 새 외부 주소(글꼴·이미지·스크립트)를 쓰면 CSP에도 추가해야 함. 인라인 스크립트라 `unsafe-inline` 허용 상태
@@ -36,6 +36,7 @@
 - `scripts/build-pokedex.mjs` — 도감·티어 빌드 (Node 20, 외부 패키지 없음)
 - `scripts/update-events.mjs` — 홈 일정 수집·한국어 변환
 - `scripts/dynamax.json` — 출시된 다이맥스/거다이맥스 목록 (**수동 관리**: 게임 데이터에 없음)
+- `scripts/manual-plus.json` — (v3.13, **수동 관리**) 게임 데이터에 아직 레이드 수치가 없는 메가 플러스 기술의 **임시(예측) 수치**(`type`·`power`(메가레벨1)·`energy`·`dur`·`src`) + `"release": true`면 PvPoke가 미출시로 둔 메가도 미리 넣음. 게임 데이터에 진짜 수치가 생기면 자동으로 그쪽을 씀(이 값 무시, 업데이트 페이지에 "레이드 수치 생김"). 진짜 수치가 들어오면 이 파일에서 지워도 됨. 예측 수치를 쓴 메가는 pokedex.json `plusEst`(이름) → 화면 태그 **"+기술MAX·예측"**(`ptag`), 업데이트 페이지 기다리는 칸에 "지금은 예측 수치로 티어 반영 중". 2026-11-27: 메가픽시 문포스+ 160/100/4.0s(위력 공식, 에너지·시간 Pokémon GO Hub)
 - `.github/workflows/build-pokedex.yml` — **매일** 04:47 KST(v3.12, 예전엔 매주 월) + 스크립트/dynamax.json 변경 시. 내용이 같으면 pokedex.json을 안 바꿈(날짜도 그대로). 바뀐 기술·포켓몬이 있으면 GitHub **이슈**를 자동으로 올려 사용자(ranemark11)에게 알림(`issues: write`, 티어 변동만 있으면 알림 안 함)
 - `site/data/changes.json` — 게임 데이터 변경 기록(자동, 업데이트 페이지용): `{checked, waiting:[{n,m}], log:[{d, items:[{k,id?,txt}]}]}` 최근 60일치. k = mon/move/plus/ready/learn/num/tier/start
 - `scripts/state/snapshot.json` — 지난번 기술·배우는 기술·플러스 기술 상태(자동, 비교용). 지우면 다음 빌드가 "추적 시작"부터 다시 함
@@ -104,7 +105,7 @@
 - 일정 판정: 필수 = S 등급(S+·S·S-), 추천 = A 등급. 강화 효율 필터 "[S/A/B/C] 티어 이상" = 그 글자의 가장 낮은 칸 이상(`TIER_MIN` 82/64/46/28, 기준 점수 대비).
 
 ## 화면 구성 (v3.0: 위 검색창 + 아래 탭 5개)
-- 헤더(스크롤해도 고정 `.hdr`): 로고 **PYOkemongo v3.12** · 오른쪽 **로그인** 버튼(로그인하면 "내 정보", 항상 `#me`로) · 그 아래 줄에 **늘 보이는 검색창**(`#sform`/`#q`, 입력 중 결과는 `#hsugg` 드롭다운, 고르면 `pickCard` → 카드 화면). 예전 드롭다운(정보 ▾·회원기능 ▾, `MENUS`/`openMenu`)은 없앰.
+- 헤더(스크롤해도 고정 `.hdr`): 로고 **PYOkemongo v3.13** · 오른쪽 **로그인** 버튼(로그인하면 "내 정보", 항상 `#me`로) · 그 아래 줄에 **늘 보이는 검색창**(`#sform`/`#q`, 입력 중 결과는 `#hsugg` 드롭다운, 고르면 `pickCard` → 카드 화면). 예전 드롭다운(정보 ▾·회원기능 ▾, `MENUS`/`openMenu`)은 없앰.
 - **아래 고정 탭 5개**(`#tabbar`, `data-nav`) → 하위 탭(밑줄형 `#subnav`)은 `GROUPS`:
   - **카드**(`pokemon`): 포켓몬 검색(`#card`, 첫 화면) / 도감(`#dex`)
   - **티어**(`tier`): 레이드(`#raid`) / 다이맥스(`#dmax`) / 배틀리그(`#pvp`). 레이드·다이맥스(딜러·탱커)는 처음에 **"전체 티어리스트"**(맨 위 큰 ★ 버튼, 100줄씩 더 보기, 줄마다 타입 칩), 타입을 고르면 그 타입 순위표.

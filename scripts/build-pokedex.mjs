@@ -211,7 +211,9 @@ async function main() {
   const moveType = id => pvpMove[id]?.type || pve[id]?.type;
 
   // ---- 포켓몬 ----
-  const mons = (gm.pokemon || []).filter(p => p.released !== false && !(p.tags || []).includes("duplicate"));
+  // scripts/manual-plus.json: 게임 데이터에 아직 없는 플러스 기술 임시 수치 + "release": true면 PvPoke가 아직 미출시로 둔 메가도 미리 넣음(출시 당일 대비)
+  const manualPlus = JSON.parse(await readFile(new URL("./manual-plus.json", import.meta.url), "utf8").catch(() => "{}"));
+  const mons = (gm.pokemon || []).filter(p => (p.released !== false || manualPlus[p.speciesId]?.release) && !(p.tags || []).includes("duplicate"));
   const byId = Object.fromEntries(mons.map(p => [p.speciesId, p]));
   const isShadow = p => p.speciesId.endsWith("_shadow");
   const isMega = p => /_(mega|mega_x|mega_y|primal)$/.test(p.speciesId);
@@ -339,6 +341,14 @@ async function main() {
   const elite = p => new Set([...(p.eliteMoves || []), ...(p.legacyMoves || [])]);
   const mvName = (p, id) => moveKo(id) + (elite(p).has(id) ? "*" : "");
   const raid = Object.fromEntries(TYPES.map(t => [t, []]));
+  // 게임 데이터에 아직 없는 플러스 기술 → scripts/manual-plus.json의 임시(예측) 수치 사용
+  const plusEst = [];
+  for (const [id, v] of Object.entries(manualPlus)) {
+    if (id.startsWith("_") || plusPve[id]) continue;
+    plusPve[id] = { type: v.type, power: v.power * 1.3, basePower: v.power, energy: v.energy, dur: v.dur, est: true };
+    const mp = (gm.pokemon || []).find(p => p.speciesId === id); if (mp) plusEst.push(koName(mp));
+  }
+  if (plusEst.length) report.counts.plusEstimated = plusEst;
   let missingPve = new Set();
   const plusUsed = {};
   for (const p of mons) {
@@ -534,7 +544,7 @@ async function main() {
   const out = {
     updated: new Date().toISOString().slice(0, 10),
     sources: "PvPoke gamemaster·rankings, PokeMiners game master, PokeAPI (한국어 이름)",
-    tierRule: TIER_RULE, cards: Object.values(cards), tl, raid, dmax, pvp
+    tierRule: TIER_RULE, plusEst, cards: Object.values(cards), tl, raid, dmax, pvp
   };
   report.tierCounts = Object.fromEntries(Object.entries({ raid, dmax, pvp }).map(([m, lists]) => [m,
     Object.fromEntries(Object.entries(lists).map(([k, rows]) => [k, TIER_RULE.names.map(n => rows.filter(r => r.t === n).length).join("/")]))]));
@@ -555,7 +565,7 @@ async function main() {
     moves: Object.fromEntries(Object.keys(pvpMove).map(id => [id, { n: moveKo(id), t: moveType(id) || "", pvp: [pvpMove[id].power, pvpMove[id].energy || pvpMove[id].energyGain || 0],
       raid: pve[id] ? [pve[id].power, pve[id].energy, pve[id].dur] : null }])),
     learn: Object.fromEntries(mons.filter(p => !isShadow(p)).map(p => [p.speciesId, { f: p.fastMoves || [], c: p.chargedMoves || [], e: p.eliteMoves || [], x: (p.extraChargedMoves || []).filter(m => /_PLUS$/.test(m)) }])),
-    plusRaid: Object.fromEntries(Object.entries(plusPve).map(([k, v]) => [k, v.basePower]))
+    plusRaid: Object.fromEntries(Object.entries(plusPve).filter(([, v]) => !v.est).map(([k, v]) => [k, v.basePower]))
   };
   const prevSnap = await readFile("scripts/state/snapshot.json", "utf8").then(JSON.parse).catch(() => null);
   const items = [], TK = t => TYPE_KO[t] || t;
@@ -600,8 +610,8 @@ async function main() {
   const log = prevChg.log || [];
   if (!prevSnap) log.unshift({ d: today, items: [{ k: "start", txt: "게임 데이터 변경 추적을 시작했어요" }] });
   else if (items.length) { if (log[0]?.d === today) log[0].items.push(...items); else log.unshift({ d: today, items }); }
-  const waiting = (gm.pokemon || []).filter(p => isMega(p) && (p.extraChargedMoves || []).some(m => /_PLUS$/.test(m)) && !plusPve[p.speciesId])
-    .map(p => ({ n: koName(p), m: p.extraChargedMoves.filter(m => /_PLUS$/.test(m)).map(mv).join(", ") }));
+  const waiting = (gm.pokemon || []).filter(p => isMega(p) && (p.extraChargedMoves || []).some(m => /_PLUS$/.test(m)) && (!plusPve[p.speciesId] || plusPve[p.speciesId].est))
+    .map(p => ({ n: koName(p), m: p.extraChargedMoves.filter(m => /_PLUS$/.test(m)).map(mv).join(", ") + (plusPve[p.speciesId]?.est ? " · 지금은 예측 수치로 티어 반영 중" : "") }));
   // 일반 기술도: 배우는 포켓몬은 있는데 레이드 수치가 없는 것 (예: 대도각참 도각참)
   for (const id of missingPve) { const who = mons.filter(p => !isShadow(p) && !isMega(p) && [...(p.fastMoves || []), ...(p.chargedMoves || [])].includes(id)).map(koName);
     if (who.length) waiting.push({ n: who.slice(0, 3).join(", ") + (who.length > 3 ? ` 외 ${who.length - 3}` : ""), m: mv(id) }); }

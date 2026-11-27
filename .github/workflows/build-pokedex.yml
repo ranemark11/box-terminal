@@ -5,7 +5,7 @@ on:
     - cron: "47 19 * * *"   # 매일 04:47 (한국 시간). 바뀐 게 없으면 커밋하지 않음
   push:
     branches: [main]
-    paths: ["scripts/build-pokedex.mjs", "scripts/dynamax.json"]
+    paths: ["scripts/build-pokedex.mjs", "scripts/dynamax.json", "scripts/manual-plus.json"]
   workflow_dispatch:
 
 permissions:

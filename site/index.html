@@ -705,7 +705,7 @@ body{padding-bottom:86px}
 <body>
 <div class="device">
   <div class="hdr">
-  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.12</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
+  <div class="top"><div class="led"></div><button class="brand" data-go="card">PYOkemongo<small>v3.13</small></button><button class="acct" id="acctBtn" data-go="me">로그인</button></div>
   <div class="hsearch"><form class="search" id="sform"><input id="q" placeholder="포켓몬 검색 (예: 피카츄)" autocomplete="off" enterkeyhint="search"><button>검색</button></form><div class="hsugg" id="hsugg"></div></div>
   </div>
   <div class="screen">
@@ -1119,6 +1119,8 @@ function tiersFor0(c, mode, sh){
 const hasShadow=c=>c.shadow||(!c.final&&c.evo[c.evo.length-1].some(id=>CARDS[id]?.shadow));
 const PLUS_TXT=" (플러스 기술)", plusOf=t=>t.includes(PLUS_TXT), noPlus=t=>t.replace(PLUS_TXT,"");
 const PTAG='<span class="tag p">+기술MAX</span>';
+// 게임 데이터에 아직 없어 예측 수치로 계산한 플러스 기술(pokedex.json plusEst = 메가 이름들)
+const ptag=name=>(DEX?.plusEst||[]).some(n=>String(name||"").includes(n))?'<span class="tag p">+기술MAX·예측</span>':PTAG;
 function noteOf(x){ if(["일반","그림자"].includes(x.f)) return x.w; if(x.f.includes(x.w)) return x.f; return `${x.f} · ${x.w}`; }
 // 티어 줄·요약 칸을 누르면 그 타입(리그) 티어리스트로 이동 + 그 포켓몬 줄을 반짝 표시
 const tlAttr=(m,x)=>` data-tm="${m}"${x.tank?' data-trole="tank"':""} data-tw="${esc(x.w)}" data-tid="${esc(x.fid||CUR_ID||"")}" data-tsh="${/그림자/.test(x.f)?1:""}" data-tg="${/거다이맥스/.test(x.f)?1:""}"`;
@@ -1131,9 +1133,9 @@ function goTier(m,w,id,sh,g,role){ const B=BOARDS[m]; if(!B) return;
     if(tr){ tr.scrollIntoView({block:"center",behavior:"smooth"}); tr.classList.add("flash"); setTimeout(()=>tr.classList.remove("flash"),2200); } },120); }
 function sumCell(label, res, m){
   const b=res.list[0];
-  return `<div class="sumc${b?" tl":""}"${b?tlAttr(m,b):""}><div class="m">${label}</div>${b?`${TB(b.t)}<div class="w">${esc(noPlus(noteOf(b)))}${plusOf(b.f)?PTAG:""}</div>`:`${TB(null)}<div class="w">순위권 밖</div>`}</div>`;
+  return `<div class="sumc${b?" tl":""}"${b?tlAttr(m,b):""}><div class="m">${label}</div>${b?`${TB(b.t)}<div class="w">${esc(noPlus(noteOf(b)))}${plusOf(b.f)?ptag(b.f):""}</div>`:`${TB(null)}<div class="w">순위권 밖</div>`}</div>`;
 }
-function formLine(x,m){ const where=x.f.includes(x.w)?"":` · ${esc(x.w)}`; return `<div class="form tl"${tlAttr(m,x)}>${TB(x.t)}<span><b>${esc(noPlus(x.f))}</b>${plusOf(x.f)?PTAG:""}${where} <u>${x.r}위</u> (${x.p}%) <i class="tlgo">▸</i></span></div>`; }
+function formLine(x,m){ const where=x.f.includes(x.w)?"":` · ${esc(x.w)}`; return `<div class="form tl"${tlAttr(m,x)}>${TB(x.t)}<span><b>${esc(noPlus(x.f))}</b>${plusOf(x.f)?ptag(x.f):""}${where} <u>${x.r}위</u> (${x.p}%) <i class="tlgo">▸</i></span></div>`; }
 // 기술 추천 (최종 진화형): 레이드 최고 티어 타입 기준. 가장 강한 조합을 먼저, 그게 레거시·이벤트 기술이면 아래에 "또는 일반 조합"
 function skillHTML(c){
   if(!c.final){ // 진화 전: 최종 진화로 안내
@@ -1353,7 +1355,7 @@ function renderBoard(id){
   rows.sort((a,b)=>(b[st.sort]??-1)-(a[st.sort]??-1));
   const lim=st.sel==="all"&&rows.length>120?(st.more||100):rows.length;   // 전체 티어리스트는 100줄씩
   tb.innerHTML=rows.slice(0,lim).map((r,i)=>{
-    const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?'<span class="tag p">+기술MAX</span>':"");
+    const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?ptag(r.n):"");
     return `<tr style="--tc:${r.w?TC[r.w]:c}"><td class="rank">${i+1}</td>
       <td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${r.w?`<span class="tchip sm" style="--tc:${TC[r.w]}">${svg(r.w,"#fff")}${TN[r.w]}</span> `:""}${esc(r.mv)}</div></div></div></td>
       ${C.cols.map(([k,,d])=>r[k]==null?`<td class="num">—</td>`:`<td class="num${st.sort===k?" sorted":""}">${(+r[k]).toFixed(d)}<span class="p">${(r[k]/top[k]*100).toFixed(0)}%</span></td>`).join("")}
@@ -1445,7 +1447,7 @@ function renderType(){
       ${TMODE==="dmax"?roleSwitch(st.role):""}
       ${TMODE==="dmax"&&role==="tank"?`<div class="seg gopt"><button data-g="0" class="${st.gauge?"":"on"}">내구만</button><button data-g="1" class="${st.gauge?"on":""}">게이지 반영</button></div>`:""}
       <table><thead><tr><th>#</th><th>포켓몬 / 기술</th><th class="num">${col}</th><th style="text-align:center">티어</th></tr></thead><tbody>${list.map((r,i)=>{
-        const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?'<span class="tag p">+기술MAX</span>':"");
+        const tags=(r.tg.includes("m")?'<span class="tag m">MEGA</span>':"")+(r.tg.includes("s")?'<span class="tag s">그림자</span>':"")+(r.tg.includes("g")?'<span class="tag g">G-MAX</span>':"")+(r.tg.includes("p")?ptag(r.n):"");
         return `<tr style="--tc:${r.mt?TC[r.mt]:"#5aa8ff"}"><td class="rank">${i+1}</td><td><div class="monrow">${SPRITE(r.id)}<div><div class="nm"><a data-poke="${esc(r.id)}">${esc(r.n)}</a>${tags}</div><div class="mv">${esc(r.mv)}</div></div></div></td>
           <td class="num sorted">${(+r.v).toFixed(TMODE==="dmax"&&role==="tank"&&!st.gauge?0:1)}<span class="p">${(r.v/top*100).toFixed(0)}%</span></td><td class="tier">${TB(r._t)}</td></tr>`;}).join("")}</tbody></table>
       <div class="note">갱신 <b>${esc(DEX.updated)}</b> · 출처: ${esc(DEX.sources)}</div>`;
@@ -1806,7 +1808,7 @@ function boxParty(){
     const ideal=bossRaidRows(opp).sort((a,b)=>b.v-a.v)[0]?.v||1;
     res=soloHTML(st.bid,opp,best)+`<div class="bxsec">레이드 딜러 6마리</div>`+(best.slice(0,6).map((b,i)=>mRow(i+1,b.m,`${ivTxt(b.m)}<br>${chip(b.x.t2)} ${esc(b.x.mv)}`,(b.v/ideal*100).toFixed(0)+"%","최상 대비")).join("")||`<div class="empty">맞는 포켓몬이 없어요.</div>`);
     const mg=myMegaBest(opp)[0];
-    res+=`<div class="bxsec">메가진화 1마리 (파티에 함께)</div>`+(mg?mRow("M",mg.m,`<b>${esc(mg.x.n)}</b>${mg.x.tg.includes("p")?PTAG:""} · ${ivTxt(mg.m)}<br>${chip(mg.x.t2)} ${esc(mg.x.mv)}`,(mg.v/ideal*100).toFixed(0)+"%","최상 대비"):`<div class="empty">메가진화할 수 있는 포켓몬이 없어요.</div>`);
+    res+=`<div class="bxsec">메가진화 1마리 (파티에 함께)</div>`+(mg?mRow("M",mg.m,`<b>${esc(mg.x.n)}</b>${mg.x.tg.includes("p")?ptag(mg.x.n):""} · ${ivTxt(mg.m)}<br>${chip(mg.x.t2)} ${esc(mg.x.mv)}`,(mg.v/ideal*100).toFixed(0)+"%","최상 대비"):`<div class="empty">메가진화할 수 있는 포켓몬이 없어요.</div>`);
   }else{
     const {deal,tank}=myDmaxBest(opp,st.unk);
     const lab=w=>w<0.6?"이중반감":w<0.99?"반감":w>2.5?"이중약점":w>1.5?"약점":"보통";
