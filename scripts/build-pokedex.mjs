@@ -418,7 +418,10 @@ async function main() {
     const list = Array.isArray(ev) ? ev : ev.events || [];
     const koId = {}; for (const c of Object.values(cards)) { koId[c.ko] ??= c.id; koId[c.ko.replace(/\(.+\)$/, "")] ??= c.id; }
     const miss = new Set();
-    for (const e of list) if (e[0] === "max") for (const n of e[5] || []) { const id = koId[n] || koId[String(n).replace(/\s/g, "")]; if (id && !cards[id].dmx) miss.add(n); }
+    for (const e of list) if (e[0] === "max") for (const n of e[5] || []) {
+      // 제목에 지역 이름이 있으면(예: "다이맥스 알로라 모래두지") 그 지역 모습으로 확인
+      const rg = (String((e[1] || "") + " " + (e[4] || "")).match(/(알로라|가라르|히스이|팔데아)/) || [])[1];
+      const id = (rg && (koId[rg + " " + n] || koId[rg + n])) || koId[n] || koId[String(n).replace(/\s/g, "")]; if (id && !cards[id].dmx) miss.add(rg ? rg + " " + n : n); }
     report.dynamaxNotListed = [...miss];
     if (miss.size) warn("일정의 맥스배틀 포켓몬 중 다이맥스 목록(dynamax.json)에 없는 것: " + [...miss].join(", "));
   } catch (e) { warn("일정 확인 생략: " + e.message); }
